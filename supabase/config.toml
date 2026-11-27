@@ -4,3 +4,6 @@ project_id = "wypwbwprnjpfmqzywddh"
 # The push function checks the sign-in itself, and a phone fetching its queue has no sign-in to send.
 [functions.push]
 verify_jwt = false
+
+[functions.oura]
+verify_jwt = false

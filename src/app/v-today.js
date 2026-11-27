@@ -5,6 +5,7 @@ import { todayState, startSession, startFreeSession, specFor, targetsFor, skipRe
 import { FOCUS, TECH } from "./words.js";
 import { currentTarget } from "./v-coach.js";
 import { suggestRoutine, suggestTry } from "./v-more.js";
+import { recovery } from "./v-wear.js";
 
 const topIcons = () => `<button class="ibtn" data-act="goCoach" aria-label="Coach">${icon("bulb")}</button><button class="ibtn" data-act="goSettings" aria-label="Settings">${icon("gear")}</button>`;
 ACT.goCoach = () => go("coach");
@@ -40,6 +41,8 @@ function coachCard(st) {
     const ph = phaseForWeek(st.block.plan, Math.min(st.pos.week, st.block.plan.weeks));
     if (ph.note && !lines.length) lines.push(`<b>${esc(ph.name)}.</b> ${esc(ph.note)}`);
   }
+  const rec = recovery();
+  if (rec) lines.push(`Oura: ${esc(rec.text)}.${rec.low && st.kind === "session" ? " <b>Recovery is low.</b> Keep the weights, drop a set per lift if it feels heavy." : ""}`);
   const n = currentTarget();
   if (n) lines.push(`Eating target: <b>${n.target_kcal} calories</b>, ${n.protein_g} g protein.`);
   if (!lines.length) return "";

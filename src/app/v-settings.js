@@ -33,6 +33,7 @@ VIEWS.prefs = () => {
     : `<div class="glass"><div class="empty">Lifts to keep out of your training. Add one here, or swap a lift mid-session and pick It hurts.</div></div>`);
   h += sect("Look") + `<div class="glass pad"><div class="seg">${[["dark", "Dark"], ["light", "Light"], ["auto", "Match phone"]].map(([v, l]) => `<button type="button" data-act="setMode" data-v="${v}" class="${mode === v ? "on" : ""}">${l}</button>`).join("")}</div><div class="dotsrow mt"><span class="small">Color</span>${TG.dots()}</div></div>`;
   h += sect("This phone") + `<div class="glass">` +
+    row({ tile: icon("moon"), title: "Wearables", sub: "Link Oura for sleep and recovery", act: "goWear" }) +
     row({ tile: icon("bell"), title: "Notifications", sub: "Training nudges, friends, weekly recap. Off until you turn them on", act: "goNotify" }) +
     row({ tile: icon("home"), title: "Add Spotter to your Home Screen", sub: "Opens like an app, works with no signal", act: "installHelp" }) +
     row({ tile: icon("spark"), title: "Check for an update", sub: "Version " + CONFIG.version, act: "updateTap" }) +
