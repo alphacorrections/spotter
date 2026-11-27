@@ -64,6 +64,35 @@ function alsoToday() {
     row({ tile: icon("link"), title: toTry ? `${toTry} saved workout${toTry === 1 ? "" : "s"} to try` : "Save a workout to try", sub: toTry ? "The reels and links you meant to get to" : "Paste a reel or video link so it is here when you train", act: toTry ? "goSaved" : "savedAdd" }) + `</div>`;
 }
 
+// The week at a glance: one tab per day of the plan's week. Tap a day to see its lifts.
+const WK = { sel: null, block: null, week: null };
+function weekCard(st) {
+  const b = st.block;
+  if (!b || !st.pos || st.pos.done) return "";
+  const p = pos(b), rot = b.plan.rotation, wk = Math.min(p.week, b.plan.weeks), base = b.position - p.index;
+  if (WK.block !== b.id || WK.week !== wk || WK.sel == null || WK.sel >= rot.length) Object.assign(WK, { block: b.id, week: wk, sel: p.index });
+  const did = (key) => S.activities.find((a) => a.block_id === b.id && a.week === wk && a.session_key === key && a.ended_at);
+  let dayNo = 0, done = 0, total = 0;
+  const tabs = rot.map((e, i) => {
+    const ses = e.session ? b.plan.sessions.find((x) => x.key === e.session) : null;
+    if (ses) { dayNo++; total++; }
+    const a = ses && did(ses.key);
+    if (a) done++;
+    const state = a ? "done" : i === p.index ? "now" : i < p.index ? "past" : "";
+    return `<button type="button" class="wkday ${state}${WK.sel === i ? " sel" : ""}" data-act="weekPick" data-i="${i}"><span>${ses ? "Day " + dayNo : "Rest"}</span><b>${ses ? esc(ses.title) : "Recover"}</b><i>${a ? "Done" : i === p.index ? "Up next" : i < p.index ? (ses ? "Skipped" : "") : ""}</i></button>`;
+  }).join("");
+  const since = new Date(Date.now() - 6 * 864e5), other = finished().filter((a) => a.domain !== "strength" && new Date(a.started_at) >= since).length;
+  const e = rot[WK.sel], ses = e.session ? b.plan.sessions.find((x) => x.key === e.session) : null, a = ses && did(ses.key);
+  let detail;
+  if (!ses) detail = `<div class="glass"><div class="empty">Rest day. Walk, stretch, eat, sleep.</div></div>`;
+  else detail = sessionPreview(b, ses, wk) + (a ? `<p class="small muted mt">Done ${nice(a.started_at)}.</p>` : WK.sel !== p.index && st.kind !== "open" ? `<div class="acts mt"><button class="tp-btn tp-ghost tp-sm" data-act="weekStart" data-i="${WK.sel}">Do this one today instead</button></div>` : "");
+  return sect(`Week ${wk}`, `<button data-act="editPlan">Edit plan</button>`) +
+    `<div class="wkstats"><span><b>${done}</b> of ${total} sessions</span><span><b>${other}</b> other in 7 days</span><span><b>${stepGoal().toLocaleString()}</b> step target</span></div>` +
+    `<div class="wkstrip">${tabs}</div>` + detail;
+}
+ACT.weekPick = (d) => { WK.sel = +d.i; render(); };
+ACT.weekStart = (d) => { const b = activeBlock(); if (!b) return; const p = pos(b), e = b.plan.rotation[+d.i]; if (!e || !e.session) return; b.position = b.position - p.index + +d.i; b.last_done = null; startSession(b, e.session); go("log"); };
+
 VIEWS.today = () => {
   const st = todayState();
   const b = st.block;
@@ -101,9 +130,8 @@ VIEWS.today = () => {
     hero = `<div class="glass hero tp-rise"><span class="shine"></span><div class="label">Up next</div><div class="heroT">${esc(s.title)}</div>
       <div class="small muted">${esc(s.subtitle || "")} · ${count} lifts · ${esc(FOCUS[b.focus].name)}</div>
       <div class="flex mt"><button class="tp-btn big1" data-act="start">${icon("play")} Start session</button></div></div>`;
-    body = sect("The session", `<button data-act="editPlan">Edit plan</button>`) + sessionPreview(b, s, wk);
   }
-  return top("Today", sub, topIcons()) + hero + coachCard(st) + body + alsoToday();
+  return top("Today", sub, topIcons()) + hero + coachCard(st) + weekCard(st) + body + alsoToday();
 };
 
 ACT.goPlans = () => go("plans");

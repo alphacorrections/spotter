@@ -12,8 +12,9 @@ import { resetFriends } from "./v-friends.js";
 
 const ALL_GEAR = EQUIPMENT.map(([k]) => k);
 
-VIEWS.prefs = () => {
-  const me = S.me, mode = TG.look.get().mode || "dark";
+VIEWS.prefs = (params) => {
+  if (params && PAGES[params.p]) return settingsPage(params.p);
+  const me = S.me;
   let h = backTop("Settings", "Spotter " + CONFIG.version, "goToday");
   h += sect("Account");
   if (!CLOUD.ready()) h += `<div class="glass"><div class="empty">Accounts are not switched on in this build. Your data is saved on this phone only.</div></div>`;
@@ -23,24 +24,49 @@ VIEWS.prefs = () => {
   } else {
     h += `<div class="glass">` + row({ tile: icon("cloud"), title: "Sign in with email", sub: CLOUD.lost ? "You were signed out. Sign in again to keep syncing." : "Back up your training and join groups. A code by email, no password.", act: "signIn" }) + `</div>`;
   }
-  h += sect("You") + `<div class="glass pad">${field("setname", "Name your friends see", me.display_name, "First name")}
+  const gear = me.equipment.length, r = (o) => row(o);
+  h += sect("You") + `<div class="glass">` +
+    r({ tile: icon("pencil"), title: "Profile", sub: `${me.display_name || "No name yet"} · ${me.units === "kg" ? "kilos" : "pounds"}`, act: "setPage", data: { p: "profile" } }) + `</div>`;
+  h += sect("Training") + `<div class="glass">` +
+    r({ tile: icon("dumbbell"), title: "Gym and schedule", sub: `${gear ? gear + " kinds of equipment" : "All equipment"} · ${me.days_per_week ? me.days_per_week + " days a week" : "days not set"}`, act: "setPage", data: { p: "gym" } }) +
+    r({ tile: icon("close"), title: "No-go list", sub: me.no_go.length ? `${me.no_go.length} lift${me.no_go.length === 1 ? "" : "s"} kept out of your plans` : "Lifts to keep out of your training", act: "setPage", data: { p: "nogo" } }) + `</div>`;
+  h += sect("Connections") + `<div class="glass">` +
+    r({ tile: icon("moon"), title: "Wearables", sub: "Link Oura for sleep and recovery", act: "goWear" }) +
+    r({ tile: icon("bell"), title: "Notifications", sub: "Off until you turn them on. You pick what and when", act: "goNotify" }) + `</div>`;
+  h += sect("App") + `<div class="glass">` +
+    r({ tile: icon("palette"), title: "Look", sub: "Dark or light, and color", act: "setPage", data: { p: "look" } }) +
+    r({ tile: icon("home"), title: "Add to Home Screen", sub: "Opens like an app, works with no signal", act: "installHelp" }) +
+    r({ tile: icon("spark"), title: "Check for an update", sub: "Version " + CONFIG.version, act: "updateTap" }) + `</div>`;
+  h += sect("Your data") + `<div class="glass">` +
+    r({ tile: icon("doc"), title: "Download my data", sub: "Everything on this phone, as one file", act: "exportTap" }) +
+    r({ tile: icon("trash"), title: "Erase this phone's copy", sub: CLOUD.on() ? "Your account keeps everything that has synced" : "Not signed in: this deletes your data for good", act: "eraseAsk" }) + `</div>`;
+  return h;
+};
+// One topic per page, so Settings itself stays a short menu.
+const PAGES = {
+  profile: ["Profile", "Your name, units and weight jumps"], gym: ["Gym and schedule", "What you train with, and how often"],
+  nogo: ["No-go list", "Lifts kept out of your plans"], look: ["Look", "Dark or light, and color"],
+};
+function settingsPage(pg) {
+  const me = S.me, mode = TG.look.get().mode || "dark";
+  let h = backTop(PAGES[pg][0], PAGES[pg][1], "goSettings");
+  if (pg === "profile") {
+  h += `<div class="glass pad">${field("setname", "Name your friends see", me.display_name, "First name")}
     <label class="tp-label">Units</label><div class="seg">${[["lb", "Pounds"], ["kg", "Kilos"]].map(([v, l]) => `<button type="button" data-act="setUnits" data-v="${v}" class="${me.units === v ? "on" : ""}">${l}</button>`).join("")}</div>
     <label class="tp-label">Usual weight jump (${me.units})</label><div class="fgrid">${field("setup", "Upper body", me.increments.upper, "", "text", "decimal")}${field("setlow", "Lower body", me.increments.lower, "", "text", "decimal")}</div>
     <button class="tp-btn tp-sm mt" data-act="setSave">Save</button></div>`;
-  h += sect("Your gym") + `<div class="glass pad"><p class="small muted">Used to mark plans that fit and to filter swaps. Leave it empty if you have everything.</p>${chips("setGear", EQUIPMENT, me.equipment, true)}
+  } else if (pg === "gym") {
+  h += `<div class="glass pad"><p class="small muted">Used to mark plans that fit and to filter swaps. Leave it empty if you have everything.</p>${chips("setGear", EQUIPMENT, me.equipment, true)}
     <label class="tp-label">Training days a week</label>${chips("setDays", [2, 3, 4, 5, 6, 7].map((n) => [String(n), String(n)]), String(me.days_per_week || ""))}</div>`;
-  h += sect("No-go list", `<button data-act="noGoAdd">+ Add a lift</button>`) + (me.no_go.length ? `<div class="glass">` + me.no_go.map((n, i) => row({ tile: icon("close"), title: ex(n.exercise_id).name, sub: `${n.reason === "pain" ? "Swapped for pain" : "Avoid"} · since ${n.since || "a while ago"}`, act: "noGoDrop", data: { i }, chev: false, right: `<span class="tp-pill tp-plain">Allow again</span>` })).join("") + `</div>`
+  } else if (pg === "nogo") {
+  h += `<div class="acts" style="margin-bottom:12px"><button class="tp-btn tp-sm" data-act="noGoAdd">+ Add a lift</button></div>` + (me.no_go.length ? `<div class="glass">` + me.no_go.map((n, i) => row({ tile: icon("close"), title: ex(n.exercise_id).name, sub: `${n.reason === "pain" ? "Swapped for pain" : "Avoid"} · since ${n.since || "a while ago"}`, act: "noGoDrop", data: { i }, chev: false, right: `<span class="tp-pill tp-plain">Allow again</span>` })).join("") + `</div>`
     : `<div class="glass"><div class="empty">Lifts to keep out of your training. Add one here, or swap a lift mid-session and pick It hurts.</div></div>`);
-  h += sect("Look") + `<div class="glass pad"><div class="seg">${[["dark", "Dark"], ["light", "Light"], ["auto", "Match phone"]].map(([v, l]) => `<button type="button" data-act="setMode" data-v="${v}" class="${mode === v ? "on" : ""}">${l}</button>`).join("")}</div><div class="dotsrow mt"><span class="small">Color</span>${TG.dots()}</div></div>`;
-  h += sect("This phone") + `<div class="glass">` +
-    row({ tile: icon("moon"), title: "Wearables", sub: "Link Oura for sleep and recovery", act: "goWear" }) +
-    row({ tile: icon("bell"), title: "Notifications", sub: "Training nudges, friends, weekly recap. Off until you turn them on", act: "goNotify" }) +
-    row({ tile: icon("home"), title: "Add Spotter to your Home Screen", sub: "Opens like an app, works with no signal", act: "installHelp" }) +
-    row({ tile: icon("spark"), title: "Check for an update", sub: "Version " + CONFIG.version, act: "updateTap" }) +
-    row({ tile: icon("doc"), title: "Download my data", sub: "Everything on this phone, as one file", act: "exportTap" }) +
-    row({ tile: icon("trash"), title: "Erase this phone's copy", sub: CLOUD.on() ? "Your account keeps everything that has synced" : "Not signed in: this deletes your data for good", act: "eraseAsk" }) + `</div>`;
+  } else {
+  h += `<div class="glass pad"><div class="seg">${[["dark", "Dark"], ["light", "Light"], ["auto", "Match phone"]].map(([v, l]) => `<button type="button" data-act="setMode" data-v="${v}" class="${mode === v ? "on" : ""}">${l}</button>`).join("")}</div><div class="dotsrow mt"><span class="small">Color</span>${TG.dots()}</div></div>`;
+  }
   return h;
-};
+}
+ACT.setPage = (d) => go("prefs", { p: d.p });
 ACT.setSave = () => {
   const name = val("setname"), up = parseFloat(val("setup")), low = parseFloat(val("setlow"));
   if (!name) return toast("Enter a name");

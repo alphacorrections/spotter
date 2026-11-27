@@ -158,10 +158,18 @@ try {
   check(s.programs.length === 1 && s.programs[0].slug.startsWith("my-"), "an edited plan can be saved as your own");
 
   // Settings: light mode, sizes
-  await act(k, "goToday"); await act(k, "goSettings"); await act(k, "setMode", '[data-v="light"]');
+  await act(k, "goToday");
+  const days = await k.locator(".wkday").count();
+  check(days >= 3 && (await k.locator(".wkday.sel").count()) === 1, "Today shows the week as tabs, one per day of the plan");
+  await k.locator(".wkday").nth(1).click();
+  check(await k.locator(".wkday").nth(1).evaluate((e) => e.classList.contains("sel")), "tapping a day shows that day");
+  await act(k, "goSettings");
+  check((await k.locator('[data-act="setPage"]').count()) === 4 && (await k.locator("#setname").count()) === 0, "Settings is a short menu of topics");
+  await act(k, "setPage", '[data-p="nogo"]'); check((await k.locator('[data-act="noGoAdd"]').count()) === 1, "the no-go list has its own page with an Add button");
+  await act(k, "goSettings"); await act(k, "setPage", '[data-p="look"]'); await act(k, "setMode", '[data-v="light"]');
   check((await k.evaluate(() => document.documentElement.getAttribute("data-theme"))) === "light", "light mode switches on");
-  await snap(k, "settings-light"); await act(k, "goToday"); await snap(k, "today-light");
-  await act(k, "goSettings"); await act(k, "setMode", '[data-v="dark"]'); await act(k, "goToday");
+  await act(k, "goSettings"); await snap(k, "settings-light"); await act(k, "goToday"); await snap(k, "today-light");
+  await act(k, "goSettings"); await act(k, "setPage", '[data-p="look"]'); await act(k, "setMode", '[data-v="dark"]'); await act(k, "goSettings"); await act(k, "goToday");
 
   // ============================================================ accounts and sync
   await tap(k, '[data-nav="friends"]'); await see(k, "Sign in to train with friends"); await snap(k, "friends-signed-out");
