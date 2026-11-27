@@ -1,4 +1,4 @@
-// A Spotter account: sign in with a 6-digit code from your email, no password.
+// A Spotter account: sign in with a code from your email, no password.
 // Same small fetch client Tally uses. The key here is the publishable one,
 // which is meant to be public; privacy comes from the database's row rules.
 import { CONFIG } from "./config.js";

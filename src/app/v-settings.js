@@ -20,7 +20,7 @@ VIEWS.prefs = () => {
     h += `<div class="glass">` + row({ tile: icon("cloud"), title: CLOUD.email(), sub: S.sync.error ? `Sync problem: ${S.sync.error}` : S.sync.at ? `Synced ${new Date(S.sync.at).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}` : "Not synced yet", right: S.sync.error ? pill("Check", "warn") : pill("On", "ok") }) +
       `</div><div class="flex mt"><button class="tp-btn tp-ghost tp-sm" data-act="syncTap">Sync now</button><button class="tp-btn tp-ghost tp-sm" data-act="signOutAsk">Sign out</button></div>`;
   } else {
-    h += `<div class="glass">` + row({ tile: icon("cloud"), title: "Sign in with email", sub: CLOUD.lost ? "You were signed out. Sign in again to keep syncing." : "Back up your training and join groups. A 6-digit code, no password.", act: "signIn" }) + `</div>`;
+    h += `<div class="glass">` + row({ tile: icon("cloud"), title: "Sign in with email", sub: CLOUD.lost ? "You were signed out. Sign in again to keep syncing." : "Back up your training and join groups. A code by email, no password.", act: "signIn" }) + `</div>`;
   }
   h += sect("You") + `<div class="glass pad">${field("setname", "Name your friends see", me.display_name, "First name")}
     <label class="tp-label">Units</label><div class="seg">${[["lb", "Pounds"], ["kg", "Kilos"]].map(([v, l]) => `<button type="button" data-act="setUnits" data-v="${v}" class="${me.units === v ? "on" : ""}">${l}</button>`).join("")}</div>
@@ -78,13 +78,13 @@ function setPending(email) { try { localStorage.setItem(PEND, JSON.stringify({ e
 function clearPending() { try { localStorage.removeItem(PEND); } catch (e) { /* nothing to clear */ } }
 function codeSheet(email) {
   A.email = email;
-  sheet("Check your email", `<p class="muted">We sent a 6-digit code to <b>${esc(email)}</b>. It can take a minute. Check spam if it is not there. Use the newest email if you got more than one.</p>
-    ${field("sgcode", "6-digit code", "", "123456", "text", "numeric")}
+  sheet("Check your email", `<p class="muted">We sent a sign-in code to <b>${esc(email)}</b>. It can take a minute. Check spam if it is not there. Use the newest email if you got more than one.</p>
+    ${field("sgcode", "Code from the email", "", "12345678", "text", "numeric")}
     <div class="acts"><button class="tp-btn tp-ghost" data-act="signNew">Different email</button><button class="tp-btn" data-act="signVerify">Sign in</button></div>`);
 }
 ACT.signIn = () => {
   const p = pending();
-  sheet("Sign in", `<p class="muted">Enter your email and we send a 6-digit code. No password. New here? The same steps make your account.</p>
+  sheet("Sign in", `<p class="muted">Enter your email and we send a sign-in code. No password. New here? The same steps make your account.</p>
   ${field("sgemail", "Email", p ? p.email : CLOUD.email(), "you@example.com", "email")}
   <div class="acts"><button class="tp-btn tp-ghost" data-close>Cancel</button><button class="tp-btn" data-act="signSend">Email me a code</button></div>
   ${p ? `<button class="tp-btn tp-ghost tp-block mt" data-act="signHave">I already have a code</button>` : ""}`);
@@ -108,7 +108,7 @@ ACT.signSend = async (d, el) => {
 };
 ACT.signVerify = async (d, el) => {
   const code = val("sgcode").replace(/\D/g, "");
-  if (code.length !== 6) return toast("The code is 6 digits");
+  if (code.length < 6 || code.length > 10) return toast("Enter the whole code from the email");
   el.disabled = true; el.textContent = "Checking…";
   try {
     await CLOUD.verify(A.email, code);

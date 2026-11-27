@@ -10,7 +10,7 @@ A training app for a small group of friends. It tells you what to lift today, gi
 - **The + button:** cardio, steps, yoga, mobility, calisthenics and HIIT routines, body numbers, and links saved to try.
 - **Look:** the Tally glass kit with a blue and gold palette, dark or light.
 
-Without signing in, everything stays in that browser. Signed in (a 6-digit email code, no password), it syncs to a private account and groups switch on.
+Without signing in, everything stays in that browser. Signed in (a code by email, no password), it syncs to a private account and groups switch on.
 
 ## Files
 
@@ -42,7 +42,7 @@ Open copies of the app check `version.json` when they come to the front and ever
 - **Project:** `wypwbwprnjpfmqzywddh` ("Spotter", same organization as Tally). The app only holds the publishable key in `spotter.config.json`, which is meant to be public; privacy comes from row-level security.
 - **Database:** both migrations are applied. All 19 tables have row-level security, signed-out visitors have no access at all, and the live schema matches the tested one column for column.
 - **Deploys:** pushing changes under `supabase/` runs the GitHub Action. It needs three repository secrets: `SUPABASE_ACCESS_TOKEN`, `SUPABASE_PROJECT_ID`, `SUPABASE_DB_PASSWORD`.
-- **Email:** sign-in codes need custom SMTP (Authentication > Emails > SMTP Settings), then `{{ .Token }}` added to the Magic Link template so the email carries the 6-digit code. Supabase's built-in mailer only reaches the project's own team.
+- **Email:** sign-in codes need custom SMTP (Authentication > Emails > SMTP Settings), then `{{ .Token }}` added to the Magic Link template so the email carries the code (8 digits on this project). Supabase's built-in mailer only reaches the project's own team.
 - **Advisor warnings:** five "security definer function" warnings are expected. Those functions are how groups are created, joined and checked without exposing the tables.
 
 ## Checking it
