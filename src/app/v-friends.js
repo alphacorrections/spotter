@@ -24,7 +24,7 @@ async function load() {
       CLOUD.get("groups?select=id,name,code,created_by&order=created_at"),
       CLOUD.get("group_members?select=group_id,user_id,role,detail_level,profiles(display_name)"),
       CLOUD.get("group_blocks?select=id,group_id,program_id,author_id,title,started_on,programs(title,weeks,days_per_week,focus,template)&order=created_at.desc"),
-      CLOUD.get(`activities?user_id=neq.${uid}&ended_at=not.is.null&order=started_at.desc&limit=40&select=id,user_id,domain,title,started_at,duration_s,note,link_url,efforts(exercise_id,kind,weight,reps,steps,distance_m,hr_zone,duration_s,seq)`),
+      CLOUD.get(`activities?user_id=neq.${uid}&ended_at=not.is.null&source=neq.import&or=(note.is.null,note.not.like.Imported from your sheet*)&order=started_at.desc&limit=40&select=id,user_id,domain,title,started_at,duration_s,note,link_url,efforts(exercise_id,kind,weight,reps,steps,distance_m,hr_zone,duration_s,seq)`),
       CLOUD.get("blocks?group_block_id=not.is.null&select=id,user_id,group_block_id,position,status"),
       CLOUD.get("reactions?select=activity_id,group_id,user_id,emoji"),
       CLOUD.get("comments?select=id,group_id,user_id,activity_id,group_block_id,week,body,created_at&order=created_at"),
