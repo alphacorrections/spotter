@@ -1,0 +1,1019 @@
+{
+  "schema_version": 1,
+  "slug": "block-2-hypertrophy-strength-lean",
+  "title": "Hypertrophy, strength lean",
+  "summary": "Five lifting days, legs split from upper. Four weeks building reps, then four weeks heavier with an intensity technique on the last set of the lifts that matter most.",
+  "author": "Kevin",
+  "focus": "hypertrophy",
+  "level": "intermediate",
+  "weeks": 8,
+  "days_per_week": 5,
+  "units": "lb",
+  "equipment": [
+    "barbell",
+    "dumbbell",
+    "cable",
+    "machine",
+    "bench",
+    "pullup_bar",
+    "dip_bars",
+    "landmine"
+  ],
+  "phases": [
+    {
+      "key": "base",
+      "name": "Build the base",
+      "weeks": [
+        1,
+        4
+      ],
+      "note": "Add reps until you reach the top of each range."
+    },
+    {
+      "key": "heavy",
+      "name": "Heavier, fewer reps",
+      "weeks": [
+        5,
+        8
+      ],
+      "note": "Loads go up, reps come down. Push the last set where a technique is listed."
+    }
+  ],
+  "rotation": [
+    {
+      "session": "legs_a",
+      "suggested_weekday": "mon"
+    },
+    {
+      "session": "upper_1",
+      "suggested_weekday": "tue"
+    },
+    {
+      "rest": true,
+      "suggest": [
+        "walking",
+        "mobility"
+      ],
+      "suggested_weekday": "wed"
+    },
+    {
+      "session": "legs_b",
+      "suggested_weekday": "thu"
+    },
+    {
+      "session": "upper_2",
+      "suggested_weekday": "fri"
+    },
+    {
+      "session": "upper_3",
+      "suggested_weekday": "sat"
+    },
+    {
+      "rest": true,
+      "suggest": [
+        "walking",
+        "mobility"
+      ],
+      "suggested_weekday": "sun"
+    }
+  ],
+  "progression": {
+    "type": "double_progression",
+    "increment": {
+      "upper": 5,
+      "lower": 10,
+      "core": 10
+    },
+    "overshoot": {
+      "reps_over": 4,
+      "increments": 2
+    }
+  },
+  "roles": {
+    "primary": {
+      "sets": 4,
+      "rest_s": 150,
+      "effort": {
+        "rir": [
+          1,
+          2
+        ],
+        "last_set": "as_others",
+        "text": "Stop 1 to 2 reps short of failure"
+      }
+    },
+    "accessory": {
+      "sets": 3,
+      "rest_s": 75,
+      "effort": {
+        "rir": [
+          0,
+          1
+        ],
+        "last_set": "to_failure",
+        "text": "Last set to failure"
+      }
+    },
+    "finisher": {
+      "sets": 2,
+      "rest_s": 60,
+      "phases": [
+        "base"
+      ],
+      "effort": {
+        "last_set": "to_failure",
+        "text": "Two rounds to failure"
+      }
+    }
+  },
+  "sessions": [
+    {
+      "key": "legs_a",
+      "title": "Legs A",
+      "subtitle": "Squat + Glutes",
+      "slots": [
+        {
+          "key": "legs_a.lunge",
+          "role": "primary",
+          "exercise": "Dumbbell_Walking_Lunge",
+          "display_name": "Walking Lunge DB",
+          "reps": {
+            "base": [
+              6,
+              12
+            ],
+            "heavy": [
+              5,
+              8
+            ]
+          },
+          "increment": 5,
+          "swap_tags": [
+            "quadriceps"
+          ]
+        },
+        {
+          "key": "legs_a.hip_thrust",
+          "role": "primary",
+          "exercise": "Barbell_Hip_Thrust",
+          "display_name": "Hip Thrust",
+          "reps": {
+            "base": [
+              8,
+              10
+            ],
+            "heavy": [
+              6,
+              8
+            ]
+          },
+          "increment": 10,
+          "intensifier": {
+            "type": "rest_pause",
+            "on": "last_set",
+            "phases": [
+              "heavy"
+            ]
+          },
+          "swap_tags": [
+            "glutes"
+          ],
+          "alternates": [
+            {
+              "exercise": "Barbell_Glute_Bridge",
+              "why": "Same muscles, shorter range, back flat on the floor"
+            },
+            {
+              "exercise": "Single_Leg_Glute_Bridge",
+              "why": "No bar needed, far less load through the spine"
+            },
+            {
+              "exercise": "Pull_Through",
+              "why": "Hinge pattern, the cable pulls forward instead of down"
+            }
+          ]
+        },
+        {
+          "key": "legs_a.leg_curl",
+          "role": "primary",
+          "exercise": "Seated_Leg_Curl",
+          "display_name": "Leg Curl Seated",
+          "reps": {
+            "base": [
+              10,
+              12
+            ],
+            "heavy": [
+              8,
+              10
+            ]
+          },
+          "increment": 10,
+          "intensifier": {
+            "type": "drop_set",
+            "on": "last_set",
+            "phases": [
+              "heavy"
+            ]
+          },
+          "swap_tags": [
+            "hamstrings"
+          ]
+        },
+        {
+          "key": "legs_a.calf",
+          "role": "primary",
+          "exercise": "Standing_Calf_Raises",
+          "display_name": "Standing Calf Raise",
+          "reps": {
+            "base": [
+              10,
+              15
+            ],
+            "heavy": [
+              8,
+              12
+            ]
+          },
+          "increment": 10,
+          "intensifier": {
+            "type": "rest_pause_stretch",
+            "on": "last_set",
+            "phases": [
+              "heavy"
+            ]
+          },
+          "swap_tags": [
+            "calves"
+          ]
+        },
+        {
+          "key": "legs_a.pendulum",
+          "role": "accessory",
+          "exercise": "Pendulum_Squat",
+          "reps": {
+            "base": [
+              8,
+              12
+            ],
+            "heavy": [
+              6,
+              10
+            ]
+          },
+          "increment": 10,
+          "swap_tags": [
+            "quadriceps"
+          ]
+        },
+        {
+          "key": "legs_a.crunch",
+          "role": "accessory",
+          "exercise": "Cable_Crunch",
+          "reps": {
+            "base": [
+              12,
+              15
+            ],
+            "heavy": [
+              10,
+              12
+            ]
+          },
+          "increment": 10,
+          "swap_tags": [
+            "abdominals"
+          ]
+        },
+        {
+          "key": "legs_a.back_ext",
+          "role": "accessory",
+          "exercise": "Hyperextensions_Back_Extensions",
+          "display_name": "Back Extension",
+          "reps": {
+            "base": [
+              8,
+              12
+            ],
+            "heavy": [
+              8,
+              10
+            ]
+          },
+          "increment": 5,
+          "swap_tags": [
+            "lower back"
+          ],
+          "load": "external"
+        },
+        {
+          "key": "legs_a.finisher",
+          "role": "finisher",
+          "exercise": "Sissy_Squat",
+          "reps": {
+            "base": "amrap",
+            "heavy": "skip"
+          },
+          "swap_tags": [
+            "quadriceps"
+          ],
+          "load": "bodyweight"
+        }
+      ]
+    },
+    {
+      "key": "upper_1",
+      "title": "Upper 1",
+      "subtitle": "Incline + Back Width",
+      "slots": [
+        {
+          "key": "upper_1.incline_press",
+          "role": "primary",
+          "exercise": "Incline_Cable_Chest_Press",
+          "display_name": "Incline Cable Press",
+          "reps": {
+            "base": [
+              8,
+              10
+            ],
+            "heavy": [
+              6,
+              8
+            ]
+          },
+          "increment": 10,
+          "intensifier": {
+            "type": "drop_set",
+            "on": "last_set",
+            "phases": [
+              "heavy"
+            ]
+          },
+          "swap_tags": [
+            "chest"
+          ]
+        },
+        {
+          "key": "upper_1.pulldown",
+          "role": "primary",
+          "exercise": "Wide-Grip_Lat_Pulldown",
+          "display_name": "Lat Pulldown Wide Grip",
+          "reps": {
+            "base": [
+              6,
+              10
+            ],
+            "heavy": [
+              5,
+              8
+            ]
+          },
+          "increment": 10,
+          "intensifier": {
+            "type": "drop_set",
+            "on": "last_set",
+            "phases": [
+              "heavy"
+            ]
+          },
+          "swap_tags": [
+            "lats"
+          ]
+        },
+        {
+          "key": "upper_1.row",
+          "role": "primary",
+          "exercise": "T-Bar_Row_with_Handle",
+          "display_name": "Landmine Close-Grip Row",
+          "reps": {
+            "base": [
+              8,
+              10
+            ],
+            "heavy": [
+              6,
+              8
+            ]
+          },
+          "increment": 5,
+          "swap_tags": [
+            "middle back"
+          ]
+        },
+        {
+          "key": "upper_1.lateral",
+          "role": "primary",
+          "exercise": "Side_Lateral_Raise",
+          "display_name": "Lateral Raise DB",
+          "reps": {
+            "base": [
+              12,
+              15
+            ],
+            "heavy": [
+              10,
+              12
+            ]
+          },
+          "increment": 5,
+          "intensifier": {
+            "type": "double_drop",
+            "on": "last_set",
+            "phases": [
+              "heavy"
+            ]
+          },
+          "swap_tags": [
+            "shoulders"
+          ]
+        },
+        {
+          "key": "upper_1.curl",
+          "role": "accessory",
+          "exercise": "Barbell_Curl",
+          "reps": {
+            "base": [
+              8,
+              12
+            ],
+            "heavy": [
+              8,
+              10
+            ]
+          },
+          "increment": 5,
+          "intensifier": {
+            "type": "rest_pause",
+            "on": "last_set",
+            "phases": [
+              "heavy"
+            ]
+          },
+          "swap_tags": [
+            "biceps"
+          ],
+          "superset": "A"
+        },
+        {
+          "key": "upper_1.pushdown",
+          "role": "accessory",
+          "exercise": "Triceps_Pushdown_-_V-Bar_Attachment",
+          "display_name": "Tricep Pushdown V Bar",
+          "reps": {
+            "base": [
+              10,
+              15
+            ],
+            "heavy": [
+              8,
+              12
+            ]
+          },
+          "increment": 10,
+          "intensifier": {
+            "type": "drop_set",
+            "on": "last_set",
+            "phases": [
+              "heavy"
+            ]
+          },
+          "swap_tags": [
+            "triceps"
+          ],
+          "superset": "A"
+        },
+        {
+          "key": "upper_1.finisher",
+          "role": "finisher",
+          "exercise": "Pullups",
+          "display_name": "Pull-Up",
+          "reps": {
+            "base": "amrap",
+            "heavy": "skip"
+          },
+          "swap_tags": [
+            "lats"
+          ],
+          "load": "bodyweight"
+        }
+      ]
+    },
+    {
+      "key": "legs_b",
+      "title": "Legs B",
+      "subtitle": "Leg Press + Single Leg",
+      "slots": [
+        {
+          "key": "legs_b.leg_press",
+          "role": "primary",
+          "exercise": "Leg_Press",
+          "reps": {
+            "base": [
+              8,
+              10
+            ],
+            "heavy": [
+              6,
+              8
+            ]
+          },
+          "increment": 10,
+          "intensifier": {
+            "type": "drop_set",
+            "on": "last_set",
+            "phases": [
+              "heavy"
+            ]
+          },
+          "swap_tags": [
+            "quadriceps"
+          ]
+        },
+        {
+          "key": "legs_b.split_squat",
+          "role": "primary",
+          "exercise": "Split_Squat_with_Dumbbells",
+          "display_name": "Bulgarian Split Squat DB",
+          "reps": {
+            "base": [
+              8,
+              10
+            ],
+            "heavy": [
+              6,
+              8
+            ]
+          },
+          "increment": 5,
+          "swap_tags": [
+            "quadriceps"
+          ]
+        },
+        {
+          "key": "legs_b.leg_curl",
+          "role": "primary",
+          "exercise": "Lying_Leg_Curls",
+          "display_name": "Leg Curl Lying",
+          "reps": {
+            "base": [
+              10,
+              12
+            ],
+            "heavy": [
+              8,
+              10
+            ]
+          },
+          "increment": 10,
+          "intensifier": {
+            "type": "lengthened_partials",
+            "on": "last_set",
+            "phases": [
+              "heavy"
+            ]
+          },
+          "swap_tags": [
+            "hamstrings"
+          ]
+        },
+        {
+          "key": "legs_b.leg_ext",
+          "role": "primary",
+          "exercise": "Leg_Extensions",
+          "display_name": "Leg Extension",
+          "reps": {
+            "base": [
+              12,
+              15
+            ],
+            "heavy": [
+              10,
+              12
+            ]
+          },
+          "increment": 10,
+          "intensifier": {
+            "type": "double_drop",
+            "on": "last_set",
+            "phases": [
+              "heavy"
+            ]
+          },
+          "swap_tags": [
+            "quadriceps"
+          ]
+        },
+        {
+          "key": "legs_b.calf",
+          "role": "accessory",
+          "exercise": "Standing_Calf_Raises",
+          "display_name": "Standing Calf Raise",
+          "reps": {
+            "base": [
+              10,
+              15
+            ],
+            "heavy": [
+              8,
+              12
+            ]
+          },
+          "intensifier": {
+            "type": "rest_pause_stretch",
+            "on": "last_set",
+            "phases": [
+              "heavy"
+            ]
+          },
+          "swap_tags": [
+            "calves"
+          ],
+          "load": "bodyweight"
+        },
+        {
+          "key": "legs_b.leg_raise",
+          "role": "accessory",
+          "exercise": "Hanging_Leg_Raise",
+          "reps": {
+            "base": [
+              12,
+              15
+            ],
+            "heavy": [
+              10,
+              12
+            ]
+          },
+          "load": "bodyweight",
+          "swap_tags": [
+            "abdominals"
+          ]
+        },
+        {
+          "key": "legs_b.finisher",
+          "role": "finisher",
+          "exercise": "Copenhagen_Plank",
+          "reps": {
+            "base": "amrap",
+            "heavy": "skip"
+          },
+          "measure": "seconds",
+          "swap_tags": [
+            "adductors"
+          ],
+          "load": "bodyweight",
+          "note": "Seconds per side."
+        }
+      ]
+    },
+    {
+      "key": "upper_2",
+      "title": "Upper 2",
+      "subtitle": "Bench + Back Thickness",
+      "slots": [
+        {
+          "key": "upper_2.bench",
+          "role": "primary",
+          "exercise": "Barbell_Bench_Press_-_Medium_Grip",
+          "display_name": "Barbell Bench Press",
+          "reps": {
+            "base": [
+              6,
+              8
+            ],
+            "heavy": [
+              4,
+              6
+            ]
+          },
+          "increment": 5,
+          "swap_tags": [
+            "chest"
+          ]
+        },
+        {
+          "key": "upper_2.row",
+          "role": "primary",
+          "exercise": "Lying_T-Bar_Row",
+          "display_name": "Chest Supported Row",
+          "reps": {
+            "base": [
+              6,
+              10
+            ],
+            "heavy": [
+              6,
+              8
+            ]
+          },
+          "increment": 10,
+          "intensifier": {
+            "type": "lengthened_partials",
+            "on": "last_set",
+            "phases": [
+              "heavy"
+            ]
+          },
+          "swap_tags": [
+            "middle back"
+          ]
+        },
+        {
+          "key": "upper_2.fly",
+          "role": "primary",
+          "exercise": "Low_Cable_Crossover",
+          "display_name": "Cable Fly Low-to-High",
+          "reps": {
+            "base": [
+              10,
+              15
+            ],
+            "heavy": [
+              10,
+              12
+            ]
+          },
+          "increment": 10,
+          "intensifier": {
+            "type": "drop_set",
+            "on": "last_set",
+            "phases": [
+              "heavy"
+            ]
+          },
+          "swap_tags": [
+            "chest"
+          ]
+        },
+        {
+          "key": "upper_2.face_pull",
+          "role": "primary",
+          "exercise": "Face_Pull",
+          "reps": {
+            "base": [
+              12,
+              15
+            ],
+            "heavy": [
+              12,
+              15
+            ]
+          },
+          "increment": 10,
+          "swap_tags": [
+            "shoulders"
+          ]
+        },
+        {
+          "key": "upper_2.curl",
+          "role": "accessory",
+          "exercise": "Hammer_Curls",
+          "display_name": "Hammer Curl DB",
+          "reps": {
+            "base": [
+              8,
+              12
+            ],
+            "heavy": [
+              8,
+              10
+            ]
+          },
+          "increment": 5,
+          "intensifier": {
+            "type": "drop_set",
+            "on": "last_set",
+            "phases": [
+              "heavy"
+            ]
+          },
+          "swap_tags": [
+            "biceps"
+          ],
+          "superset": "A"
+        },
+        {
+          "key": "upper_2.tricep",
+          "role": "accessory",
+          "exercise": "Cable_Rope_Overhead_Triceps_Extension",
+          "display_name": "Overhead Tricep Extension Cable",
+          "reps": {
+            "base": [
+              10,
+              15
+            ],
+            "heavy": [
+              8,
+              12
+            ]
+          },
+          "increment": 10,
+          "intensifier": {
+            "type": "myo_reps",
+            "on": "last_set",
+            "phases": [
+              "heavy"
+            ]
+          },
+          "swap_tags": [
+            "triceps"
+          ],
+          "superset": "A"
+        },
+        {
+          "key": "upper_2.finisher",
+          "role": "finisher",
+          "exercise": "Dips_-_Chest_Version",
+          "display_name": "Dips Chest Focus",
+          "reps": {
+            "base": "amrap",
+            "heavy": "skip"
+          },
+          "swap_tags": [
+            "chest"
+          ],
+          "load": "bodyweight"
+        }
+      ]
+    },
+    {
+      "key": "upper_3",
+      "title": "Upper 3",
+      "subtitle": "Shoulders + Arms",
+      "slots": [
+        {
+          "key": "upper_3.press",
+          "role": "primary",
+          "exercise": "Dumbbell_Shoulder_Press",
+          "display_name": "Overhead Press DB",
+          "reps": {
+            "base": [
+              6,
+              8
+            ],
+            "heavy": [
+              5,
+              8
+            ]
+          },
+          "increment": 5,
+          "swap_tags": [
+            "shoulders"
+          ]
+        },
+        {
+          "key": "upper_3.pulldown",
+          "role": "primary",
+          "exercise": "Close-Grip_Front_Lat_Pulldown",
+          "display_name": "Lat Pulldown Close Grip",
+          "reps": {
+            "base": [
+              8,
+              10
+            ],
+            "heavy": [
+              6,
+              8
+            ]
+          },
+          "increment": 10,
+          "intensifier": {
+            "type": "rest_pause",
+            "on": "last_set",
+            "phases": [
+              "heavy"
+            ]
+          },
+          "swap_tags": [
+            "lats"
+          ]
+        },
+        {
+          "key": "upper_3.fly",
+          "role": "primary",
+          "exercise": "Cable_Crossover",
+          "display_name": "Cable Fly High-to-Low",
+          "reps": {
+            "base": [
+              10,
+              15
+            ],
+            "heavy": [
+              10,
+              12
+            ]
+          },
+          "increment": 10,
+          "intensifier": {
+            "type": "lengthened_partials",
+            "on": "last_set",
+            "phases": [
+              "heavy"
+            ]
+          },
+          "swap_tags": [
+            "chest"
+          ]
+        },
+        {
+          "key": "upper_3.lateral",
+          "role": "primary",
+          "exercise": "Standing_Low-Pulley_Deltoid_Raise",
+          "display_name": "Lateral Raise Cable",
+          "reps": {
+            "base": [
+              12,
+              15
+            ],
+            "heavy": [
+              10,
+              12
+            ]
+          },
+          "increment": 5,
+          "intensifier": {
+            "type": "double_drop",
+            "on": "last_set",
+            "phases": [
+              "heavy"
+            ]
+          },
+          "swap_tags": [
+            "shoulders"
+          ]
+        },
+        {
+          "key": "upper_3.curl",
+          "role": "accessory",
+          "exercise": "Dumbbell_Bicep_Curl",
+          "display_name": "DB Curl",
+          "reps": {
+            "base": [
+              8,
+              12
+            ],
+            "heavy": [
+              8,
+              10
+            ]
+          },
+          "increment": 5,
+          "intensifier": {
+            "type": "drop_set",
+            "on": "last_set",
+            "phases": [
+              "heavy"
+            ]
+          },
+          "swap_tags": [
+            "biceps"
+          ],
+          "superset": "A"
+        },
+        {
+          "key": "upper_3.pushdown",
+          "role": "accessory",
+          "exercise": "Triceps_Pushdown_-_Rope_Attachment",
+          "display_name": "Seated Tricep Pushdown Cable Rope",
+          "reps": {
+            "base": [
+              10,
+              15
+            ],
+            "heavy": [
+              8,
+              12
+            ]
+          },
+          "increment": 10,
+          "intensifier": {
+            "type": "myo_reps",
+            "on": "last_set",
+            "phases": [
+              "heavy"
+            ]
+          },
+          "swap_tags": [
+            "triceps"
+          ],
+          "superset": "A"
+        },
+        {
+          "key": "upper_3.finisher",
+          "role": "finisher",
+          "exercise": "Pushups",
+          "display_name": "Push-Up",
+          "reps": {
+            "base": "amrap",
+            "heavy": "skip"
+          },
+          "swap_tags": [
+            "chest"
+          ],
+          "load": "bodyweight"
+        }
+      ]
+    }
+  ],
+  "lean": "strength"
+}

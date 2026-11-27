@@ -1,0 +1,68 @@
+[
+  {"key": "hips", "title": "Hips", "minutes": 10, "area": "lower", "why": "pairs with leg days",
+   "parts": [
+    {"part": "Controlled reps", "note": "Slow circles and reaches. Own every inch of the range.", "items": [
+      {"exercise": "Standing_Hip_Circles", "reps": 8, "per_side": true},
+      {"exercise": "Groiners", "reps": 10},
+      {"exercise": "Worlds_Greatest_Stretch", "reps": 5, "per_side": true}]},
+    {"part": "Active holds", "note": "Hold the position with muscle, not gravity. Squeeze the glute on the back leg.", "items": [
+      {"exercise": "Kneeling_Hip_Flexor", "seconds": 30, "per_side": true},
+      {"exercise": "Ankle_On_The_Knee", "seconds": 30, "per_side": true}]},
+    {"part": "Long hold", "note": "Breathe out slowly and let it settle.", "items": [
+      {"exercise": "Adductor_Groin", "seconds": 90}]}]},
+  {"key": "shoulders", "title": "Shoulders and Upper Back", "minutes": 9, "area": "upper", "why": "pairs with upper days",
+   "parts": [
+    {"part": "Controlled reps", "note": "Big, slow circles. Keep your ribs down.", "items": [
+      {"exercise": "Arm_Circles", "reps": 10, "per_side": true},
+      {"exercise": "Shoulder_Circles", "reps": 10},
+      {"exercise": "Dynamic_Chest_Stretch", "reps": 10},
+      {"exercise": "Cat_Stretch", "reps": 8}]},
+    {"part": "Active holds", "note": "Reach long and keep reaching through the hold.", "items": [
+      {"exercise": "Overhead_Lat", "seconds": 30, "per_side": true},
+      {"exercise": "Behind_Head_Chest_Stretch", "seconds": 30}]},
+    {"part": "Long hold", "note": "Arms long, forehead down, slow breaths.", "items": [
+      {"exercise": "Childs_Pose", "seconds": 90}]}]},
+  {"key": "back", "title": "Hamstrings and Low Back", "minutes": 9, "area": "any", "why": "gentle on the back",
+   "parts": [
+    {"part": "Controlled reps", "note": "Small, smooth movements. Nothing should pinch.", "items": [
+      {"exercise": "Cat_Stretch", "reps": 8},
+      {"exercise": "Pelvic_Tilt_Into_Bridge", "reps": 10},
+      {"exercise": "Front_Leg_Raises", "reps": 10, "per_side": true}]},
+    {"part": "Active holds", "note": "Pull gently, then press the leg back into your hands for a few seconds.", "items": [
+      {"exercise": "Lying_Hamstring", "seconds": 30, "per_side": true},
+      {"exercise": "Knee_Across_The_Body", "seconds": 30, "per_side": true}]},
+    {"part": "Long hold", "note": "Let your lower back get heavy.", "items": [
+      {"exercise": "Hug_Knees_To_Chest", "seconds": 90}]}]},
+  {"key": "ankles", "title": "Ankles and Calves", "minutes": 7, "area": "lower", "why": "helps squat depth",
+   "parts": [
+    {"part": "Controlled reps", "note": "Draw the biggest circle you can.", "items": [
+      {"exercise": "Ankle_Circles", "reps": 10, "per_side": true},
+      {"exercise": "Knee_Circles", "reps": 10}]},
+    {"part": "Active holds", "note": "Heel stays down. Drive the knee forward.", "items": [
+      {"exercise": "Calf_Stretch_Hands_Against_Wall", "seconds": 30, "per_side": true},
+      {"exercise": "Standing_Soleus_And_Achilles_Stretch", "seconds": 30, "per_side": true}]},
+    {"part": "Long hold", "note": "Sit tall and pull the toes back.", "items": [
+      {"exercise": "Seated_Calf_Stretch", "seconds": 60, "per_side": true}]}]},
+  {"key": "full", "title": "Full Body Reset", "minutes": 10, "area": "any", "why": "good on a rest day",
+   "parts": [
+    {"part": "Controlled reps", "note": "Wake everything up. Move a little further each rep.", "items": [
+      {"exercise": "Inchworm", "reps": 6},
+      {"exercise": "Worlds_Greatest_Stretch", "reps": 5, "per_side": true},
+      {"exercise": "Torso_Rotation", "reps": 10},
+      {"exercise": "Standing_Hip_Circles", "reps": 8, "per_side": true}]},
+    {"part": "Active holds", "note": "Hold with effort, not slack.", "items": [
+      {"exercise": "Kneeling_Hip_Flexor", "seconds": 30, "per_side": true},
+      {"exercise": "Overhead_Lat", "seconds": 30, "per_side": true}]},
+    {"part": "Long hold", "note": "Slow breaths, eyes closed.", "items": [
+      {"exercise": "Childs_Pose", "seconds": 90}]}]},
+  {"key": "desk", "title": "Desk Break", "minutes": 3, "area": "any", "why": "three minutes, no floor needed",
+   "parts": [
+    {"part": "Controlled reps", "note": "Stand up first.", "items": [
+      {"exercise": "Shoulder_Circles", "reps": 10},
+      {"exercise": "Torso_Rotation", "reps": 10}]},
+    {"part": "Active holds", "note": "Easy tension only.", "items": [
+      {"exercise": "Side_Neck_Stretch", "seconds": 20, "per_side": true},
+      {"exercise": "Standing_Hip_Flexors", "seconds": 30, "per_side": true}]},
+    {"part": "Long hold", "note": "Reach up and breathe.", "items": [
+      {"exercise": "Upward_Stretch", "seconds": 30}]}]}
+]

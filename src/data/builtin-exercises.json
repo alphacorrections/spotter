@@ -1,0 +1,113 @@
+[
+  {
+    "id": "Dumbbell_Walking_Lunge",
+    "name": "Dumbbell Walking Lunge",
+    "equipment": "dumbbell",
+    "mechanic": "compound",
+    "force": "push",
+    "primary_muscles": [
+      "quadriceps"
+    ],
+    "secondary_muscles": [
+      "glutes",
+      "hamstrings",
+      "calves"
+    ],
+    "region": "lower",
+    "load_type": "external",
+    "load_entry": "total",
+    "measure": "reps",
+    "unilateral": true,
+    "tags": [
+      "lunge",
+      "low_back_friendly"
+    ]
+  },
+  {
+    "id": "Sissy_Squat",
+    "name": "Sissy Squat",
+    "equipment": "body only",
+    "mechanic": "isolation",
+    "force": "push",
+    "primary_muscles": [
+      "quadriceps"
+    ],
+    "secondary_muscles": [],
+    "region": "lower",
+    "load_type": "bodyweight",
+    "load_entry": "total",
+    "measure": "reps",
+    "unilateral": false,
+    "tags": [
+      "knee_extension",
+      "low_back_friendly"
+    ]
+  },
+  {
+    "id": "Copenhagen_Plank",
+    "name": "Copenhagen Plank",
+    "equipment": "body only",
+    "mechanic": "isolation",
+    "force": "static",
+    "primary_muscles": [
+      "adductors"
+    ],
+    "secondary_muscles": [
+      "abdominals"
+    ],
+    "region": "lower",
+    "load_type": "bodyweight",
+    "load_entry": "total",
+    "measure": "seconds",
+    "unilateral": true,
+    "tags": [
+      "adduction",
+      "low_back_friendly"
+    ]
+  },
+  {
+    "id": "Pendulum_Squat",
+    "name": "Pendulum Squat",
+    "equipment": "machine",
+    "mechanic": "compound",
+    "force": "push",
+    "primary_muscles": [
+      "quadriceps"
+    ],
+    "secondary_muscles": [
+      "glutes"
+    ],
+    "region": "lower",
+    "load_type": "external",
+    "load_entry": "total",
+    "measure": "reps",
+    "unilateral": false,
+    "tags": [
+      "squat",
+      "low_back_friendly"
+    ]
+  },
+  {
+    "id": "Burpee",
+    "name": "Burpee",
+    "equipment": "body only",
+    "mechanic": "compound",
+    "force": "push",
+    "primary_muscles": [
+      "quadriceps"
+    ],
+    "secondary_muscles": [
+      "chest",
+      "shoulders",
+      "abdominals"
+    ],
+    "region": "lower",
+    "load_type": "bodyweight",
+    "load_entry": "total",
+    "measure": "reps",
+    "unilateral": false,
+    "tags": [
+      "conditioning"
+    ]
+  }
+]

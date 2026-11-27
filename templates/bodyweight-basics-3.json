@@ -1,0 +1,308 @@
+{
+  "schema_version": 1,
+  "slug": "bodyweight-basics-3",
+  "title": "Bodyweight Basics",
+  "summary": "Three short sessions with no equipment. Add a rep when a set feels easy. A way in, or a way back.",
+  "author": "Spotter",
+  "focus": "general",
+  "level": "beginner",
+  "weeks": 6,
+  "days_per_week": 3,
+  "units": "lb",
+  "equipment": [],
+  "phases": [
+    {
+      "key": "base",
+      "name": "Build the habit",
+      "weeks": [
+        1,
+        6
+      ],
+      "note": "Showing up is the target. Add reps when a set feels easy."
+    }
+  ],
+  "rotation": [
+    {
+      "session": "move_a",
+      "suggested_weekday": "mon"
+    },
+    {
+      "rest": true,
+      "suggest": [
+        "walking",
+        "mobility"
+      ],
+      "suggested_weekday": "tue"
+    },
+    {
+      "session": "move_b",
+      "suggested_weekday": "wed"
+    },
+    {
+      "rest": true,
+      "suggest": [
+        "walking",
+        "mobility"
+      ],
+      "suggested_weekday": "thu"
+    },
+    {
+      "session": "move_c",
+      "suggested_weekday": "fri"
+    },
+    {
+      "rest": true,
+      "suggest": [
+        "walking",
+        "mobility"
+      ],
+      "suggested_weekday": "sat"
+    },
+    {
+      "rest": true,
+      "suggest": [
+        "walking",
+        "mobility"
+      ],
+      "suggested_weekday": "sun"
+    }
+  ],
+  "progression": {
+    "type": "double_progression"
+  },
+  "roles": {
+    "primary": {
+      "sets": 3,
+      "rest_s": 60,
+      "effort": {
+        "rir": [
+          2,
+          3
+        ],
+        "last_set": "as_others",
+        "text": "Finish each set feeling you had 2 or 3 more"
+      }
+    },
+    "accessory": {
+      "sets": 2,
+      "rest_s": 45,
+      "effort": {
+        "rir": [
+          1,
+          2
+        ],
+        "last_set": "as_others",
+        "text": "Smooth, controlled reps"
+      }
+    }
+  },
+  "sessions": [
+    {
+      "key": "move_a",
+      "title": "Move A",
+      "subtitle": "Squat, push, bridge",
+      "slots": [
+        {
+          "key": "move_a.squat",
+          "role": "primary",
+          "exercise": "Bodyweight_Squat",
+          "reps": {
+            "base": [
+              10,
+              20
+            ]
+          },
+          "load": "bodyweight",
+          "swap_tags": [
+            "quadriceps"
+          ]
+        },
+        {
+          "key": "move_a.pushup",
+          "role": "primary",
+          "exercise": "Incline_Push-Up",
+          "reps": {
+            "base": [
+              8,
+              15
+            ]
+          },
+          "load": "bodyweight",
+          "swap_tags": [
+            "chest"
+          ]
+        },
+        {
+          "key": "move_a.bridge",
+          "role": "primary",
+          "exercise": "Butt_Lift_Bridge",
+          "display_name": "Glute Bridge",
+          "reps": {
+            "base": [
+              10,
+              20
+            ]
+          },
+          "load": "bodyweight",
+          "swap_tags": [
+            "glutes"
+          ]
+        },
+        {
+          "key": "move_a.plank",
+          "role": "accessory",
+          "exercise": "Plank",
+          "reps": {
+            "base": [
+              20,
+              60
+            ]
+          },
+          "load": "bodyweight",
+          "measure": "seconds",
+          "swap_tags": [
+            "abdominals"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "move_b",
+      "title": "Move B",
+      "subtitle": "Lunge, push, core",
+      "slots": [
+        {
+          "key": "move_b.lunge",
+          "role": "primary",
+          "exercise": "Bodyweight_Walking_Lunge",
+          "display_name": "Walking Lunge",
+          "reps": {
+            "base": [
+              8,
+              15
+            ]
+          },
+          "load": "bodyweight",
+          "swap_tags": [
+            "quadriceps"
+          ]
+        },
+        {
+          "key": "move_b.pushup",
+          "role": "primary",
+          "exercise": "Pushups",
+          "display_name": "Push-Up",
+          "reps": {
+            "base": [
+              5,
+              15
+            ]
+          },
+          "load": "bodyweight",
+          "swap_tags": [
+            "chest"
+          ]
+        },
+        {
+          "key": "move_b.bridge",
+          "role": "primary",
+          "exercise": "Single_Leg_Glute_Bridge",
+          "reps": {
+            "base": [
+              8,
+              15
+            ]
+          },
+          "load": "bodyweight",
+          "swap_tags": [
+            "glutes"
+          ]
+        },
+        {
+          "key": "move_b.dead_bug",
+          "role": "accessory",
+          "exercise": "Dead_Bug",
+          "reps": {
+            "base": [
+              8,
+              12
+            ]
+          },
+          "load": "bodyweight",
+          "swap_tags": [
+            "abdominals"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "move_c",
+      "title": "Move C",
+      "subtitle": "Whole body",
+      "slots": [
+        {
+          "key": "move_c.squat",
+          "role": "primary",
+          "exercise": "Bodyweight_Squat",
+          "reps": {
+            "base": [
+              12,
+              25
+            ]
+          },
+          "load": "bodyweight",
+          "swap_tags": [
+            "quadriceps"
+          ]
+        },
+        {
+          "key": "move_c.dips",
+          "role": "primary",
+          "exercise": "Bench_Dips",
+          "display_name": "Chair Dip",
+          "reps": {
+            "base": [
+              8,
+              15
+            ]
+          },
+          "load": "bodyweight",
+          "swap_tags": [
+            "triceps"
+          ]
+        },
+        {
+          "key": "move_c.superman",
+          "role": "primary",
+          "exercise": "Superman",
+          "reps": {
+            "base": [
+              10,
+              15
+            ]
+          },
+          "load": "bodyweight",
+          "measure": "seconds",
+          "swap_tags": [
+            "lower back"
+          ]
+        },
+        {
+          "key": "move_c.climbers",
+          "role": "accessory",
+          "exercise": "Mountain_Climbers",
+          "reps": {
+            "base": [
+              20,
+              40
+            ]
+          },
+          "load": "bodyweight",
+          "swap_tags": [
+            "quadriceps"
+          ]
+        }
+      ]
+    }
+  ]
+}

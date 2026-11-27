@@ -1,0 +1,435 @@
+{
+  "schema_version": 1,
+  "slug": "strength-3",
+  "title": "Strength, Three Days",
+  "summary": "Three full-body days built on the big lifts. Heavy top set, back-off sets, long rests.",
+  "author": "Spotter",
+  "focus": "strength",
+  "level": "beginner",
+  "weeks": 8,
+  "days_per_week": 3,
+  "units": "lb",
+  "equipment": [
+    "barbell",
+    "cable",
+    "machine",
+    "bench",
+    "pullup_bar"
+  ],
+  "phases": [
+    {
+      "key": "volume",
+      "name": "Build",
+      "weeks": [
+        1,
+        4
+      ],
+      "note": "Moderate loads, clean reps. Add weight whenever the top set reaches the top of its range."
+    },
+    {
+      "key": "peak",
+      "name": "Heavy",
+      "weeks": [
+        5,
+        8
+      ],
+      "note": "Fewer reps, heavier top sets. Long rests. Stop a set the moment bar speed dies."
+    }
+  ],
+  "rotation": [
+    {
+      "session": "str_a",
+      "suggested_weekday": "mon"
+    },
+    {
+      "rest": true,
+      "suggest": [
+        "walking",
+        "mobility"
+      ],
+      "suggested_weekday": "tue"
+    },
+    {
+      "session": "str_b",
+      "suggested_weekday": "wed"
+    },
+    {
+      "rest": true,
+      "suggest": [
+        "walking",
+        "mobility"
+      ],
+      "suggested_weekday": "thu"
+    },
+    {
+      "session": "str_c",
+      "suggested_weekday": "fri"
+    },
+    {
+      "rest": true,
+      "suggest": [
+        "walking",
+        "mobility"
+      ],
+      "suggested_weekday": "sat"
+    },
+    {
+      "rest": true,
+      "suggest": [
+        "walking",
+        "mobility"
+      ],
+      "suggested_weekday": "sun"
+    }
+  ],
+  "progression": {
+    "type": "top_set_backoff",
+    "increment": {
+      "upper": 5,
+      "lower": 10,
+      "core": 5
+    },
+    "backoff": {
+      "percent_drop": 10,
+      "sets": 3
+    }
+  },
+  "roles": {
+    "primary": {
+      "sets": 4,
+      "rest_s": 240,
+      "effort": {
+        "rir": [
+          2,
+          3
+        ],
+        "last_set": "as_others",
+        "text": "Leave 2 to 3 reps in the tank. No grinding"
+      }
+    },
+    "accessory": {
+      "sets": 3,
+      "rest_s": 120,
+      "effort": {
+        "rir": [
+          1,
+          2
+        ],
+        "last_set": "as_others",
+        "text": "Stop 1 to 2 reps short of failure"
+      }
+    }
+  },
+  "sessions": [
+    {
+      "key": "str_a",
+      "title": "Day A",
+      "subtitle": "Squat and bench",
+      "slots": [
+        {
+          "key": "str_a.squat",
+          "role": "primary",
+          "exercise": "Barbell_Squat",
+          "reps": {
+            "volume": [
+              4,
+              6
+            ],
+            "peak": [
+              3,
+              5
+            ]
+          },
+          "increment": 10,
+          "swap_tags": [
+            "quadriceps"
+          ]
+        },
+        {
+          "key": "str_a.bench",
+          "role": "primary",
+          "exercise": "Barbell_Bench_Press_-_Medium_Grip",
+          "display_name": "Barbell Bench Press",
+          "reps": {
+            "volume": [
+              4,
+              6
+            ],
+            "peak": [
+              3,
+              5
+            ]
+          },
+          "increment": 5,
+          "swap_tags": [
+            "chest"
+          ]
+        },
+        {
+          "key": "str_a.row",
+          "role": "accessory",
+          "exercise": "Bent_Over_Barbell_Row",
+          "reps": {
+            "volume": [
+              6,
+              8
+            ],
+            "peak": [
+              5,
+              8
+            ]
+          },
+          "increment": 5,
+          "swap_tags": [
+            "middle back"
+          ],
+          "progression": {
+            "type": "double_progression",
+            "increment": {
+              "upper": 5,
+              "lower": 10,
+              "core": 5
+            }
+          }
+        },
+        {
+          "key": "str_a.plank",
+          "role": "accessory",
+          "exercise": "Plank",
+          "reps": {
+            "volume": [
+              45,
+              75
+            ],
+            "peak": [
+              60,
+              90
+            ]
+          },
+          "load": "bodyweight",
+          "measure": "seconds",
+          "swap_tags": [
+            "abdominals"
+          ],
+          "progression": {
+            "type": "double_progression",
+            "increment": {
+              "upper": 5,
+              "lower": 10,
+              "core": 5
+            }
+          }
+        }
+      ]
+    },
+    {
+      "key": "str_b",
+      "title": "Day B",
+      "subtitle": "Deadlift and press",
+      "slots": [
+        {
+          "key": "str_b.deadlift",
+          "role": "primary",
+          "exercise": "Barbell_Deadlift",
+          "reps": {
+            "volume": [
+              3,
+              5
+            ],
+            "peak": [
+              2,
+              4
+            ]
+          },
+          "increment": 10,
+          "swap_tags": [
+            "lower back"
+          ]
+        },
+        {
+          "key": "str_b.press",
+          "role": "primary",
+          "exercise": "Standing_Military_Press",
+          "display_name": "Overhead Press",
+          "reps": {
+            "volume": [
+              4,
+              6
+            ],
+            "peak": [
+              3,
+              5
+            ]
+          },
+          "increment": 5,
+          "swap_tags": [
+            "shoulders"
+          ]
+        },
+        {
+          "key": "str_b.chin",
+          "role": "accessory",
+          "exercise": "Chin-Up",
+          "reps": {
+            "volume": [
+              5,
+              8
+            ],
+            "peak": [
+              4,
+              6
+            ]
+          },
+          "load": "bodyweight",
+          "swap_tags": [
+            "lats"
+          ],
+          "progression": {
+            "type": "double_progression",
+            "increment": {
+              "upper": 5,
+              "lower": 10,
+              "core": 5
+            }
+          }
+        },
+        {
+          "key": "str_b.leg_raise",
+          "role": "accessory",
+          "exercise": "Hanging_Leg_Raise",
+          "reps": {
+            "volume": [
+              8,
+              12
+            ],
+            "peak": [
+              10,
+              15
+            ]
+          },
+          "load": "bodyweight",
+          "swap_tags": [
+            "abdominals"
+          ],
+          "progression": {
+            "type": "double_progression",
+            "increment": {
+              "upper": 5,
+              "lower": 10,
+              "core": 5
+            }
+          }
+        }
+      ]
+    },
+    {
+      "key": "str_c",
+      "title": "Day C",
+      "subtitle": "Incline and legs",
+      "slots": [
+        {
+          "key": "str_c.incline",
+          "role": "primary",
+          "exercise": "Barbell_Incline_Bench_Press_-_Medium_Grip",
+          "display_name": "Incline Bench Press",
+          "reps": {
+            "volume": [
+              5,
+              7
+            ],
+            "peak": [
+              4,
+              6
+            ]
+          },
+          "increment": 5,
+          "swap_tags": [
+            "chest"
+          ]
+        },
+        {
+          "key": "str_c.leg_press",
+          "role": "accessory",
+          "exercise": "Leg_Press",
+          "reps": {
+            "volume": [
+              6,
+              10
+            ],
+            "peak": [
+              6,
+              8
+            ]
+          },
+          "increment": 10,
+          "swap_tags": [
+            "quadriceps"
+          ],
+          "progression": {
+            "type": "double_progression",
+            "increment": {
+              "upper": 5,
+              "lower": 10,
+              "core": 5
+            }
+          }
+        },
+        {
+          "key": "str_c.cable_row",
+          "role": "accessory",
+          "exercise": "Seated_Cable_Rows",
+          "display_name": "Seated Cable Row",
+          "reps": {
+            "volume": [
+              8,
+              10
+            ],
+            "peak": [
+              6,
+              8
+            ]
+          },
+          "increment": 10,
+          "swap_tags": [
+            "middle back"
+          ],
+          "progression": {
+            "type": "double_progression",
+            "increment": {
+              "upper": 5,
+              "lower": 10,
+              "core": 5
+            }
+          }
+        },
+        {
+          "key": "str_c.curl",
+          "role": "accessory",
+          "exercise": "Barbell_Curl",
+          "reps": {
+            "volume": [
+              8,
+              10
+            ],
+            "peak": [
+              8,
+              10
+            ]
+          },
+          "increment": 5,
+          "swap_tags": [
+            "biceps"
+          ],
+          "progression": {
+            "type": "double_progression",
+            "increment": {
+              "upper": 5,
+              "lower": 10,
+              "core": 5
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

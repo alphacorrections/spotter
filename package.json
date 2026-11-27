@@ -1,0 +1,21 @@
+{
+  "name": "spotter",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "build": "node tools/build.mjs",
+    "test": "node --test tests/engine/ && bash tests/db/run.sh && node tests/e2e/run.mjs"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "esbuild": "^0.24.0"
+  },
+  "type": "module",
+  "private": true
+}

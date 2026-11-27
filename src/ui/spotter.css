@@ -1,0 +1,99 @@
+/* ---- Spotter: its own palette and the pieces the kit does not have ---- */
+:root{
+  --tp-mark:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect x='6' y='28' width='15' height='44' rx='6'/%3E%3Crect x='79' y='28' width='15' height='44' rx='6'/%3E%3Crect x='21' y='43' width='58' height='14' rx='5'/%3E%3C/svg%3E");
+}
+:root[data-pal="spotter"]{ --g1:#081322; --g2:#0C1E35; --g3:#12305A; --bA:#2D6FD0; --bB:#E0A91E; --hi:#F5C451; --tp-btn:#F5C451; --tp-btn-ink:#0A1626; --c1:#FFFFFF; --c2:#F5C451; --tp-blue:#8CC0FA; }
+:root[data-pal="spotter"][data-theme="light"]{ --g1:#E4EEFB; --g2:#F2F6FC; --g3:#FBF3DA; --bA:#A6C8F3; --bB:#F3D77A; --hi:#17509E; --tp-btn:#17509E; --tp-btn-ink:#FFFFFF; --c1:#17509E; --c2:#8A5E00; --tp-blue:#17509E; }
+:root[data-pal="spotter"][data-theme="dark"] .tp-tile{color:var(--tp-btn-ink)}
+
+.hi{color:var(--hi)} .okt{color:var(--ok)} .warnt{color:var(--warn)}
+.heroT{font-family:var(--tp-display);font-size:30px;line-height:1.12;font-weight:700;letter-spacing:-.6px;margin:6px 0 6px}
+.hero .tp-btn svg,.tp-btn svg{width:18px;height:18px}
+.flowh2{font-family:var(--tp-display);font-size:19px;font-weight:700;margin:24px 0 10px}
+.tp-wrap.ckflow{padding-bottom:calc(40px + env(safe-area-inset-bottom))}
+.steps{margin:8px 0 0;padding-left:20px;font-size:14.5px;line-height:1.5} .steps li{margin-bottom:6px}
+.ibtn.sure{outline:2px solid var(--bad)}
+.tp-row .tp-pill{flex:none}
+.tp-opt > span{display:block}
+
+/* ---- a lift in the session screen ---- */
+.lift{margin-bottom:14px;padding:14px}
+.lifthead{display:flex;align-items:center;gap:11px}
+.lifthead .grow b{display:block;font-family:var(--tp-display);font-size:17.5px;line-height:1.25;font-weight:700}
+.lifthead .grow span{display:block;font-size:12.5px;color:var(--tp-ink2);margin-top:2px}
+.lifthead .tp-tile{background:var(--tp-btn);color:var(--tp-btn-ink);font-family:var(--tp-display)}
+.ibtn.sm{width:38px;height:38px;border-radius:12px} .ibtn.sm svg{width:17px;height:17px}
+.liftnote{font-size:13px;line-height:1.5;color:var(--tp-ink2);padding:10px 2px 2px}
+.glass > .liftnote{padding:12px 15px 4px}
+.liftnote.hi{color:var(--tp-ink);background:var(--well);border:1px solid color-mix(in srgb,var(--hi) 55%,transparent);border-radius:14px;padding:11px 13px;margin-top:10px}
+.liftnote.hi b{color:var(--hi)}
+.liftnote.warn{color:var(--warn)}
+.setrow{display:flex;align-items:center;gap:10px;padding:9px 2px;border-top:1px solid var(--tp-line2);margin-top:8px;min-height:50px}
+.setrow > i{font-style:normal;flex:none;width:26px;height:26px;border-radius:50%;background:var(--tp-card2);font:700 12.5px var(--tp-display);display:flex;align-items:center;justify-content:center}
+.setrow.done b{font-family:var(--tp-display);font-size:16.5px}
+.setrow.later{min-height:36px;padding:5px 2px;opacity:.78}
+.setrow.extra{border-top:0;margin-top:0;padding-top:0;min-height:36px} .setrow.extra > i{background:none}
+.setrow.next{align-items:flex-end;padding-bottom:12px}
+.steppers{display:flex;gap:8px;flex-wrap:wrap}
+.stp{display:flex;align-items:stretch;border:1px solid var(--tp-line);border-radius:14px;background:var(--well);overflow:hidden;flex:1 1 104px;min-width:104px;max-width:190px;min-height:54px}
+.stp button{width:34px;flex:none;background:none;border:0;color:var(--tp-ink);font:600 21px var(--tp-font);cursor:pointer}
+.stp button:active{background:var(--tp-card2)}
+.stp label{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:5px 0 4px}
+.stp label span{font-size:10.5px;letter-spacing:.5px;text-transform:uppercase;color:var(--tp-ink2);font-weight:700}
+.stpv{width:100%;border:0;background:none;color:var(--tp-ink);text-align:center;font:700 20px var(--tp-display);font-variant-numeric:tabular-nums;padding:0;min-height:28px}
+.stpv:focus{outline:none} .stp:focus-within{outline:2px solid var(--tp-ink2);outline-offset:1px}
+.logbtn{flex:none;width:54px;height:54px;padding:0;border-radius:16px} .logbtn svg{width:24px;height:24px}
+.liftfoot{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.restchip{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(18px + env(safe-area-inset-bottom));z-index:45;display:flex;align-items:center;gap:9px;background:var(--tp-solid);color:var(--tp-solid-ink);border-radius:99px;padding:9px 9px 9px 15px;box-shadow:0 10px 28px rgba(0,0,0,.35);font-size:14px}
+.restchip[hidden]{display:none}
+.restspace{height:84px}
+.restchip svg{width:18px;height:18px} .restchip b{font-family:var(--tp-display);font-size:17px}
+.restchip button{border:0;border-radius:99px;background:rgba(0,0,0,.1);color:inherit;font:600 13px var(--tp-font);padding:8px 13px;min-height:36px;cursor:pointer}
+.rate{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:10px}
+.rate button{border:1px solid var(--tp-line);background:var(--tp-card);color:var(--tp-ink);border-radius:14px;padding:10px 2px;cursor:pointer;min-height:64px;font:inherit}
+.rate button b{display:block;font:700 20px var(--tp-display)} .rate button span{display:block;font-size:10.5px;color:var(--tp-ink2);line-height:1.2;margin-top:2px}
+.rate button.on{background:var(--tp-btn);border-color:var(--tp-btn);color:var(--tp-btn-ink)} .rate button.on span{color:inherit}
+.howimgs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:6px 0 12px}
+.howimgs img{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:14px;background:var(--well)}
+
+/* ---- plan editor ---- */
+.edrow{padding:13px 15px;border-top:1px solid var(--tp-line2)} .edrow:first-child{border-top:0}
+.edname b{display:block;font-weight:600;font-size:15px} .edname span{font-size:12.5px;color:var(--tp-ink2)}
+.edctl{display:flex;gap:8px;align-items:flex-end;margin-top:8px}
+.edctl label{flex:1;min-width:0} .edctl label span{display:block;font-size:11.5px;color:var(--tp-ink2);font-weight:650;margin-bottom:3px}
+.edctl .tp-input{min-height:44px;padding:8px 10px;text-align:center}
+.edbtns{display:flex;gap:6px;margin-top:8px;justify-content:flex-end}
+.ibtn[disabled]{opacity:.35;cursor:default}
+
+/* ---- progress ---- */
+.week{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:12px;padding:12px 8px}
+.wd{text-align:center;font-size:11.5px;color:var(--tp-ink2);font-weight:700}
+.wd.now span{color:var(--hi)}
+.wdots{display:flex;flex-direction:column;align-items:center;gap:3px;margin-top:6px;min-height:26px}
+.wdots i{width:26px;height:26px;border-radius:9px;background:var(--tp-card2);display:flex;align-items:center;justify-content:center;color:var(--tp-ink)}
+.wdots i svg{width:15px;height:15px}
+.wdots i.none{background:none;border:1px dashed var(--tp-line)}
+
+/* ---- friends ---- */
+.feed{margin-bottom:12px}
+.feedhead{display:flex;gap:11px;align-items:center}
+.feedhead .grow b{display:block;font-weight:650;font-size:15px;line-height:1.3} .feedhead .grow span{display:block;font-size:12.5px;color:var(--tp-ink2);margin-top:2px}
+.feednote{margin:10px 0 0;font-size:14.5px}
+.feedsets{margin-top:10px;padding:10px 12px;border-radius:14px;background:var(--well);font-size:13px}
+.feedsets div{display:flex;justify-content:space-between;gap:12px;padding:3px 0} .feedsets span{color:var(--tp-ink2);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.feedsets b{font-weight:650;white-space:nowrap}
+.cmt{font-size:13.5px;margin-top:8px;padding-left:10px;border-left:2px solid var(--tp-line)}
+.reacts{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}
+.reacts .chip{min-height:36px;padding:5px 12px}
+.chip[disabled]{opacity:.6;cursor:default}
+.code{font-family:var(--tp-display);font-size:30px;font-weight:700;letter-spacing:5px}
+.pillbtn.on{background:var(--tp-btn);color:var(--tp-btn-ink);border-color:var(--tp-btn)}
+@media (max-width:360px){ .heroT{font-size:26px} .stp{min-width:92px;flex-basis:92px} .stp button{width:28px} .stpv{font-size:18px} .lift{padding:12px} .code{font-size:26px;letter-spacing:4px} .logbtn{width:48px;height:54px} }
+
+/* The kit's entrance animation ends on transform:none, which undoes the centring of
+   anything placed with left:50% + translateX(-50%). Give those their own animation. */
+@keyframes sp-drop{from{opacity:0;transform:translate(-50%,-12px)}to{opacity:1;transform:translate(-50%,0)}}
+@keyframes sp-lift{from{opacity:0;transform:translate(-50%,12px)}to{opacity:1;transform:translate(-50%,0)}}
+.updbar{animation:sp-drop .35s both}
+.toast{animation:sp-lift .25s both}
+.updbar b{white-space:nowrap}

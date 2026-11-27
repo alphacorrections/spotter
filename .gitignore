@@ -1,0 +1,4 @@
+node_modules/
+*-backup*.json
+spotter-backup-*.json
+.DS_Store

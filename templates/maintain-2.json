@@ -1,0 +1,287 @@
+{
+  "schema_version": 1,
+  "slug": "maintain-2",
+  "title": "Maintain, Two Days",
+  "summary": "Two short full-body days at the loads you already lift. Holds size and strength on about a third of the work.",
+  "author": "Spotter",
+  "focus": "maintain",
+  "level": "intermediate",
+  "weeks": 6,
+  "days_per_week": 2,
+  "units": "lb",
+  "equipment": [
+    "barbell",
+    "dumbbell",
+    "cable",
+    "machine",
+    "bench",
+    "pullup_bar"
+  ],
+  "phases": [
+    {
+      "key": "hold",
+      "name": "Hold",
+      "weeks": [
+        1,
+        6
+      ],
+      "note": "Same weights, same reps. Nothing to beat. Run it again for as long as you need."
+    }
+  ],
+  "rotation": [
+    {
+      "session": "keep_a",
+      "suggested_weekday": "mon"
+    },
+    {
+      "rest": true,
+      "suggest": [
+        "walking",
+        "mobility"
+      ],
+      "suggested_weekday": "tue"
+    },
+    {
+      "rest": true,
+      "suggest": [
+        "walking",
+        "mobility"
+      ],
+      "suggested_weekday": "wed"
+    },
+    {
+      "session": "keep_b",
+      "suggested_weekday": "thu"
+    },
+    {
+      "rest": true,
+      "suggest": [
+        "walking",
+        "mobility"
+      ],
+      "suggested_weekday": "fri"
+    },
+    {
+      "rest": true,
+      "suggest": [
+        "walking",
+        "mobility"
+      ],
+      "suggested_weekday": "sat"
+    },
+    {
+      "rest": true,
+      "suggest": [
+        "walking",
+        "mobility"
+      ],
+      "suggested_weekday": "sun"
+    }
+  ],
+  "progression": {
+    "type": "hold",
+    "increment": {
+      "upper": 5,
+      "lower": 10,
+      "core": 5
+    }
+  },
+  "roles": {
+    "primary": {
+      "sets": 3,
+      "rest_s": 150,
+      "effort": {
+        "rir": [
+          1,
+          3
+        ],
+        "last_set": "as_others",
+        "text": "Same loads as before. Stop 1 to 3 reps short"
+      }
+    },
+    "accessory": {
+      "sets": 2,
+      "rest_s": 75,
+      "effort": {
+        "rir": [
+          1,
+          2
+        ],
+        "last_set": "as_others",
+        "text": "Two honest sets"
+      }
+    }
+  },
+  "sessions": [
+    {
+      "key": "keep_a",
+      "title": "Day A",
+      "subtitle": "Squat, bench, row",
+      "slots": [
+        {
+          "key": "keep_a.squat",
+          "role": "primary",
+          "exercise": "Barbell_Squat",
+          "reps": {
+            "hold": [
+              6,
+              10
+            ]
+          },
+          "increment": 10,
+          "swap_tags": [
+            "quadriceps"
+          ]
+        },
+        {
+          "key": "keep_a.bench",
+          "role": "primary",
+          "exercise": "Barbell_Bench_Press_-_Medium_Grip",
+          "display_name": "Barbell Bench Press",
+          "reps": {
+            "hold": [
+              6,
+              10
+            ]
+          },
+          "increment": 5,
+          "swap_tags": [
+            "chest"
+          ]
+        },
+        {
+          "key": "keep_a.row",
+          "role": "primary",
+          "exercise": "Seated_Cable_Rows",
+          "display_name": "Seated Cable Row",
+          "reps": {
+            "hold": [
+              8,
+              12
+            ]
+          },
+          "increment": 10,
+          "swap_tags": [
+            "middle back"
+          ]
+        },
+        {
+          "key": "keep_a.lateral",
+          "role": "accessory",
+          "exercise": "Side_Lateral_Raise",
+          "display_name": "Lateral Raise",
+          "reps": {
+            "hold": [
+              12,
+              15
+            ]
+          },
+          "increment": 5,
+          "swap_tags": [
+            "shoulders"
+          ]
+        },
+        {
+          "key": "keep_a.plank",
+          "role": "accessory",
+          "exercise": "Plank",
+          "reps": {
+            "hold": [
+              45,
+              75
+            ]
+          },
+          "load": "bodyweight",
+          "measure": "seconds",
+          "swap_tags": [
+            "abdominals"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "keep_b",
+      "title": "Day B",
+      "subtitle": "Hinge, press, pulldown",
+      "slots": [
+        {
+          "key": "keep_b.rdl",
+          "role": "primary",
+          "exercise": "Romanian_Deadlift",
+          "reps": {
+            "hold": [
+              6,
+              10
+            ]
+          },
+          "increment": 10,
+          "swap_tags": [
+            "hamstrings"
+          ]
+        },
+        {
+          "key": "keep_b.press",
+          "role": "primary",
+          "exercise": "Dumbbell_Shoulder_Press",
+          "reps": {
+            "hold": [
+              6,
+              10
+            ]
+          },
+          "increment": 5,
+          "swap_tags": [
+            "shoulders"
+          ]
+        },
+        {
+          "key": "keep_b.pulldown",
+          "role": "primary",
+          "exercise": "Wide-Grip_Lat_Pulldown",
+          "reps": {
+            "hold": [
+              8,
+              12
+            ]
+          },
+          "increment": 10,
+          "swap_tags": [
+            "lats"
+          ]
+        },
+        {
+          "key": "keep_b.curl",
+          "role": "accessory",
+          "exercise": "Barbell_Curl",
+          "reps": {
+            "hold": [
+              8,
+              12
+            ]
+          },
+          "increment": 5,
+          "swap_tags": [
+            "biceps"
+          ],
+          "superset": "A"
+        },
+        {
+          "key": "keep_b.pushdown",
+          "role": "accessory",
+          "exercise": "Triceps_Pushdown",
+          "reps": {
+            "hold": [
+              10,
+              15
+            ]
+          },
+          "increment": 10,
+          "swap_tags": [
+            "triceps"
+          ],
+          "superset": "A"
+        }
+      ]
+    }
+  ]
+}

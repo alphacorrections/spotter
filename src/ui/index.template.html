@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en" data-pal="spotter" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Spotter</title>
+<meta name="description" content="Know what to lift today, and beat it next time.">
+<meta name="theme-color" content="#081322">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Spotter">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<script>
+/* Set the look before the first paint, so there is no flash. */
+(function () { try { var u = JSON.parse(localStorage.getItem('spotter.ui') || '{}'), m = u.mode || 'dark'; if (m === 'auto') m = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'; var d = document.documentElement; d.setAttribute('data-pal', u.pal || 'spotter'); d.setAttribute('data-theme', m); } catch (e) {} })();
+</script>
+<style>
+/*__CSS__*/
+</style>
+</head>
+<body class="tp-page">
+<div class="bgfx" aria-hidden="true"><i class="b1"></i><i class="b2"></i><i class="b3"></i></div>
+<div id="app"></div>
+<noscript><p style="padding:24px;color:#fff">Spotter needs JavaScript turned on.</p></noscript>
+<script>
+/*__JS__*/
+</script>
+</body>
+</html>

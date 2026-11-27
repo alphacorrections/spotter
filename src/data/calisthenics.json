@@ -1,0 +1,42 @@
+[
+  {"key": "cal_push", "kind": "calisthenics", "title": "Push and Core", "minutes": 15, "rounds": 3, "needs": "No equipment", "why": "chest, shoulders, triceps, abs",
+   "parts": [{"part": "Each round", "note": "Move through the list, rest a minute, go again. Stop each move a rep or two before your form breaks.", "items": [
+     {"exercise": "Pushups", "reps": 10},
+     {"exercise": "Push-Ups_-_Close_Triceps_Position", "reps": 8},
+     {"exercise": "Decline_Push-Up", "reps": 8},
+     {"exercise": "Plank", "seconds": 40},
+     {"exercise": "Dead_Bug", "reps": 10, "per_side": true}]}]},
+  {"key": "cal_pull", "kind": "calisthenics", "title": "Pull and Legs", "minutes": 18, "rounds": 3, "needs": "Pull-up bar", "why": "back, biceps, legs",
+   "parts": [{"part": "Each round", "note": "If full pull-ups are not there yet, do slow lowers: jump to the top and take five seconds coming down.", "items": [
+     {"exercise": "Pullups", "reps": 5},
+     {"exercise": "Bodyweight_Squat", "reps": 20},
+     {"exercise": "Chin-Up", "reps": 5},
+     {"exercise": "Bodyweight_Walking_Lunge", "reps": 12, "per_side": true},
+     {"exercise": "Hanging_Leg_Raise", "reps": 8}]}]},
+  {"key": "cal_legs", "kind": "calisthenics", "title": "Lower Body Burner", "minutes": 14, "rounds": 3, "needs": "No equipment", "why": "quads, glutes, balance",
+   "parts": [{"part": "Each round", "note": "Slow on the way down, quick on the way up. Rest a minute between rounds.", "items": [
+     {"exercise": "Bodyweight_Squat", "reps": 20},
+     {"exercise": "Bodyweight_Walking_Lunge", "reps": 10, "per_side": true},
+     {"exercise": "Single_Leg_Glute_Bridge", "reps": 12, "per_side": true},
+     {"exercise": "Freehand_Jump_Squat", "reps": 10},
+     {"exercise": "Side_Bridge", "seconds": 30, "per_side": true}]}]},
+  {"key": "cal_skill", "kind": "calisthenics", "title": "Bar Skills", "minutes": 20, "rounds": 4, "needs": "Pull-up bar and dip bars", "why": "pull-up and dip strength",
+   "parts": [{"part": "Each round", "note": "Quality over count. Rest two minutes between rounds so every rep is a good one.", "items": [
+     {"exercise": "Scapular_Pull-Up", "reps": 8},
+     {"exercise": "Pullups", "reps": 4},
+     {"exercise": "Dips_-_Triceps_Version", "reps": 6},
+     {"exercise": "Hanging_Leg_Raise", "reps": 8},
+     {"exercise": "Plank", "seconds": 45}]}]},
+  {"key": "hiit_full", "kind": "hiit", "title": "Full Body HIIT", "minutes": 16, "rounds": 4, "needs": "No equipment", "why": "40 seconds on, 20 off",
+   "parts": [{"part": "Each round", "note": "Work for 40 seconds, rest for 20, move to the next. Rest a full minute between rounds. Hard enough that talking is difficult.", "items": [
+     {"exercise": "Freehand_Jump_Squat", "seconds": 40},
+     {"exercise": "Pushups", "seconds": 40},
+     {"exercise": "Mountain_Climbers", "seconds": 40},
+     {"exercise": "Burpee", "seconds": 40}]}]},
+  {"key": "hiit_ten", "kind": "hiit", "title": "Ten-Minute HIIT", "minutes": 10, "rounds": 5, "needs": "No equipment", "why": "30 seconds on, 30 off",
+   "parts": [{"part": "Each round", "note": "Thirty seconds flat out, thirty seconds easy. Short enough to do on any day.", "items": [
+     {"exercise": "Mountain_Climbers", "seconds": 30},
+     {"exercise": "Star_Jump", "seconds": 30},
+     {"exercise": "Air_Bike", "seconds": 30},
+     {"exercise": "Burpee", "seconds": 30}]}]}
+]

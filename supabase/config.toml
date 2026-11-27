@@ -1,0 +1,3 @@
+# Supabase CLI settings for Spotter. Deployed by .github/workflows/supabase.yml.
+# Set project_id to the new project's reference once it exists (Supabase > Project Settings > General).
+project_id = "REPLACE_WITH_PROJECT_REF"

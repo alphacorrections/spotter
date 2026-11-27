@@ -1,0 +1,273 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "program-template.schema.json",
+  "title": "Program template",
+  "description": "One training block: its phases, its rotation of sessions, and what each slot asks for. Stored whole in programs.template, and copied whole into blocks.plan when someone runs it.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "slug", "title", "focus", "weeks", "days_per_week", "phases", "rotation", "progression", "sessions"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "slug": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$" },
+    "title": { "type": "string", "minLength": 1, "maxLength": 80 },
+    "summary": { "type": "string", "maxLength": 400 },
+    "author": { "type": "string" },
+    "focus": {
+      "description": "What the block trains for. Sets the defaults for reps, effort and progression.",
+      "enum": ["hypertrophy", "strength", "maintain", "general"]
+    },
+    "lean": {
+      "description": "Optional secondary emphasis, e.g. a hypertrophy block that pushes load.",
+      "enum": ["hypertrophy", "strength"]
+    },
+    "level": { "enum": ["beginner", "intermediate", "advanced"] },
+    "weeks": { "type": "integer", "minimum": 1, "maximum": 52 },
+    "days_per_week": { "type": "integer", "minimum": 1, "maximum": 7 },
+    "units": { "enum": ["lb", "kg"], "default": "lb" },
+    "equipment": {
+      "description": "Everything the block needs. The generator checks this against the user's equipment list.",
+      "type": "array",
+      "items": { "type": "string" },
+      "uniqueItems": true
+    },
+
+    "phases": {
+      "description": "Consecutive week ranges that together cover the whole block.",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["key", "name", "weeks"],
+        "properties": {
+          "key": { "$ref": "#/$defs/key" },
+          "name": { "type": "string" },
+          "weeks": {
+            "description": "[first week, last week], counted from 1.",
+            "type": "array",
+            "prefixItems": [{ "type": "integer", "minimum": 1 }, { "type": "integer", "minimum": 1 }],
+            "items": false,
+            "minItems": 2
+          },
+          "note": { "type": "string" }
+        }
+      }
+    },
+
+    "rotation": {
+      "description": "The order sessions come in. Missed days shift the block forward, so this is an order, not a calendar. A rest entry is a day with no lifting.",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["session"],
+            "properties": {
+              "session": { "$ref": "#/$defs/key" },
+              "suggested_weekday": { "$ref": "#/$defs/weekday" }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["rest"],
+            "properties": {
+              "rest": { "const": true },
+              "suggest": {
+                "description": "Other domains worth doing on this day.",
+                "type": "array",
+                "items": { "enum": ["cardio", "yoga", "mobility", "walking"] }
+              },
+              "suggested_weekday": { "$ref": "#/$defs/weekday" }
+            }
+          }
+        ]
+      }
+    },
+
+    "progression": {
+      "description": "How targets move from one session to the next. A slot can override any of it.",
+      "$ref": "#/$defs/progression"
+    },
+
+    "roles": {
+      "description": "Defaults per slot role, so they are written once and not on every slot.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "primary": { "$ref": "#/$defs/role_defaults" },
+        "accessory": { "$ref": "#/$defs/role_defaults" },
+        "finisher": { "$ref": "#/$defs/role_defaults" }
+      }
+    },
+
+    "sessions": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["key", "title", "slots"],
+        "properties": {
+          "key": { "$ref": "#/$defs/key" },
+          "title": { "type": "string" },
+          "subtitle": { "type": "string" },
+          "slots": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "$ref": "#/$defs/slot" }
+          }
+        }
+      }
+    }
+  },
+
+  "$defs": {
+    "key": { "type": "string", "pattern": "^[a-z0-9_]+$" },
+    "slot_key": { "type": "string", "pattern": "^[a-z0-9_]+\\.[a-z0-9_]+$" },
+    "weekday": { "enum": ["mon", "tue", "wed", "thu", "fri", "sat", "sun"] },
+
+    "rep_range": {
+      "description": "[low, high]. Equal numbers mean a fixed rep count.",
+      "type": "array",
+      "prefixItems": [{ "type": "integer", "minimum": 1 }, { "type": "integer", "minimum": 1 }],
+      "items": false,
+      "minItems": 2
+    },
+
+    "reps_by_phase": {
+      "description": "A rep range per phase key, or the word amrap (as many as possible), or skip (slot is not done in that phase).",
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": { "$ref": "#/$defs/key" },
+      "additionalProperties": {
+        "oneOf": [{ "$ref": "#/$defs/rep_range" }, { "enum": ["amrap", "skip"] }]
+      }
+    },
+
+    "effort_cue": {
+      "description": "How hard the sets are meant to be.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "rir": {
+          "description": "Reps left in the tank at the end of a set: [low, high].",
+          "type": "array",
+          "prefixItems": [{ "type": "integer", "minimum": 0 }, { "type": "integer", "minimum": 0 }],
+          "items": false,
+          "minItems": 2
+        },
+        "last_set": { "enum": ["as_others", "to_failure"] },
+        "text": { "type": "string" }
+      }
+    },
+
+    "role_defaults": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "sets": { "type": "integer", "minimum": 1, "maximum": 12 },
+        "effort": { "$ref": "#/$defs/effort_cue" },
+        "rest_s": { "type": "integer", "minimum": 0, "maximum": 600 },
+        "phases": { "type": "array", "items": { "$ref": "#/$defs/key" } }
+      }
+    },
+
+    "progression": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type"],
+      "properties": {
+        "type": {
+          "description": "double_progression: add reps to the top of the range, then add weight and drop to the bottom. top_set_backoff: one heavy set, then lighter back-off sets (strength blocks). hold: keep load and reps, nothing to beat (maintain blocks). none: no target at all.",
+          "enum": ["double_progression", "top_set_backoff", "hold", "none"]
+        },
+        "increment": {
+          "description": "Load added when the top of the range is hit, in the template's units.",
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "upper": { "type": "number", "exclusiveMinimum": 0 },
+            "lower": { "type": "number", "exclusiveMinimum": 0 },
+            "core": { "type": "number", "exclusiveMinimum": 0 }
+          }
+        },
+        "overshoot": {
+          "description": "When the load was clearly too light: at this many reps past the top of the range, jump more than one increment.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["reps_over", "increments"],
+          "properties": {
+            "reps_over": { "type": "integer", "minimum": 1 },
+            "increments": { "type": "integer", "minimum": 2, "maximum": 4 }
+          }
+        },
+        "backoff": {
+          "description": "For top_set_backoff: how far below the top set the back-off sets are.",
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "percent_drop": { "type": "number", "minimum": 1, "maximum": 40 },
+            "sets": { "type": "integer", "minimum": 1 }
+          }
+        }
+      }
+    },
+
+    "slot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["key", "role", "exercise", "reps"],
+      "properties": {
+        "key": {
+          "description": "Stable id of this slot, session.slot. Logged sets carry it, so history survives the slot being renamed or re-ordered.",
+          "$ref": "#/$defs/slot_key"
+        },
+        "role": { "enum": ["primary", "accessory", "finisher"] },
+        "exercise": { "description": "An id from the exercise library.", "type": "string", "minLength": 1 },
+        "display_name": { "description": "What to call it on screen, when the library name is not how you say it.", "type": "string" },
+        "sets": { "type": "integer", "minimum": 1, "maximum": 12 },
+        "reps": { "$ref": "#/$defs/reps_by_phase" },
+        "measure": { "description": "What the rep box counts for this slot.", "enum": ["reps", "seconds"], "default": "reps" },
+        "load": { "description": "bodyweight slots log reps with the weight left blank.", "enum": ["external", "bodyweight", "bodyweight_plus"], "default": "external" },
+        "increment": { "description": "Overrides the block's increment for this slot.", "type": "number", "exclusiveMinimum": 0 },
+        "effort": { "$ref": "#/$defs/effort_cue" },
+        "rest_s": { "type": "integer", "minimum": 0, "maximum": 600 },
+        "superset": { "description": "Slots in one session sharing a letter are done back to back.", "type": "string", "pattern": "^[A-Z]$" },
+        "intensifier": {
+          "description": "An extra technique bolted onto a set, in the phases named.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "phases"],
+          "properties": {
+            "type": { "enum": ["drop_set", "double_drop", "rest_pause", "rest_pause_stretch", "myo_reps", "lengthened_partials"] },
+            "on": { "enum": ["last_set", "every_set"], "default": "last_set" },
+            "phases": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/key" } }
+          }
+        },
+        "progression": { "$ref": "#/$defs/progression" },
+        "swap_tags": {
+          "description": "What a stand-in must match. The swap screen filters on these.",
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "alternates": {
+          "description": "Hand-picked stand-ins, best first. Shown above anything the swap screen finds by itself.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["exercise"],
+            "properties": {
+              "exercise": { "type": "string" },
+              "why": { "type": "string" }
+            }
+          }
+        },
+        "note": { "type": "string" }
+      }
+    }
+  }
+}
