@@ -45,6 +45,7 @@ VIEWS.coach = () => {
   if (n) {
     const chk = scaleCheck(n), ph = PHASE[n.phase];
     h += `<div class="glass pad"><div class="tp-stats mb0"><div class="tp-stat"><span>Calories a day</span><b>${n.target_kcal}</b></div><div class="tp-stat"><span>Protein</span><b>${n.protein_g} g</b></div><div class="tp-stat"><span>Phase</span><b>${esc(ph.name)}</b></div></div>
+      <p class="small muted">Protein: ${S.me.settings.protein_g ? "your own number, the same in every phase." : PROTEIN_WHY[n.phase] || ""}</p>
       <p class="small muted mt">${esc(ph.scale)} Maintenance is set at ${n.maintenance_kcal}${n.maintenance_source === "estimated" ? ", an estimate" : ""}. Log your weight a few times a week and the app checks this number after two weeks.</p>
       ${chk && chk.reason ? `<div class="liftnote hi"><b>The ${esc(chk.reason)}.</b> Your weight is moving ${chk.weeklyPct >= 0 ? "+" : ""}${chk.weeklyPct.toFixed(2)} percent a week.<br><button class="tp-btn tp-sm mt" data-act="eatAdjust" data-m="${chk.maintenanceKcal}">Update the target</button></div>` : chk ? `<p class="small okt">On track: ${chk.weeklyPct >= 0 ? "+" : ""}${chk.weeklyPct.toFixed(2)} percent a week.</p>` : ""}</div>`;
   } else {
@@ -73,13 +74,20 @@ ACT.eatOpen = () => {
       <label class="tp-label">Day to day, outside training</label><div class="seg" id="eatact">${[["sedentary", "Desk"], ["light", "Some"], ["moderate", "Active"], ["very", "Very"]].map(([v, l]) => `<button type="button" data-v="${v}" class="${(me.activity_level || "moderate") === v ? "on" : ""}">${l}</button>`).join("")}</div>
     </div>
     ${field("eatw", `Bodyweight (${me.units})`, w ? w.value : "", "", "text", "decimal")}
+    <label class="tp-label">Protein</label>
+    <div class="seg" id="eatprot"><button type="button" data-act="eatProt" data-v="app" class="${me.settings.protein_g ? "" : "on"}">App sets it</button><button type="button" data-act="eatProt" data-v="mine" class="${me.settings.protein_g ? "on" : ""}">I set it</button></div>
+    <p class="small muted mt" id="eatprotapp"${me.settings.protein_g ? " hidden" : ""}>1 g per lb of bodyweight on a cut or recomp, to protect muscle while calories are low. 0.8 g per lb on maintain or bulk, which covers growth when you are eating enough.</p>
+    <div id="eatprotmine"${me.settings.protein_g ? "" : " hidden"}>${field("eatprotg", "Grams of protein a day, in every phase", me.settings.protein_g || "", "e.g. 220", "text", "numeric")}</div>
     <p class="small muted mt">A starting point, not medical advice. The number is checked against your weigh-ins after two weeks and never goes below your estimated resting needs.</p>
     <div class="acts"><button class="tp-btn tp-ghost" data-close>Cancel</button><button class="tp-btn" data-act="eatSave">Get my target</button></div>`);
 };
+ACT.eatProt = (d, el) => { [].forEach.call(el.parentNode.children, (x) => x.classList.toggle("on", x === el)); document.getElementById("eatprotapp").hidden = d.v !== "app"; document.getElementById("eatprotmine").hidden = d.v !== "mine"; };
+const PROTEIN_WHY = { cut: "1 g per lb: higher on a cut, to protect muscle while calories are low.", recomp: "1 g per lb: higher on a recomp, since you are eating a little under maintenance.", maintain: "0.8 g per lb: enough to hold and build muscle when you are eating at maintenance.", bulk: "0.8 g per lb: covers growth on a bulk. The extra calories do the rest." };
 ACT.eatKnow = (d) => { EAT.know = d.v; document.getElementById("eatyes").hidden = d.v !== "yes"; document.getElementById("eatno").hidden = d.v !== "no"; };
 const segVal = (id) => document.querySelector(`#${id} .on`)?.getAttribute("data-v");
 function writeTarget(phase, maintenance, source, weightLb, floor) {
   const t = calorieTarget({ phase, maintenanceKcal: maintenance, weightLb, restingKcal: floor });
+  if (S.me.settings.protein_g) t.proteinG = S.me.settings.protein_g;   // your own number wins in every phase
   const today = ymd(), same = S.nutrition.find((x) => x.effective_from === today);
   const rowN = Object.assign(same || { id: uid() }, { effective_from: today, phase, maintenance_kcal: Math.round(maintenance), maintenance_source: source, target_kcal: t.targetKcal, protein_g: t.proteinG });
   if (!same) S.nutrition.push(rowN);
@@ -112,6 +120,9 @@ ACT.eatSave = () => {
     if (!same) S.body.push(rowB);
     touch(rowB);
   }
+  const own = segVal("eatprot") === "mine" ? numVal("eatprotg") : null;
+  if (segVal("eatprot") === "mine" && (!own || own < 40 || own > 400)) return toast("Enter your protein in grams, between 40 and 400");
+  me.settings.protein_g = own ? Math.round(own) : null; touchMe();
   const t = writeTarget(phase, maintenance, source, weightLb, floor);
   closeSheet(); render();
   toast(`${t.targetKcal} calories, ${t.proteinG} g protein`);

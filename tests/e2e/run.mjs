@@ -338,6 +338,14 @@ try {
 
   const errors = pages.flatMap((p) => p.errors);
   check(errors.length === 0, "no page errors on any phone", errors.join(" | "));
+  {
+    await k.goto(APP + "#coach"); await act(k, "eatOpen"); await act(k, "eatProt", '[data-v="mine"]'); await k.fill("#eatprotg", "220");
+    if (await k.locator("#eatm").isVisible() && !(await k.inputValue("#eatm"))) await k.fill("#eatm", "2800");
+    if (!(await k.inputValue("#eatw"))) await k.fill("#eatw", "200");
+    await act(k, "eatSave"); await k.locator("#sheet").waitFor({ state: "detached" });
+    const sp = await state(k), last = sp.nutrition.slice().sort((x, y) => (x.effective_from < y.effective_from ? -1 : 1)).pop();
+    check(last.protein_g === 220 && sp.me.settings.protein_g === 220 && (await k.getByText("your own number").count()) >= 1, "you can set your own protein number, and the app says whose number it is");
+  }
   // ============================================================ two accounts, one phone
   {
     const codeFor = async (email) => (await (await fetch(`http://127.0.0.1:54321/__test/code?email=${encodeURIComponent(email)}`)).json()).code;
