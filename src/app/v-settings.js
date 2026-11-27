@@ -27,7 +27,7 @@ VIEWS.prefs = () => {
     <label class="tp-label">Usual weight jump (${me.units})</label><div class="fgrid">${field("setup", "Upper body", me.increments.upper, "", "text", "decimal")}${field("setlow", "Lower body", me.increments.lower, "", "text", "decimal")}</div>
     <button class="tp-btn tp-sm mt" data-act="setSave">Save</button></div>`;
   h += sect("Your gym") + `<div class="glass pad"><p class="small muted">Used to mark plans that fit and to filter swaps. Leave it empty if you have everything.</p>${chips("setGear", EQUIPMENT, me.equipment, true)}
-    <label class="tp-label">Training days a week</label>${chips("setDays", [2, 3, 4, 5, 6].map((n) => [String(n), String(n)]), String(me.days_per_week || ""))}</div>`;
+    <label class="tp-label">Training days a week</label>${chips("setDays", [2, 3, 4, 5, 6, 7].map((n) => [String(n), String(n)]), String(me.days_per_week || ""))}</div>`;
   h += sect("No-go list") + (me.no_go.length ? `<div class="glass">` + me.no_go.map((n, i) => row({ tile: icon("close"), title: ex(n.exercise_id).name, sub: `${n.reason === "pain" ? "Swapped for pain" : "Avoid"} · since ${n.since || "a while ago"}`, act: "noGoDrop", data: { i }, chev: false, right: `<span class="tp-pill tp-plain">Allow again</span>` })).join("") + `</div>`
     : `<div class="glass"><div class="empty">Lifts you swap out for pain land here, so no plan brings them back unasked.</div></div>`);
   h += sect("Look") + `<div class="glass pad"><div class="seg">${[["dark", "Dark"], ["light", "Light"], ["auto", "Match phone"]].map(([v, l]) => `<button type="button" data-act="setMode" data-v="${v}" class="${mode === v ? "on" : ""}">${l}</button>`).join("")}</div><div class="dotsrow mt"><span class="small">Color</span>${TG.dots()}</div></div>`;
@@ -119,7 +119,8 @@ VIEWS.onboard = () => {
   if (O.step === 1) return dots() + `<h1 class="flowh">What are you training for?</h1><p class="flowp muted">This picks your plan. You can change it any time.</p>` +
     Object.entries(FOCUS).map(([k, f]) => `<button class="tp-opt${me.settings.focus === k ? " tp-on" : ""}" data-act="obFocus" data-v="${k}"><span><b>${esc(f.name)}</b><span>${esc(f.line)}. ${esc(f.how.split(". ")[0])}.</span></span></button>`).join("");
   if (O.step === 2) return dots() + `<h1 class="flowh">How many days a week?</h1><p class="flowp muted">Be honest. A plan you finish beats a bigger one you skip.</p>
-    ${chips("obDays", [2, 3, 4, 5, 6].map((n) => [String(n), `${n} days`]), String(me.days_per_week || ""))}
+    ${chips("obDays", [2, 3, 4, 5, 6, 7].map((n) => [String(n), `${n} days`]), String(me.days_per_week || ""))}
+    ${me.days_per_week === 7 ? `<p class="small muted mt">Lifting plans top out at 6 days, so your muscles get a day to recover. Day 7 becomes your cardio, yoga or mobility day.</p>` : ""}
     <h2 class="flowh2">What do you have to train with?</h2>
     <div class="chips"><button class="chip${me.equipment.length === ALL_GEAR.length ? " on" : ""}" data-act="obGym">Full gym</button><button class="chip${me.equipment.length === 2 && me.equipment.includes("dumbbell") ? " on" : ""}" data-act="obHome">Dumbbells at home</button><button class="chip${me.settings.gear === "none" ? " on" : ""}" data-act="obNone">No equipment</button></div>
     <p class="small muted mt">You can fine-tune the list in Settings.</p>

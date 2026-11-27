@@ -10,11 +10,13 @@ import { currentTarget } from "./v-coach.js";
 const F = { focus: "all" };
 const eqName = (k) => (EQUIPMENT.find(([v]) => v === k) || [k, k])[1];
 function missing(t) { const have = gear(); return have ? (t.equipment || []).filter((e) => !have.includes(e)) : []; }
-function fits(t) { return (!S.me.days_per_week || t.days_per_week === S.me.days_per_week) && !missing(t).length && (!S.me.settings.focus || t.focus === S.me.settings.focus); }
+// Seven days means "every day": the 6-day lifting plans fit, with the seventh left for other training.
+const dayFit = (t) => !S.me.days_per_week || t.days_per_week === Math.min(6, S.me.days_per_week);
+function fits(t) { return dayFit(t) && !missing(t).length && (!S.me.settings.focus || t.focus === S.me.settings.focus); }
 const allPlans = () => S.programs.map((p) => ({ ...p.template, mine: p.id })).concat(templates);
 
 export function recommended() {
-  const want = S.me.settings.focus, days = S.me.days_per_week || 3;
+  const want = S.me.settings.focus, days = Math.min(6, S.me.days_per_week || 3);
   return templates.map((t) => ({ t, score: (want && t.focus === want ? 10 : 0) - Math.abs(t.days_per_week - days) * 2 - missing(t).length * 3 - (t.author === "Kevin" ? 1 : 0) }))
     .sort((a, b) => b.score - a.score)[0].t;
 }

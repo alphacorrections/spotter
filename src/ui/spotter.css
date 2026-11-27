@@ -97,3 +97,8 @@
 .updbar{animation:sp-drop .35s both}
 .toast{animation:sp-lift .25s both}
 .updbar b{white-space:nowrap}
+
+/* The app runs full screen on iPhone (status bar drawn over the page), so every screen
+   starts below the notch and clock, and keeps clear of the rounded side edges. */
+.tp-wrap{padding-top:calc(18px + env(safe-area-inset-top, 0px));padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px))}
+.tp-sheet .tp-sx{max-height:calc(92vh - env(safe-area-inset-top, 0px))}
