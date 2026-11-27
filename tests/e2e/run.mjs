@@ -339,6 +339,20 @@ try {
   const errors = pages.flatMap((p) => p.errors);
   check(errors.length === 0, "no page errors on any phone", errors.join(" | "));
   {
+    const kinds = String(await sql(`select coalesce(string_agg(distinct kind, ',' order by kind), '') from public.notices`)).trim();
+    console.log("notice kinds:", kinds);
+    check(/join/.test(kinds), "the database records a notice when someone joins your group");
+    await k.goto(APP + "#today"); await k.reload(); await k.locator(".bellbtn").waitFor();
+    await k.locator(".bellbtn i").waitFor({ timeout: 8000 });
+    await act(k, "inbox"); await see(k, "joined");
+    check((await k.locator('#sheet [data-act="inboxGo"]').count()) >= 1, "the bell on Today lists what happened in your groups");
+    await k.locator("#sheet [data-close]").last().click(); await k.waitForTimeout(600);
+    const left = String(await sql(`select count(*) from public.notices n join public.profiles p on p.id = n.user_id where p.display_name = 'Kevin' and n.read_at is null`)).trim();
+    check(left === "0", "opening the bell marks them read");
+    const others = String(await sql(`select count(*) from public.notices n join public.profiles p on p.id = n.user_id where p.display_name = 'Jake' and exists (select 1 from public.notices x where x.id = n.id and x.title like 'Jake %')`)).trim();
+    check(others === "0", "nobody is told about their own activity");
+  }
+  {
     await k.goto(APP + "#coach"); await act(k, "eatOpen"); await act(k, "eatProt", '[data-v="mine"]'); await k.fill("#eatprotg", "220");
     if (await k.locator("#eatm").isVisible() && !(await k.inputValue("#eatm"))) await k.fill("#eatm", "2800");
     if (!(await k.inputValue("#eatw"))) await k.fill("#eatw", "200");

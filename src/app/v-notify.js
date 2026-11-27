@@ -1,6 +1,7 @@
 // Notifications: off until you turn them on, and you pick which ones.
 import { ACT, CHG, VIEWS, go, render, backTop, sect, row, note, icon, pill, toast, chips } from "./ui.js";
 import { CLOUD } from "./cloud.js";
+import { S, touchMe } from "./store.js";
 
 const LS = "spotter.push";
 // Each kind has its own time: mobility in the morning, the training nudge after work, the recap on Sunday evening.
@@ -63,7 +64,13 @@ VIEWS.notify = () => {
     `<label class="tp-label" for="pushTrainHour">Around when you usually train</label>${hours("pushTrainHour", p.train_hour, 5, 22)}`);
   h += sect("Mobility") + kind("mobility", "stretch", "Mobility reminders", "A short routine. Morning gets blood moving; a couple more break up a day of sitting.",
     `<div class="tp-label">Remind me at</div>${chips("pushMob", MOB_TIMES.map(([v, l]) => [String(v), l]), p.mobility_hours.map(String), true)}<p class="small muted mt">Pick as many as you want. One is skipped if you did a routine in the two hours before it.</p>`);
-  h += sect("Friends") + kind("friends", "heart", "Friend finished a workout", "Arrives when it happens, for anyone in your groups.");
+  const g = S.me.settings.notify || {}, grow = (k, ic, title, sub) => row({ tile: icon(ic), title, sub, act: "pushGroup", data: { k }, chev: false, right: pill(g[k] === false ? "Off" : "On", g[k] === false ? "plain" : "ok") });
+  h += sect("Your groups") + `<div class="glass">` +
+    row({ tile: icon("dumbbell"), title: "A friend finishes a workout", sub: "Arrives when it happens", act: "pushFlip", data: { k: "friends" }, chev: false, right: pill(p.friends ? "On" : "Off", p.friends ? "ok" : "plain") }) +
+    grow("join", "plus", "Someone joins your group", "So you know who is in") +
+    grow("react", "heart", "Someone reacts to your workout", "The 💪 🔥 👏 on your sessions") +
+    grow("comment", "pencil", "Someone comments on your workout", "With what they wrote") + `</div>
+    <p class="small muted mt">These also show under the bell on Today, whether or not this phone gets notifications.</p>`;
   h += sect("Recap") + kind("weekly", "chart", "Weekly recap", "What you logged over the last seven days.",
     `<div class="flex"><div style="flex:1"><label class="tp-label" for="pushWeekDay">Day</label><select id="pushWeekDay" class="tp-input" data-chg="pushWeekDay">${DAYS.map((d, i) => `<option value="${i}"${+p.weekly_day === i ? " selected" : ""}>${d}</option>`).join("")}</select></div>
      <div style="flex:1"><label class="tp-label" for="pushWeekHour">Time</label>${hours("pushWeekHour", p.weekly_hour, 5, 22)}</div></div>`);
@@ -72,6 +79,7 @@ VIEWS.notify = () => {
 
 async function sendPrefs() { keep(); if (N.here) { try { await fn({ action: "prefs", tz: tz(), prefs: N.prefs }); } catch (e) { toast("Could not save that. Check your signal."); } } }
 ACT.goNotify = () => go("notify");
+ACT.pushGroup = (d) => { const g = (S.me.settings.notify = S.me.settings.notify || {}); g[d.k] = g[d.k] === false; touchMe(); render(); };
 ACT.pushFlip = (d) => { N.prefs[d.k] = !N.prefs[d.k]; render(); sendPrefs(); };
 CHG.pushTrainHour = (v) => { N.prefs.train_hour = +v; sendPrefs(); };
 CHG.pushWeekHour = (v) => { N.prefs.weekly_hour = +v; sendPrefs(); };

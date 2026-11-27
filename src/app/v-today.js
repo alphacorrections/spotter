@@ -5,10 +5,11 @@ import { todayState, startSession, startFreeSession, specFor, targetsFor, skipRe
 import { FOCUS, TECH } from "./words.js";
 import { currentTarget } from "./v-coach.js";
 import { CLOUD } from "./cloud.js";
+import { bell } from "./v-inbox.js";
 import { suggestRoutine, suggestTry } from "./v-more.js";
 import { recovery } from "./v-wear.js";
 
-const topIcons = () => `<button class="coachbtn" data-act="goCoach">${icon("spark")}Coach</button><button class="ibtn" data-act="goSettings" aria-label="Settings">${icon("gear")}</button>`;
+const topIcons = () => `<button class="coachbtn" data-act="goCoach">${icon("spark")}Coach</button>${bell()}<button class="ibtn" data-act="goSettings" aria-label="Settings">${icon("gear")}</button>`;
 ACT.goCoach = () => go("coach");
 ACT.goSettings = () => go("prefs");   // "settings" is a reserved address on some hosts
 

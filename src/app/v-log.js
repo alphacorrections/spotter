@@ -279,7 +279,6 @@ ACT.finishDo = () => {
   const a = openSession(), rating = +(document.querySelector("#rate .on")?.getAttribute("data-v") || 3), noteTxt = val("fnote");
   const work = a.efforts.filter((e) => e.kind === "work"), beat = work.filter((e) => e.verdict === "beat").length, title = a.title;
   finishSession(a, rating, noteTxt);
-  tellFriends(title);
   REST.until = 0; clearInterval(REST.timer);
   go("today");
   sheet("", TP.done(`${title} logged`, `${work.length} sets${beat ? ` · ${beat} beat last time` : ""}. Saved on this phone${S.sync.at ? " and syncing to your account" : ""}.`) + `<div class="acts"><button class="tp-btn" data-close>Done</button></div>`);
