@@ -36,7 +36,9 @@ VIEWS.coach = () => {
   const flags = [];
   if (g.text) flags.push(`<b>Welcome back.</b> ${esc(g.text)}`);
   if (d.due) flags.push(`<b>Take an easy week.</b> ${esc(d.reasons.join(", and "))}. Keep the same exercises and weights, do two thirds of the sets, and stop every set well short of failure. One week, then back to normal.`);
-  for (const e of stuck) flags.push(`<b>${esc(e.name)} has stalled.</b> No new best in three sessions. Pick one: drop the weight 10 percent and build the reps back up, add one set at the same weight, or leave it for a week. Log what you choose and the targets follow.`);
+  // One card for all of them: the advice is the same, so say it once.
+  if (stuck.length === 1) flags.push(`<b>${esc(stuck[0].name)} has levelled off.</b> No new best in three sessions, which is normal mid-block. Try one: drop the weight 10 percent and build the reps back up, add a set at the same weight, or leave it for a week.`);
+  else if (stuck.length) flags.push(`<b>${stuck.length} lifts have levelled off.</b> No new best in three sessions on ${esc(stuck.slice(0, 3).map((e) => e.name).join(", "))}${stuck.length > 3 ? ` and ${stuck.length - 3} more` : ""}. That is normal mid-block, and more so on small lifts.<br><span class="small">Pick the one you care about most and try one thing: drop the weight 10 percent and build the reps back up, add a set at the same weight, or leave it for a week.${stuck.length >= 4 ? " This many at once often means you need an easier week, not six fixes." : ""}</span>`);
   h += sect("What the app has noticed");
   h += flags.length ? flags.map((f) => note(f)).join("") : `<div class="glass"><div class="empty">Nothing to flag. Keep beating last time by a rep.</div></div>`;
 

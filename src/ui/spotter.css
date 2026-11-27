@@ -143,3 +143,7 @@
 
 /* The update bar pushes the page down, so it never sits on top of the buttons in the corner */
 body:has(.updbar) .tp-wrap{margin-top:66px}
+
+/* Hybrid cardio targets */
+.hyb{margin-bottom:12px}.hyb>div:first-child{display:flex;justify-content:space-between;font-size:13.5px;color:var(--tp-ink2)}.hyb b{color:var(--tp-ink)}
+.hybbar{height:8px;border-radius:4px;background:var(--tp-deep);margin-top:6px;overflow:hidden}.hybbar i{display:block;height:100%;border-radius:4px;background:var(--hi)}

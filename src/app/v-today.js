@@ -6,6 +6,7 @@ import { FOCUS, TECH } from "./words.js";
 import { currentTarget } from "./v-coach.js";
 import { CLOUD } from "./cloud.js";
 import { bell } from "./v-inbox.js";
+import { hybridCard } from "./v-hybrid.js";
 import { suggestRoutine, suggestTry } from "./v-more.js";
 import { recovery } from "./v-wear.js";
 
@@ -148,7 +149,7 @@ VIEWS.today = () => {
       <div class="flex mt"><button class="tp-btn big1" data-act="start">${icon("play")} Start session</button><button class="tp-btn tp-ghost" data-act="otherDay">Do a different day</button></div></div>`;
   }
   const backup = CLOUD.ready() && !CLOUD.on() ? `<div class="glass" style="margin-bottom:12px">` + row({ tile: icon("cloud"), title: "Not backed up yet", sub: "Sign in with your email to save your training and join a group", act: "signIn" }) + `</div>` : "";
-  return top("Today", sub, topIcons()) + backup + hero + coachCard(st) + weekCard(st) + body + alsoToday();
+  return top("Today", sub, topIcons()) + backup + hero + coachCard(st) + weekCard(st) + body + hybridCard() + alsoToday();
 };
 
 ACT.goPlans = () => go("plans");

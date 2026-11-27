@@ -376,6 +376,18 @@ try {
     check((await k.locator('[data-act="savedOpen"]').count()) === 1 && (await k.getByText("Core finisher").count()) >= 1, "saved workouts can be filtered by type once there is more than one");
     await act(k, "savedShow", '[data-v=""]');
   }
+  {
+    await k.goto(APP + "#today"); await act(k, "hybridSetup"); await act(k, "hybridGoal", '[data-k="faster"]'); await act(k, "hybridMode", '[data-v="row"]'); await act(k, "hybridSave");
+    let hb = (await state(k)).blocks.find((x) => x.status === "active").plan.hybrid;
+    check(hb.on && hb.goal === "faster" && hb.modes.includes("row") && hb.modes.includes("run"), "cardio targets can be added to a lifting plan, with a goal and your kinds of cardio");
+    await see(k, "Easy minutes"); check((await k.getByText("0 / 90 min").count()) === 1, "the hybrid card shows this week's easy minutes target");
+    await tap(k, '[data-nav="add"]'); await tap(k, '#sheet [data-act="logCardio"]'); await k.fill("#cmin", "30"); await act(k, "cardioZone", '[data-v="2"]'); await act(k, "cardioSave");
+    await k.goto(APP + "#today"); await see(k, "Easy minutes");
+    const easyTxt = await k.locator(".hyb b").first().innerText();
+    check(/^(30|60) \/ 90 min$/.test(easyTxt.trim()), "logged cardio counts toward the week", easyTxt);
+    await act(k, "hybridSetup"); await act(k, "hybridOff");
+    check((await k.getByText("Add cardio to this plan").count()) === 1, "hybrid can be turned off again");
+  }
   // ============================================================ two accounts, one phone
   {
     const codeFor = async (email) => (await (await fetch(`http://127.0.0.1:54321/__test/code?email=${encodeURIComponent(email)}`)).json()).code;

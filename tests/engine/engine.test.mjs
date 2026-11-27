@@ -191,3 +191,25 @@ test("walking and cardio targets", () => {
   assert.equal(maxHr(33), 185);
   assert.deepEqual([100, 120, 140, 160, 175].map((hr) => hrZone(hr, 185)), [1, 2, 3, 4, 5]);
 });
+
+// ---- hybrid: cardio beside lifting
+import { hybridWeek, cardioToday, GOALS, HARD_CAP } from "../../src/engine/hybrid.mjs";
+test("hybrid: cardio grows about 10 percent a week and every fourth week is lighter", () => {
+  const w1 = hybridWeek("general", 1), w2 = hybridWeek("general", 2), w3 = hybridWeek("general", 3), w4 = hybridWeek("general", 4), w5 = hybridWeek("general", 5);
+  assert.equal(w1.easy, 60); assert.ok(w2.easy > w1.easy && w3.easy > w2.easy);
+  assert.ok(w2.easy / w1.easy <= 1.2, "no more than a small jump");
+  assert.ok(w4.light && w4.easy < w3.easy, "week four backs off");
+  assert.ok(w5.easy >= w3.easy, "then it carries on from where it was");
+});
+test("hybrid: hard minutes never pass the weekly cap, and a first 5K has none", () => {
+  for (const g of Object.keys(GOALS)) for (let w = 1; w <= 30; w++) { const t = hybridWeek(g, w); assert.ok(t.hard <= HARD_CAP, g + " week " + w); assert.ok(t.long <= t.easy, "the long session fits inside the easy minutes"); assert.ok(t.easy <= GOALS[g].easy * 2.3, "volume stops growing eventually"); }
+  assert.equal(hybridWeek("first5k", 6).hard, 0);
+});
+test("hybrid: hard cardio stays off leg days, and the long session goes on a rest day", () => {
+  const left = { easy: 60, hard: 15, long: 30 };
+  assert.equal(cardioToday("legs", left).type, "easy");
+  assert.equal(cardioToday("upper", left).type, "hard");
+  assert.equal(cardioToday("rest", left).type, "long");
+  assert.equal(cardioToday("upper", { easy: 40, hard: 0, long: 0 }).type, "easy");
+  assert.equal(cardioToday("rest", { easy: 0, hard: 0, long: 0 }).type, "done");
+});
