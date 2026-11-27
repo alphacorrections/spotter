@@ -8,7 +8,7 @@ import { suggestRoutine, suggestTry } from "./v-more.js";
 
 const topIcons = () => `<button class="ibtn" data-act="goCoach" aria-label="Coach">${icon("bulb")}</button><button class="ibtn" data-act="goSettings" aria-label="Settings">${icon("gear")}</button>`;
 ACT.goCoach = () => go("coach");
-ACT.goSettings = () => go("settings");
+ACT.goSettings = () => go("prefs");   // "settings" is a reserved address on some hosts
 
 function targetLine(spec) {
   if (spec.reps === "amrap") return `${spec.sets} rounds to failure`;

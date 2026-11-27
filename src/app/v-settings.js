@@ -11,7 +11,7 @@ import { resetFriends } from "./v-friends.js";
 
 const ALL_GEAR = EQUIPMENT.map(([k]) => k);
 
-VIEWS.settings = () => {
+VIEWS.prefs = () => {
   const me = S.me, mode = TG.look.get().mode || "dark";
   let h = backTop("Settings", "Spotter " + CONFIG.version, "goToday");
   h += sect("Account");

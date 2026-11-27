@@ -22,7 +22,9 @@ const out = await build({
 });
 const js = out.outputFiles[0].text.replace(/<\/script/gi, "<\\/script");
 const css = read("src/ui/tally-glass.css") + "\n" + read("src/ui/spotter.css");
-const html = read("src/ui/index.template.html").replace("/*__CSS__*/", () => css).replace("/*__JS__*/", () => js);
+// --preview writes a page fragment for sharing a look at the app before it has a home.
+const template = process.argv.includes("--preview") ? "src/ui/preview.template.html" : "src/ui/index.template.html";
+const html = read(template).replace("/*__CSS__*/", () => css).replace("/*__JS__*/", () => js);
 const file = arg("out") ? path.resolve(arg("out")) : path.join(root, "index.html");
 writeFileSync(file, html);
 console.log(`built ${path.relative(process.cwd(), file)} · ${Math.round(html.length / 1024)} KB · version ${version} · accounts ${url ? "on (" + url + ")" : "off"}`);

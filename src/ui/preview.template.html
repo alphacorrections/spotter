@@ -1,0 +1,16 @@
+<title>Spotter</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap">
+<script>
+(function () { try { var u = JSON.parse(localStorage.getItem('spotter.ui') || '{}'), m = u.mode || 'dark'; if (m === 'auto') m = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'; var d = document.documentElement; d.setAttribute('data-pal', u.pal || 'spotter'); d.setAttribute('data-theme', m); } catch (e) { document.documentElement.setAttribute('data-pal', 'spotter'); document.documentElement.setAttribute('data-theme', 'dark'); } })();
+</script>
+<style>
+/*__CSS__*/
+:root[data-theme="dark"]{color-scheme:dark} :root[data-theme="light"]{color-scheme:light}
+body{background:var(--g1)}
+</style>
+<div class="bgfx" aria-hidden="true"><i class="b1"></i><i class="b2"></i><i class="b3"></i></div>
+<div id="app"></div>
+<script>
+document.body.classList.add('tp-page');
+/*__JS__*/
+</script>

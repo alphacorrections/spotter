@@ -262,7 +262,7 @@ try {
   fs.writeFileSync(path.join(app.dir, "version.json"), JSON.stringify({ version: "2099.1.1.1", note: "New things inside" }));
   await k.evaluate(() => document.dispatchEvent(new Event("visibilitychange")));
   await act(k, "goSettings").catch(() => {}); await tap(k, '[data-nav="today"]').catch(() => {});
-  await k.goto(APP + "#settings"); await act(k, "updateTap");
+  await k.goto(APP + "#prefs"); await act(k, "updateTap");
   await k.locator(".updbar").waitFor({ timeout: 8000 });
   check((await k.locator(".updbar").innerText()).includes("New things inside"), "a newer version.json shows the Update ready bar with its note");
   const box = await k.locator(".updbar").boundingBox();
