@@ -8,9 +8,9 @@ const svg = (pad) => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 2
   <linearGradient id="beam" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${G}" stop-opacity=".62"/><stop offset="1" stop-color="${G}" stop-opacity=".3"/></linearGradient></defs>
   <rect width="240" height="240" fill="url(#g)"/><circle cx="60" cy="40" r="120" fill="#fff" opacity=".05"/>
   <g transform="translate(120 120) scale(${pad}) translate(-120 -120)">
-    <polygon points="64,40 92,30 222,196 52,204" fill="url(#beam)"/><ellipse cx="137" cy="200" rx="86" ry="15" fill="${G}" opacity=".6"/>
+    <polygon points="58,42 94,29 226,198 40,206" fill="url(#beam)"/><ellipse cx="133" cy="202" rx="93" ry="16" fill="${G}" opacity=".6"/>
     <rect x="50" y="22" width="52" height="26" rx="9" fill="${G}" transform="rotate(-18 76 35)"/>
-    <g transform="translate(73 96) scale(.54) rotate(-24 120 120)">${bell}</g>
+    <g transform="translate(73 118) scale(.43) rotate(-20 120 120)">${bell}</g>
   </g></svg>`;
 const b = await pw.chromium.launch();
 for (const [file, size, pad, radius] of [["icon-192.png", 192, 1, 0], ["icon-512.png", 512, 1, 0], ["icon-maskable-512.png", 512, 0.72, 0], ["apple-touch-icon.png", 180, 0.92, 0]]) {
