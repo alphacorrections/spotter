@@ -1,6 +1,6 @@
 // Progress: is it working? Lifts over time, the week at a glance, body numbers, history.
-import { S, ex, ymd, nice, ago, finished, historyFor, removeActivity, fmtW, fmtN, unit } from "./store.js";
-import { ACT, VIEWS, render, top, sect, row, note, icon, esc, pill, sheet, closeSheet, toast, lineChart } from "./ui.js";
+import { S, ex, ymd, nice, ago, finished, historyFor, removeActivity, fmtW, fmtN, unit, touch } from "./store.js";
+import { ACT, VIEWS, render, top, sect, row, note, icon, esc, pill, sheet, closeSheet, toast, lineChart, field, val, numVal, chips } from "./ui.js";
 import { stepsByDay, stepGoal } from "./train.js";
 import { stalled } from "../engine/coach.mjs";
 import { cardioWeek } from "./v-more.js";
@@ -67,13 +67,21 @@ VIEWS.progress = () => {
     h += `<div class="glass pad"><div class="kv"><span>Weight, ${esc(ago(w.on).toLowerCase())}</span><b>${w.value} ${esc(w.unit)}</b></div>${ws.length > 1 ? lineChart(ws.slice(-30).map((x) => ({ x: nice(x.measured_on), y: x.value })), "Bodyweight") : `<p class="small muted">Log it again another day and a trend line appears.</p>`}</div>`;
   } else h += `<div class="glass"><div class="empty">Weight, sleep and measurements. Private to you.</div></div>`;
 
-  h += sect("History") + `<div class="glass">` + all.slice(-15).reverse().map((a) => {
+  // History: everything you have logged. Filter by kind, tap one to see it, edit it or delete it.
+  const KINDS = [["", "All"], ["strength", "Lifting"], ["cardio", "Cardio"], ["yoga", "Yoga"], ["mobility", "Mobility"], ["walking", "Walks"]].filter(([k]) => !k || all.some((a) => a.domain === k));
+  if (P.kind && !KINDS.some(([k]) => k === P.kind)) P.kind = "";
+  const shown = all.filter((a) => !P.kind || a.domain === P.kind), cut = P.hist ? shown.length : 15;
+  h += sect("History", shown.length > 15 ? `<button data-act="histAll">${P.hist ? "Show fewer" : "Show all " + shown.length}</button>` : "") +
+    (KINDS.length > 2 ? `<div class="chips" style="margin-bottom:10px">${KINDS.map(([k, l]) => `<button type="button" class="chip${(P.kind || "") === k ? " on" : ""}" data-act="histKind" data-v="${k}">${l}</button>`).join("")}</div>` : "") +
+    `<div class="glass">` + shown.slice(-cut).reverse().map((a) => {
     const d = new Date(a.started_at);
     return `<button class="tp-row" data-act="actOpen" data-id="${a.id}"><span class="datebox"><b>${d.getDate()}</b>${nice(a.started_at).split(" ")[0]}</span><span class="tp-t"><b>${esc(a.title)}</b><span>${esc(subline(a))}</span></span><span class="tp-chev">${icon("chev")}</span></button>`;
   }).join("") + `</div>`;
   return h;
 };
 ACT.liftsAll = () => { P.all = !P.all; render(); };
+ACT.histAll = () => { P.hist = !P.hist; render(); };
+ACT.histKind = (d) => { P.kind = d.v; P.hist = false; render(); };
 const setTxt = (s) => (s.weight != null ? `${fmtW(s.weight)} × ` : "") + fmtN(s.reps);
 ACT.liftOpen = (d) => {
   const hist = historyFor(d.id), e = ex(d.id), bw = e.load_type === "bodyweight";
@@ -92,7 +100,37 @@ ACT.actOpen = (d) => {
     for (const e of ef) { if (!e.exercise_id) continue; if (!by.has(e.exercise_id)) by.set(e.exercise_id, []); by.get(e.exercise_id).push(e); }
     body += `<div class="deep mt">` + [...by.entries()].map(([id, es]) => `<div class="kv"><span>${esc(ex(id).name)}</span><b>${esc(es.map((e) => (e.reps != null ? setTxt(e) : `${e.duration_s}s`)).join(" · "))}</b></div>`).join("") + `</div>`;
   }
-  sheet(a.title, body + `<div class="acts"><button class="tp-btn tp-danger" data-act="actDelete" data-id="${a.id}">Delete</button><button class="tp-btn" data-close>Close</button></div>`);
+  sheet(a.title, body + `<button class="tp-btn tp-ghost tp-block mt" data-act="actEdit" data-id="${a.id}">${icon("pencil")} Edit</button><div class="acts"><button class="tp-btn tp-danger" data-act="actDelete" data-id="${a.id}">Delete</button><button class="tp-btn" data-close>Close</button></div>`);
+};
+// Fix what you entered: the name, the day, how long, how far, how hard, and the note.
+const E = { id: null, zone: 2 };
+const miles = () => S.me.units !== "kg";
+ACT.actEdit = (d) => {
+  const a = S.activities.find((x) => x.id === d.id), e0 = (a.efforts || [])[0] || {}, lift = a.domain === "strength", cardio = a.domain === "cardio";
+  E.id = a.id; E.zone = (e0.hr_zone || 2) <= 2 ? 2 : 4;
+  const mins = Math.round((a.duration_s || e0.duration_s || 0) / 60), dist = e0.distance_m ? Math.round((e0.distance_m / (miles() ? 1609.34 : 1000)) * 100) / 100 : "";
+  sheet("Edit " + a.title, `${field("aetitle", "Name", a.title, "")}${field("aedate", "Day", ymd(new Date(a.started_at)), "", "date")}
+    ${lift ? `<p class="small muted mt">To change the sets of a lifting session, delete it and log it again. Name, day and note can be changed here.</p>` : field("aemin", "Minutes", mins || "", "", "text", "numeric")}
+    ${cardio ? field("aedist", `Distance (${miles() ? "miles" : "km"}), optional`, dist, "", "text", "decimal") + `<label class="tp-label">Effort</label>${chips("aeZone", [["2", "Easy"], ["4", "Hard"]], String(E.zone))}` : ""}
+    ${field("aenote", "Note (friends can see it)", a.note || "", "")}
+    <div class="acts"><button class="tp-btn tp-ghost" data-close>Cancel</button><button class="tp-btn" data-act="actSave">Save changes</button></div>`);
+};
+ACT.aeZone = (d, el) => { E.zone = +d.v; [].forEach.call(el.parentNode.children, (x) => x.classList.toggle("on", x === el)); };
+ACT.actSave = () => {
+  const a = S.activities.find((x) => x.id === E.id); if (!a) return closeSheet();
+  const title = val("aetitle").trim(), day = val("aedate"), lift = a.domain === "strength";
+  if (!title) return toast("Give it a name");
+  if (!/^\d{4}-\d\d-\d\d$/.test(day) || day > ymd()) return toast("Pick a day that is today or earlier");
+  const old = new Date(a.started_at), [y, m, dd] = day.split("-").map(Number), start = new Date(old); start.setFullYear(y, m - 1, dd);
+  let secs = a.duration_s || 0;
+  if (!lift) { const mins = numVal("aemin"); if (!mins || mins < 1 || mins > 600) return toast("Enter the minutes, between 1 and 600"); secs = Math.round(mins * 60); }
+  a.title = title.slice(0, 80); a.note = val("aenote").slice(0, 500) || null; a.started_at = start.toISOString(); a.duration_s = secs; a.ended_at = new Date(start.getTime() + secs * 1000).toISOString();
+  const e0 = (a.efforts || [])[0];
+  if (!lift && e0) {
+    e0.duration_s = secs; e0.logged_at = a.started_at;
+    if (a.domain === "cardio") { const dv = numVal("aedist"); e0.distance_m = dv ? Math.round(dv * (miles() ? 1609.34 : 1000)) : null; e0.hr_zone = E.zone; }
+  }
+  touch(a); closeSheet(); render(); toast("Changes saved");
 };
 ACT.actDelete = (d, el) => {
   if (el.dataset.sure !== "1") { el.dataset.sure = "1"; el.textContent = "Tap again to delete"; return; }

@@ -68,7 +68,7 @@ function alsoToday() {
     row({ tile: icon("steps"), title: steps ? `${steps.toLocaleString()} steps` : "Log your steps", sub: `Target ${goal.toLocaleString()}, based on what you actually walk`, act: "logWalk",
       right: steps >= goal ? pill("Hit", "ok") : "" }) +
     row({ tile: icon("stretch"), title: r.title, sub: `${r.minutes} min mobility · ${r.why}`, act: "goRoutines", right: done("mobility") ? pill("Done", "ok") : "" }) +
-    row({ tile: icon("run"), title: "Cardio", sub: done("cardio") ? "Logged today" : "Run, bike, row, anything", act: "logCardio", right: done("cardio") ? pill("Done", "ok") : "" }) +
+    row({ tile: icon("run"), title: "Cardio", sub: done("cardio") ? "Logged today. Tap to see or edit it" : "Run, bike, row, anything", act: done("cardio") ? "actOpen" : "logCardio", data: done("cardio") ? { id: finished("cardio").filter((x) => ymd(new Date(x.started_at)) === today).slice(-1)[0].id } : {}, right: done("cardio") ? pill("Done", "ok") : "" }) +
     row({ tile: icon("lotus"), title: "Yoga", sub: done("yoga") ? "Logged today" : "A class or your own flow", act: "logYoga", right: done("yoga") ? pill("Done", "ok") : "" }) + `</div>` +
     sect("Try something different", `<button data-act="pickRoutine" data-kind="move">See all</button>`) + `<div class="glass">` +
     row({ tile: icon("flame"), title: t.title, sub: `${t.minutes} min ${t.kind === "hiit" ? "HIIT" : "calisthenics"} · ${t.needs.toLowerCase()}`, act: "openRoutine", data: { key: t.key } }) +

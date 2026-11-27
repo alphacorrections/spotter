@@ -388,6 +388,15 @@ try {
     await k.goto(APP + "#today"); await see(k, "Easy minutes");
     const easyTxt = await k.locator(".hyb b").first().innerText();
     check(/^(30|60) \/ 90 min$/.test(easyTxt.trim()), "logged cardio counts toward the week", easyTxt);
+    // Fix a logged cardio session: from Today's Cardio row, and from Progress, History.
+    await tap(k, '[data-act="actOpen"]'); await tap(k, '#sheet [data-act="actEdit"]');
+    await k.fill("#aemin", "45"); await k.fill("#aedist", "4"); await tap(k, '#sheet [data-act="aeZone"][data-v="4"]'); await k.fill("#aenote", "Felt good"); await tap(k, '#sheet [data-act="actSave"]');
+    const ed = (await state(k)).activities.filter((x) => x.domain === "cardio").slice(-1)[0];
+    check(ed.duration_s === 2700 && ed.efforts[0].duration_s === 2700 && ed.efforts[0].hr_zone === 4 && ed.efforts[0].distance_m > 3900 && ed.note === "Felt good" && ed._d === 1, "a logged cardio session can be edited: minutes, distance, effort and note", JSON.stringify([ed.duration_s, ed.efforts[0]]).slice(0, 200));
+    await k.goto(APP + "#progress"); await see(k, "History"); await tap(k, '[data-act="histKind"][data-v="cardio"]');
+    const rowsN = await k.locator('[data-act="actOpen"]').count(), cardN = (await state(k)).activities.filter((x) => x.domain === "cardio" && !x.open).length;
+    check(rowsN === Math.min(cardN, 15) && rowsN > 0, "History can be filtered to just cardio", rowsN + " rows, " + cardN + " sessions");
+    await k.goto(APP + "#today"); await see(k, "Easy minutes");
     await act(k, "hybridSetup"); await act(k, "hybridOff");
     check((await k.getByText("Add cardio to this plan").count()) === 1, "hybrid can be turned off again");
   }
