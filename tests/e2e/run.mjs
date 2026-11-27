@@ -367,8 +367,11 @@ try {
     await act(k, "savedOpen"); await act(k, "savedEdit"); await k.fill("#svtitle", "Edited title"); await act(k, "savedTag", '[data-v="Lower"]'); await act(k, "savedSave");
     let sv = (await state(k)).saved;
     check(sv.length === n0 && sv.some((l) => l.title === "Edited title" && l.tag === "Lower"), "a saved workout can be edited without making a copy");
-    await setState(k, (st) => { st.saved.push({ id: "11111111-1111-4111-8111-111111111111", url: "https://www.youtube.com/watch?v=abc123", title: "Core finisher", tag: "Core", note: null, tried_on: null, created_at: new Date().toISOString(), _d: 1 }); });
-    await k.goto(APP + "#saved"); await k.locator('[data-act="savedShow"]').first().waitFor();
+    await k.locator("#sheet").waitFor({ state: "detached" });
+    await act(k, "savedAdd"); await k.locator("#svurl").waitFor(); await k.fill("#svurl", "https://www.youtube.com/watch?v=abc123"); await k.fill("#svtitle", "Core finisher"); await act(k, "savedTag", '[data-v="Core"]'); await act(k, "savedSave");
+    await k.locator("#sheet").waitFor({ state: "detached" });
+    sv = (await state(k)).saved;
+    check(sv.length === n0 + 1 && sv.some((l) => l.title === "Core finisher" && l.tag === "Core") && sv.some((l) => l.title === "Edited title"), "adding a link straight after editing one saves a new entry");
     await act(k, "savedShow", '[data-v="Core"]');
     check((await k.locator('[data-act="savedOpen"]').count()) === 1 && (await k.getByText("Core finisher").count()) >= 1, "saved workouts can be filtered by type once there is more than one");
     await act(k, "savedShow", '[data-v=""]');

@@ -140,3 +140,6 @@
 .newdot{width:10px;height:10px;border-radius:50%;background:var(--hi);display:inline-block}
 
 .htrow .tp-label{margin-top:0;font-weight:500}
+
+/* The update bar pushes the page down, so it never sits on top of the buttons in the corner */
+body:has(.updbar) .tp-wrap{margin-top:66px}
