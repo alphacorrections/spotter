@@ -217,8 +217,10 @@ try {
   // Groups
   await see(k, "Start one, or join with a code");
   await act(k, "grCreate"); await k.fill("#grname", "Saturday Lifters"); await act(k, "grCreateDo");
-  await k.locator(".code").waitFor();
-  const code = (await k.locator(".code").innerText()).trim();
+  await act(k, "grInvite"); await k.locator("#sheet .code").waitFor();
+  const code = (await k.locator("#sheet .code").innerText()).trim();
+  check((await k.locator('#sheet [data-act="grShare"]').count()) === 1 && (await k.locator('#sheet [data-act="grCopy"]').count()) === 1, "Invite opens from the top of Friends with the code, share and copy");
+  await k.keyboard.press("Escape"); if (await k.locator("#sheet").count()) await k.evaluate(() => document.querySelector("#sheet [data-close], #sheet .ibtn")?.click());
   check(/^[A-HJKMNP-Z2-9]{6}$/.test(code), "creating a group gives a six-character code", code);
 
   const j = await phone(browser, "jake"); pages.push(j);

@@ -80,8 +80,9 @@ VIEWS.friends = () => {
     <div class="flex mt"><button class="tp-btn" data-act="grCreate">Start a group</button><button class="tp-btn tp-ghost" data-act="grJoin">I have a code</button></div></div>`;
   const g = G.groups.find((x) => x.id === G.cur) || G.groups[0], ms = membersOf(g.id), me = ms.find((m) => m.user_id === CLOUD.uid());
   h += `<div class="chips">${G.groups.map((x) => `<button class="chip${x.id === g.id ? " on" : ""}" data-act="grPick" data-id="${x.id}">${esc(x.name)}</button>`).join("")}<button class="chip" data-act="grMore" aria-label="Add a group">+ Group</button></div>`;
-  h += `<div class="glass pad mt"><div class="flex"><div class="grow"><div class="small muted">Invite code</div><div class="code num">${esc(g.code)}</div></div><button class="tp-btn tp-ghost tp-sm" data-act="grShare" data-code="${esc(g.code)}" data-name="${esc(g.name)}">${icon("share")} Share</button></div>
-    <div class="small muted mt">${ms.length} member${ms.length === 1 ? "" : "s"}: ${esc(ms.map((m) => nameOf(m.user_id)).join(", "))}</div>
+  h = top("Friends", "Train alongside your people", `<button class="coachbtn" data-act="grInvite" data-id="${g.id}">${icon("plus")}Invite</button>`) + h.slice(top("Friends", "Train alongside your people").length);
+  h += `<div class="glass pad mt">
+    <div class="small muted">${ms.length} member${ms.length === 1 ? "" : "s"}: ${esc(ms.map((m) => nameOf(m.user_id)).join(", "))}</div>
     <div class="flex mt"><button class="pillbtn" data-act="grPrivacy" data-id="${g.id}" data-cur="${me?.detail_level || "full"}">You share: ${me?.detail_level === "names_only" ? "session names only" : "full detail"}</button><button class="pillbtn" data-act="grLeaveAsk" data-id="${g.id}">Leave</button></div></div>`;
   const gbs = G.gblocks.filter((b) => b.group_id === g.id);
   h += sect("Group blocks", activeBlock() ? `<button data-act="gbShareAsk" data-id="${g.id}">Share my plan</button>` : "");
@@ -110,6 +111,15 @@ ACT.grJoinDo = async () => {
   try { await syncNow(); G.cur = await CLOUD.rpc("join_group", { join_code: code }); closeSheet(); G.loaded = false; render(); toast("You are in"); }
   catch (e) { toast(/no group/i.test(e.message) ? "No group has that code" : e.message); }
 };
+// Invite: the code, big enough to read out, with share and copy.
+ACT.grInvite = (d) => {
+  const g = G.groups.find((x) => x.id === d.id); if (!g) return;
+  sheet(`Invite to ${g.name}`, `<p class="muted">Anyone with this code can join. Text it to them.</p>
+    <div class="glass pad" style="text-align:center"><div class="small muted">Group code</div><div class="code num" style="font-size:44px;letter-spacing:.18em">${esc(g.code)}</div></div>
+    <div class="acts"><button class="tp-btn" data-act="grShare" data-code="${esc(g.code)}" data-name="${esc(g.name)}">${icon("share")} Share invite</button><button class="tp-btn tp-ghost" data-act="grCopy" data-code="${esc(g.code)}">${icon("copy")} Copy code</button></div>
+    <p class="small muted mt">They open Spotter, tap Friends, then I have a code.</p>`);
+};
+ACT.grCopy = async (d) => { try { await navigator.clipboard.writeText(d.code); toast("Code copied"); } catch (e) { toast(`Code: ${d.code}`); } };
 ACT.grShare = async (d) => {
   const text = `Join my Spotter group "${d.name}" with code ${d.code}: ${location.href.split("#")[0]}`;
   try { if (navigator.share) await navigator.share({ text }); else { await navigator.clipboard.writeText(text); toast("Invite copied"); } }
