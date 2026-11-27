@@ -8,7 +8,7 @@ import { latestWeight } from "./v-coach.js";
 import { RATING } from "./words.js";
 
 const P = { all: false };
-const ICON = { strength: "dumbbell", cardio: "run", yoga: "lotus", mobility: "stretch", walking: "steps" };
+const ICON = { strength: "dumbbell", cardio: "run", yoga: "lotus", mobility: "stretch", walking: "steps", recovery: "heat" };
 const DAY = ["S", "M", "T", "W", "T", "F", "S"];
 
 function subline(a) {
@@ -16,6 +16,7 @@ function subline(a) {
   if (a.domain === "strength") { const n = ef.filter((e) => e.kind === "work").length; return `${n} sets${a.duration_s ? " · " + Math.round(a.duration_s / 60) + " min" : ""}`; }
   if (a.domain === "walking") return `${(ef[0]?.steps || 0).toLocaleString()} steps`;
   if (a.domain === "cardio") { const e = ef[0] || {}; return `${Math.round((a.duration_s || 0) / 60)} min${e.distance_m ? " · " + fmtN(e.distance_m / (S.me.units === "kg" ? 1000 : 1609.34)) + (S.me.units === "kg" ? " km" : " mi") : ""}${e.hr_zone ? " · zone " + e.hr_zone : ""}`; }
+  if (a.domain === "recovery") { const x = (ef[0] || {}).extra || {}; return `${Math.round((a.duration_s || 0) / 60)} min${x.temp ? " · " + x.temp + "°" + (x.temp_unit || "F") : ""}`; }
   return `${Math.round((a.duration_s || 0) / 60)} min`;
 }
 export { subline, ICON };
@@ -68,7 +69,7 @@ VIEWS.progress = () => {
   } else h += `<div class="glass"><div class="empty">Weight, sleep and measurements. Private to you.</div></div>`;
 
   // History: everything you have logged. Filter by kind, tap one to see it, edit it or delete it.
-  const KINDS = [["", "All"], ["strength", "Lifting"], ["cardio", "Cardio"], ["yoga", "Yoga"], ["mobility", "Mobility"], ["walking", "Walks"]].filter(([k]) => !k || all.some((a) => a.domain === k));
+  const KINDS = [["", "All"], ["strength", "Lifting"], ["cardio", "Cardio"], ["yoga", "Yoga"], ["mobility", "Mobility"], ["walking", "Walks"], ["recovery", "Heat and cold"]].filter(([k]) => !k || all.some((a) => a.domain === k));
   if (P.kind && !KINDS.some(([k]) => k === P.kind)) P.kind = "";
   const shown = all.filter((a) => !P.kind || a.domain === P.kind), cut = P.hist ? shown.length : 15;
   h += sect("History", shown.length > 15 ? `<button data-act="histAll">${P.hist ? "Show fewer" : "Show all " + shown.length}</button>` : "") +

@@ -4,7 +4,7 @@ import { ACT, VIEWS, go, render, backTop, sect, note, esc, sheet } from "./ui.js
 import { e1rm, stepsByDay, stepGoal } from "./train.js";
 
 const C = { ym: null };
-const KIND = { strength: ["#F5C451", "Lifting"], cardio: ["#FF7A59", "Cardio"], yoga: ["#B48CFF", "Yoga"], mobility: ["#3CCFCF", "Mobility"], walking: ["#6FD08C", "Walk"] };
+const KIND = { strength: ["#F5C451", "Lifting"], cardio: ["#FF7A59", "Cardio"], yoga: ["#B48CFF", "Yoga"], mobility: ["#3CCFCF", "Mobility"], walking: ["#6FD08C", "Walk"], recovery: ["#FF6FA8", "Heat and cold"] };
 const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 const dayOf = (a) => ymd(new Date(a.started_at));
 const dist = (m) => (S.me.units === "kg" ? `${(m / 1000).toFixed(1)} km` : `${(m / 1609.34).toFixed(1)} mi`);

@@ -347,6 +347,11 @@ try {
     const kinds = String(await sql(`select coalesce(string_agg(distinct kind, ',' order by kind), '') from public.notices`)).trim();
     console.log("notice kinds:", kinds);
     check(/join/.test(kinds), "the database records a notice when someone joins your group");
+    // A sauna reaches the database but does not ping friends the way a workout does.
+    const before = String(await sql(`select count(*) from public.notices where kind = 'workout'`)).trim();
+    const sauna = String(await sql(`with u as (select m.user_id from public.group_members m limit 1), a as (insert into public.activities (id, user_id, domain, title, started_at, ended_at, duration_s, source) select gen_random_uuid(), user_id, 'recovery', 'Sauna', now() - interval '20 min', now(), 1200, 'manual' from u returning id) select count(*) from a`)).trim();
+    const after = String(await sql(`select count(*) from public.notices where kind = 'workout'`)).trim();
+    check(/1$/.test(sauna) && before === after, "a sauna session saves to the database and does not send friends a workout notification", [sauna, before, after].join(" / "));
     await k.goto(APP + "#today"); await k.reload(); await k.locator(".bellbtn").waitFor();
     await k.locator(".bellbtn i").waitFor({ timeout: 8000 });
     await act(k, "inbox"); await see(k, "joined");
@@ -388,6 +393,13 @@ try {
     await k.goto(APP + "#today"); await see(k, "Easy minutes");
     const easyTxt = await k.locator(".hyb b").first().innerText();
     check(/^(30|60) \/ 90 min$/.test(easyTxt.trim()), "logged cardio counts toward the week", easyTxt);
+    // Heat and cold is its own kind of activity.
+    await tap(k, '[data-nav="add"]'); await tap(k, '#sheet [data-act="logHeat"]'); await tap(k, '#sheet [data-act="heatType"][data-v="Sauna"]'); await k.fill("#hmin", "20"); await k.fill("#htemp", "180"); await tap(k, '#sheet [data-act="heatSave"]');
+    const sau = (await state(k)).activities.filter((x) => x.domain === "recovery").slice(-1)[0];
+    check(sau && sau.title === "Sauna" && sau.duration_s === 1200 && sau.efforts[0].kind === "hold" && sau.efforts[0].extra.temp === 180, "a sauna session can be logged with minutes and temperature", JSON.stringify(sau && sau.efforts[0]).slice(0, 160));
+    await tap(k, '[data-nav="add"]'); await tap(k, '#sheet [data-act="logHeat"]');
+    check((await k.inputValue("#hmin")) === "20" && (await k.inputValue("#htemp")) === "180", "the heat form remembers your last session");
+    await tap(k, '#sheet [data-close]');
     // Fix a logged cardio session: from Today's Cardio row, and from Progress, History.
     await tap(k, '[data-act="actOpen"]'); await tap(k, '#sheet [data-act="actEdit"]');
     await k.fill("#aemin", "45"); await k.fill("#aedist", "4"); await tap(k, '#sheet [data-act="aeZone"][data-v="4"]'); await k.fill("#aenote", "Felt good"); await tap(k, '#sheet [data-act="actSave"]');

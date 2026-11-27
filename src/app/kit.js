@@ -94,6 +94,7 @@ Object.assign(TP.icons, {
   trash: '<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 11v6M14 11v6"/>',
   heart: '<path d="M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.5A4 4 0 0 1 19 10c0 5.5-7 10-7 10z"/>',
   lotus: '<path d="M12 5c2 2.5 2 6.5 0 10-2-3.5-2-7.5 0-10zM4 10c3 .5 6 2.5 8 5-3.5.5-7-1-8-5zM20 10c-3 .5-6 2.5-8 5 3.5.5 7-1 8-5zM5 19h14"/>',
+  heat: '<path d="M10 4a2 2 0 0 1 4 0v9.5a4 4 0 1 1-4 0zM12 9v8"/><path d="M18 5h2M18 9h2"/>',
   stretch: '<circle cx="12" cy="4.5" r="1.8"/><path d="M4 9l8-1 8 1M12 8v6l-4 6M12 14l4 6"/>',
   scale: '<rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8.5 9a5 5 0 0 1 7 0L13 11.5h-2z"/>',
   search: '<circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/>',

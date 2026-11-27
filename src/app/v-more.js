@@ -60,6 +60,7 @@ ACT.addMenu = () => {
     row({ tile: icon("flame"), title: "Calisthenics and HIIT", sub: "Bodyweight circuits to follow along", act: "pickRoutine", data: { kind: "move" } }) +
     row({ tile: icon("stretch"), title: "Mobility", sub: "Six short routines", act: "pickRoutine", data: { kind: "mobility" } }) +
     row({ tile: icon("lotus"), title: "Yoga", sub: "A class or your own flow", act: "logYoga" }) +
+    row({ tile: icon("heat"), title: "Heat and cold", sub: "Sauna, steam, hot tub, cold plunge", act: "logHeat" }) +
     row({ tile: icon("scale"), title: "Body", sub: "Weight, sleep, a measurement", act: "logBody" }) +
     row({ tile: icon("link"), title: "Save a workout to try", sub: "A reel or video you want to remember", act: "savedAdd" }) + `</div>`);
 };
@@ -133,6 +134,35 @@ ACT.yogaSave = () => {
   if (link && !/^https?:\/\//i.test(link)) return toast("The link should start with https://");
   addActivity("yoga", `${Y.style} yoga`, min, [{ kind: "flow", duration_s: Math.round(min * 60), extra: { style: Y.style } }], { link_url: link || null, note: val("ynote") || null });
   closeSheet(); render(); toast("Yoga logged");
+};
+
+// ---------------------------------------------------------------- heat and cold
+// Sauna, steam, hot tub, cold plunge, cold shower, or contrast (hot then cold). Minutes are the
+// total time in the heat or the cold. Temperature is optional. The form remembers your last entry.
+const HEAT = ["Sauna", "Steam room", "Hot tub", "Cold plunge", "Cold shower", "Contrast"];
+const H = { type: "Sauna" };
+const degUnit = () => (isKg() ? "C" : "F");
+function lastHeat(type) { return finished("recovery").filter((a) => ((a.efforts || [])[0]?.extra || {}).type === type).slice(-1)[0]; }
+function heatForm() {
+  const prev = lastHeat(H.type), x = prev ? prev.efforts[0].extra : {}, mins = prev ? Math.round((prev.duration_s || 0) / 60) : "";
+  return `<div class="fgrid">${field("hmin", "Minutes", mins, H.type.startsWith("Cold") ? "e.g. 3" : "e.g. 20", "text", "decimal")}${field("htemp", `Temperature (°${degUnit()}), optional`, x.temp_unit === degUnit() ? x.temp || "" : "", "", "text", "decimal")}</div>
+    ${prev ? `<p class="small muted">Filled in from your last ${esc(H.type.toLowerCase())}. Change what is different.</p>` : ""}`;
+}
+ACT.logHeat = () => {
+  const last = finished("recovery").slice(-1)[0];
+  H.type = (last && last.efforts[0]?.extra?.type) || "Sauna";
+  sheet("Heat and cold", `${chips("heatType", HEAT.map((c) => [c, c]), H.type)}<div id="hform">${heatForm()}</div>
+    ${field("hnote", "A line for your friends (optional)", "", "")}
+    <p class="small muted mt">Drink water after heat. Skip the cold plunge right after lifting if muscle growth is the goal: it can blunt the signal. Later in the day or on rest days is fine.</p>
+    <div class="acts"><button class="tp-btn tp-ghost" data-close>Cancel</button><button class="tp-btn" data-act="heatSave">Save</button></div>`);
+};
+ACT.heatType = (d, el) => { H.type = d.v; [].forEach.call(el.parentNode.children, (x) => x.classList.toggle("on", x === el)); document.getElementById("hform").innerHTML = heatForm(); };
+ACT.heatSave = () => {
+  const min = numVal("hmin"), temp = numVal("htemp");
+  if (!min || min <= 0 || min > 240) return toast("Enter how many minutes");
+  if (temp != null && (temp < -5 || temp > 250)) return toast("That temperature looks off");
+  addActivity("recovery", H.type, min, [{ kind: "hold", duration_s: Math.round(min * 60), extra: Object.assign({ type: H.type }, temp != null ? { temp, temp_unit: degUnit() } : {}) }], { note: val("hnote") || null });
+  closeSheet(); render(); toast(H.type + " logged");
 };
 
 // ---------------------------------------------------------------- body
