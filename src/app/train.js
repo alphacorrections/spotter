@@ -42,6 +42,8 @@ export function todayState() {
   if (open) return { kind: "open", activity: open, block: activeBlock() };
   const b = activeBlock();
   if (!b) return { kind: "none" };
+  // A session done out of order this week is not asked for again when its turn comes.
+  for (let p0 = pos(b), n = 0; !p0.done && p0.entry.session && n < b.plan.rotation.length && S.activities.some((a) => a.block_id === b.id && a.week === p0.week && a.session_key === p0.entry.session && a.ended_at); p0 = pos(b), n++) { b.position += 1; touch(b); }
   let p = pos(b);
   if (p.done) return { kind: "complete", block: b };
   const since = b.last_done ? daysBetween(b.last_done, ymd()) : null;

@@ -14,6 +14,7 @@ import "./v-saved.js";
 import "./v-settings.js";
 import "./v-notify.js";
 import "./v-wear.js";
+import "./v-calendar.js";
 import { openSave, firstUrl } from "./v-saved.js";
 
 /* ---------- update check: version.json next to the page says what is live (same as Tally) ---------- */

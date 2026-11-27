@@ -1,6 +1,6 @@
 // Today: the one screen that answers "what do I do now?"
 import { S, ex, ymd, nice, finished, activeBlock, fmtW, unit } from "./store.js";
-import { ACT, VIEWS, go, render, top, sect, row, note, icon, esc, pill, toast, sheet } from "./ui.js";
+import { ACT, VIEWS, go, render, top, sect, row, note, icon, esc, pill, toast, sheet, closeSheet } from "./ui.js";
 import { todayState, startSession, startFreeSession, specFor, targetsFor, skipRest, gap, stalls, deload, stepGoal, stepsByDay, pos, phaseForWeek, nextSession } from "./train.js";
 import { FOCUS, TECH } from "./words.js";
 import { currentTarget } from "./v-coach.js";
@@ -88,12 +88,24 @@ function weekCard(st) {
   let detail;
   if (!ses) detail = `<div class="glass"><div class="empty">Rest day. Walk, stretch, eat, sleep.</div></div>`;
   else detail = sessionPreview(b, ses, wk) + (a ? `<p class="small muted mt">Done ${nice(a.started_at)}.</p>` : WK.sel !== p.index && st.kind !== "open" ? `<div class="acts mt"><button class="tp-btn tp-ghost tp-sm" data-act="weekStart" data-i="${WK.sel}">Do this one today instead</button></div>` : "");
-  return sect(`Week ${wk}`, `<button data-act="editPlan">Edit plan</button>`) +
+  return sect(`Week ${wk}`, `<button data-act="goCalendar">Calendar</button> <button data-act="editPlan">Edit plan</button>`) +
     `<div class="wkstats"><span><b>${done}</b> of ${total} sessions</span><span><b>${other}</b> other in 7 days</span><span><b>${stepGoal().toLocaleString()}</b> step target</span></div>` +
     `<div class="wkstrip">${tabs}</div>` + detail;
 }
 ACT.weekPick = (d) => { WK.sel = +d.i; render(); };
-ACT.weekStart = (d) => { const b = activeBlock(); if (!b) return; const p = pos(b), e = b.plan.rotation[+d.i]; if (!e || !e.session) return; b.position = b.position - p.index + +d.i; b.last_done = null; startSession(b, e.session); go("log"); };
+// Doing a different day keeps your place: the suggested session is still up next afterwards.
+ACT.weekStart = (d) => { const b = activeBlock(); if (!b) return; const e = b.plan.rotation[+d.i]; if (!e || !e.session) return; closeSheet(); startSession(b, e.session); go("log"); };
+ACT.otherDay = () => {
+  const b = activeBlock(); if (!b) return;
+  const p = pos(b), wk = Math.min(p.week, b.plan.weeks);
+  const rows = b.plan.rotation.map((e, i) => {
+    if (!e.session || i === p.index) return "";
+    const ses = b.plan.sessions.find((x) => x.key === e.session), done = S.activities.some((a) => a.block_id === b.id && a.week === wk && a.session_key === e.session && a.ended_at);
+    return row({ tile: icon("dumbbell"), title: ses.title, sub: done ? "Already done this week" : ses.subtitle || "", act: "weekStart", data: { i } });
+  }).join("");
+  sheet("Do a different day", `<p class="muted">Sore, short on time, or want a change? Pick another day. The suggested session stays up next.</p><div class="glass">${rows}` +
+    row({ tile: icon("plus"), title: "Something else", sub: "Log a workout that is not in your plan", act: "freeSession" }) + `</div><div class="acts"><button class="tp-btn tp-ghost" data-close>Never mind</button></div>`);
+};
 
 VIEWS.today = () => {
   const st = todayState();
@@ -131,7 +143,7 @@ VIEWS.today = () => {
     const count = s.slots.filter((x) => specFor(b.plan, x.key, wk).active).length;
     hero = `<div class="glass hero tp-rise"><span class="shine"></span><div class="label">Up next</div><div class="heroT">${esc(s.title)}</div>
       <div class="small muted">${esc(s.subtitle || "")} · ${count} lifts · ${esc(FOCUS[b.focus].name)}</div>
-      <div class="flex mt"><button class="tp-btn big1" data-act="start">${icon("play")} Start session</button></div></div>`;
+      <div class="flex mt"><button class="tp-btn big1" data-act="start">${icon("play")} Start session</button><button class="tp-btn tp-ghost" data-act="otherDay">Do a different day</button></div></div>`;
   }
   return top("Today", sub, topIcons()) + hero + coachCard(st) + weekCard(st) + body + alsoToday();
 };
@@ -146,7 +158,7 @@ ACT.cancelAsk = () => {
   sheet("Cancel this session?", `<p class="muted">${n ? `The ${n} set${n === 1 ? "" : "s"} you logged will be deleted.` : "Nothing is logged yet, so nothing is lost."} Your plan stays on the same day.</p>
     <div class="acts"><button class="tp-btn tp-ghost" data-close>Keep it</button><button class="tp-btn tp-danger" data-act="discard">Cancel session</button></div>`);
 };
-ACT.freeSession = () => { startFreeSession(); go("log"); };
+ACT.freeSession = () => { closeSheet(); startFreeSession(); go("log"); };
 ACT.trainAnyway = () => { const b = activeBlock(); if (b) { skipRest(b); b.last_done = null; render(); } };
 ACT.startNext = () => { const b = activeBlock(); if (!b) return; const nx = nextSession(b); if (!nx) return; b.position = nx.position; b.last_done = null; startSession(b, nx.session.key); go("log"); };
 ACT.editPlan = () => { const b = activeBlock(); if (b) go("editor", { id: b.id }); };

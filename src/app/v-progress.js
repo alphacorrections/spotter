@@ -31,7 +31,7 @@ VIEWS.progress = () => {
   const s28 = all.filter((a) => a.started_at >= since(28) && a.domain !== "walking").length;
   const sets7 = finished("strength").filter((a) => a.started_at >= since(7)).reduce((n, a) => n + (a.efforts || []).filter((e) => e.kind === "work").length, 0);
   const steps = stepsByDay().slice(-7).map(([, n]) => n), avgSteps = steps.length ? Math.round(steps.reduce((a, b) => a + b, 0) / steps.length) : 0;
-  let h = top("Progress", "Is it working?");
+  let h = top("Progress", "Is it working?", `<button class="coachbtn" data-act="goCalendar">${icon("calendar")}Calendar</button>`);
   if (!all.length) return h + `<div class="glass"><div class="empty">Log your first session and your numbers start showing here: every lift over time, your week, your body.</div></div>`;
   h += `<div class="tp-stats tp-rise"><div class="tp-stat"><span>Sessions, 4 weeks</span><b>${s28}</b></div><div class="tp-stat"><span>Sets, 7 days</span><b>${sets7}</b></div><div class="tp-stat"><span>Avg steps</span><b>${avgSteps ? avgSteps.toLocaleString() : "—"}</b></div></div>`;
 

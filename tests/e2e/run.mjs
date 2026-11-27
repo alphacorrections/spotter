@@ -170,6 +170,18 @@ try {
     await act(k, "cancelAsk"); await act(k, "discard");
     check((await state(k)).activities.length === before && (await k.locator('[data-act="resume"]').count()) === 0, "a session started by accident can be cancelled from Today");
   }
+  if (await k.locator('[data-act="otherDay"]').count()) {
+    await act(k, "otherDay");
+    check((await k.locator('#sheet [data-act="weekStart"]').count()) >= 2, "Up next is a suggestion: you can pick a different day");
+    await k.locator("#sheet [data-close]").first().click();
+  }
+  await k.goto(APP + "#calendar");
+  check((await k.locator(".cald").count()) >= 28 && (await k.locator(".cald.lift").count()) >= 1, "the calendar shows the month with lifting days marked");
+  await snap(k, "calendar");
+  await k.locator('.cald[data-act="calDay"]').first().click();
+  await snap(k, "calendar-day");
+  check((await k.locator("#sheet .calrow").count()) >= 1, "tapping a day says what happened");
+  await k.locator("#sheet [data-close]").first().click(); await k.goto(APP + "#today");
   await act(k, "goSettings");
   check((await k.locator('[data-act="setPage"]').count()) === 4 && (await k.locator("#setname").count()) === 0, "Settings is a short menu of topics");
   await act(k, "setPage", '[data-p="nogo"]'); check((await k.locator('[data-act="noGoAdd"]').count()) === 1, "the no-go list has its own page with an Add button");
