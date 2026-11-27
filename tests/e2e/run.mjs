@@ -362,6 +362,17 @@ try {
     const sp = await state(k), last = sp.nutrition.slice().sort((x, y) => (x.effective_from < y.effective_from ? -1 : 1)).pop();
     check(last.protein_g === 220 && sp.me.settings.protein_g === 220 && (await k.getByText("your own number").count()) >= 1, "you can set your own protein number, and the app says whose number it is");
   }
+  {
+    await k.goto(APP + "#saved"); const n0 = (await state(k)).saved.length;
+    await act(k, "savedOpen"); await act(k, "savedEdit"); await k.fill("#svtitle", "Edited title"); await act(k, "savedTag", '[data-v="Lower"]'); await act(k, "savedSave");
+    let sv = (await state(k)).saved;
+    check(sv.length === n0 && sv.some((l) => l.title === "Edited title" && l.tag === "Lower"), "a saved workout can be edited without making a copy");
+    await setState(k, (st) => { st.saved.push({ id: "11111111-1111-4111-8111-111111111111", url: "https://www.youtube.com/watch?v=abc123", title: "Core finisher", tag: "Core", note: null, tried_on: null, created_at: new Date().toISOString(), _d: 1 }); });
+    await k.goto(APP + "#saved"); await k.locator('[data-act="savedShow"]').first().waitFor();
+    await act(k, "savedShow", '[data-v="Core"]');
+    check((await k.locator('[data-act="savedOpen"]').count()) === 1 && (await k.getByText("Core finisher").count()) >= 1, "saved workouts can be filtered by type once there is more than one");
+    await act(k, "savedShow", '[data-v=""]');
+  }
   // ============================================================ two accounts, one phone
   {
     const codeFor = async (email) => (await (await fetch(`http://127.0.0.1:54321/__test/code?email=${encodeURIComponent(email)}`)).json()).code;
