@@ -724,8 +724,11 @@ create policy comments_delete on public.comments
 -- Grants. Nothing for signed-out visitors; RLS decides the rest.
 -- ---------------------------------------------------------------------
 
-revoke all on all tables in schema public from anon;
-revoke execute on all functions in schema public from public, anon;
+-- Supabase hands every new public table and function to the API roles by default.
+-- Take all of it back, then grant exactly what the app needs. Without this, the
+-- column-level grants further down would mean nothing.
+revoke all on all tables in schema public from anon, authenticated;
+revoke execute on all functions in schema public from public, anon, authenticated;
 
 grant usage on schema public to authenticated;
 grant select on public.domains to authenticated;
