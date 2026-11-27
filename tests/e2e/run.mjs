@@ -163,6 +163,13 @@ try {
   check(days >= 3 && (await k.locator(".wkday.sel").count()) === 1, "Today shows the week as tabs, one per day of the plan");
   await k.locator(".wkday").nth(1).click();
   check(await k.locator(".wkday").nth(1).evaluate((e) => e.classList.contains("sel")), "tapping a day shows that day");
+  if (await k.locator('[data-act="startNext"]').count()) {
+    const before = (await state(k)).activities.length;
+    await act(k, "startNext"); await k.goto(APP + "#today");
+    check((await k.locator(".wkday").count()) >= 3, "the week tabs stay on Today while a session is in progress");
+    await act(k, "cancelAsk"); await act(k, "discard");
+    check((await state(k)).activities.length === before && (await k.locator('[data-act="resume"]').count()) === 0, "a session started by accident can be cancelled from Today");
+  }
   await act(k, "goSettings");
   check((await k.locator('[data-act="setPage"]').count()) === 4 && (await k.locator("#setname").count()) === 0, "Settings is a short menu of topics");
   await act(k, "setPage", '[data-p="nogo"]'); check((await k.locator('[data-act="noGoAdd"]').count()) === 1, "the no-go list has its own page with an Add button");

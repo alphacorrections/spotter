@@ -116,3 +116,8 @@
 .wkday.done i{color:var(--tp-ok,#2e9e6b);font-weight:700}.wkday.now i{color:var(--hi);font-weight:700}
 .wkday.past{opacity:.6}
 .wkday.sel{border-color:var(--hi);box-shadow:0 0 0 1px var(--hi) inset}
+
+/* Coach: a labelled button, not a mystery icon */
+.coachbtn{display:inline-flex;align-items:center;gap:6px;height:44px;padding:0 14px;border-radius:14px;border:0;background:var(--hi);color:#14213d;font:700 14px var(--tp-font);cursor:pointer}
+.coachbtn svg{width:17px;height:17px}
+.coachlbl{font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--tp-ink2);margin-bottom:2px}

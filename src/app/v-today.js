@@ -1,13 +1,13 @@
 // Today: the one screen that answers "what do I do now?"
 import { S, ex, ymd, nice, finished, activeBlock, fmtW, unit } from "./store.js";
-import { ACT, VIEWS, go, render, top, sect, row, note, icon, esc, pill, toast } from "./ui.js";
+import { ACT, VIEWS, go, render, top, sect, row, note, icon, esc, pill, toast, sheet } from "./ui.js";
 import { todayState, startSession, startFreeSession, specFor, targetsFor, skipRest, gap, stalls, deload, stepGoal, stepsByDay, pos, phaseForWeek, nextSession } from "./train.js";
 import { FOCUS, TECH } from "./words.js";
 import { currentTarget } from "./v-coach.js";
 import { suggestRoutine, suggestTry } from "./v-more.js";
 import { recovery } from "./v-wear.js";
 
-const topIcons = () => `<button class="ibtn" data-act="goCoach" aria-label="Coach">${icon("bulb")}</button><button class="ibtn" data-act="goSettings" aria-label="Settings">${icon("gear")}</button>`;
+const topIcons = () => `<button class="coachbtn" data-act="goCoach">${icon("spark")}Coach</button><button class="ibtn" data-act="goSettings" aria-label="Settings">${icon("gear")}</button>`;
 ACT.goCoach = () => go("coach");
 ACT.goSettings = () => go("prefs");   // "settings" is a reserved address on some hosts
 
@@ -46,7 +46,7 @@ function coachCard(st) {
   const n = currentTarget();
   if (n) lines.push(`Eating target: <b>${n.target_kcal} calories</b>, ${n.protein_g} g protein.`);
   if (!lines.length) return "";
-  return note(`<div class="tipcard"><span class="tp-tile">${icon("bulb")}</span><div>${lines.join("<br>")}</div></div>`);
+  return note(`<div class="tipcard"><span class="tp-tile">${icon("spark")}</span><div><div class="coachlbl">Coach</div>${lines.join("<br>")}</div></div>`);
 }
 
 function alsoToday() {
@@ -68,8 +68,10 @@ function alsoToday() {
 const WK = { sel: null, block: null, week: null };
 function weekCard(st) {
   const b = st.block;
-  if (!b || !st.pos || st.pos.done) return "";
-  const p = pos(b), rot = b.plan.rotation, wk = Math.min(p.week, b.plan.weeks), base = b.position - p.index;
+  if (!b) return "";
+  const p = pos(b);
+  if (p.done) return "";
+  const rot = b.plan.rotation, wk = Math.min(p.week, b.plan.weeks), base = b.position - p.index;
   if (WK.block !== b.id || WK.week !== wk || WK.sel == null || WK.sel >= rot.length) Object.assign(WK, { block: b.id, week: wk, sel: p.index });
   const did = (key) => S.activities.find((a) => a.block_id === b.id && a.week === wk && a.session_key === key && a.ended_at);
   let dayNo = 0, done = 0, total = 0;
@@ -110,7 +112,7 @@ VIEWS.today = () => {
     const a = st.activity, n = a.efforts.filter((e) => e.kind === "work").length;
     hero = `<div class="glass hero tp-rise"><span class="shine"></span><div class="label">In progress</div><div class="heroT">${esc(a.title)}</div>
       <div class="small muted">${n} set${n === 1 ? "" : "s"} logged so far. Everything is saved on this phone.</div>
-      <div class="flex mt"><button class="tp-btn big1" data-act="resume">${icon("play")} Resume</button></div></div>`;
+      <div class="flex mt"><button class="tp-btn big1" data-act="resume">${icon("play")} Resume</button><button class="tp-btn tp-ghost" data-act="cancelAsk">Cancel session</button></div></div>`;
   } else if (st.kind === "complete") {
     hero = `<div class="glass hero tp-rise"><span class="shine"></span><div class="label">Block complete</div><div class="heroT">${esc(b.title)}: done</div>
       <div class="small muted">${b.plan.weeks} weeks finished. Take an easy week, then run it again or pick something new. Your history carries over.</div>
@@ -137,6 +139,13 @@ VIEWS.today = () => {
 ACT.goPlans = () => go("plans");
 ACT.start = () => { const st = todayState(); if (st.kind === "session") { startSession(st.block, st.session.key); go("log"); } };
 ACT.resume = () => go("log");
+ACT.cancelAsk = () => {
+  const st = todayState();
+  if (st.kind !== "open") return;
+  const n = st.activity.efforts.filter((e) => e.kind === "work").length;
+  sheet("Cancel this session?", `<p class="muted">${n ? `The ${n} set${n === 1 ? "" : "s"} you logged will be deleted.` : "Nothing is logged yet, so nothing is lost."} Your plan stays on the same day.</p>
+    <div class="acts"><button class="tp-btn tp-ghost" data-close>Keep it</button><button class="tp-btn tp-danger" data-act="discard">Cancel session</button></div>`);
+};
 ACT.freeSession = () => { startFreeSession(); go("log"); };
 ACT.trainAnyway = () => { const b = activeBlock(); if (b) { skipRest(b); b.last_done = null; render(); } };
 ACT.startNext = () => { const b = activeBlock(); if (!b) return; const nx = nextSession(b); if (!nx) return; b.position = nx.position; b.last_done = null; startSession(b, nx.session.key); go("log"); };
