@@ -2,7 +2,7 @@
 // that lets you change anything about a plan once it is yours.
 import { S, touch, save, uid, ex, templates, activeBlock, openSession, nice, gear } from "./store.js";
 import { ACT, CHG, VIEWS, R, go, render, top, backTop, sect, row, note, icon, esc, pill, sheet, closeSheet, toast, chips, field, val } from "./ui.js";
-import { startBlock, endBlock, resumeBlock, pos, phaseForWeek } from "./train.js";
+import { startBlock, endBlock, resumeBlock, pos, phaseForWeek, nextSession } from "./train.js";
 import { FOCUS, TECH, EQUIPMENT } from "./words.js";
 import { openPicker } from "./v-log.js";
 import { currentTarget } from "./v-coach.js";
@@ -108,7 +108,7 @@ ACT.resumeAsk = (d) => {
 ACT.resumeDo = (d) => { const b = S.blocks.find((x) => x.id === d.id); if (pos(b).done) b.position = 0; resumeBlock(b); closeSheet(); go("today"); };
 
 // ---------------------------------------------------------------- editor
-const ED = { session: null, slot: null };
+const ED = { session: null, slot: null, open: null, block: null };   // open: which days are unfolded in the editor
 const edBlock = () => S.blocks.find((x) => x.id === R.params.id) || activeBlock();
 function edPhase(b) { return phaseForWeek(b.plan, Math.min(pos(b).week, b.plan.weeks)).key; }
 function findSlot(b, key) { for (const s of b.plan.sessions) { const i = s.slots.findIndex((x) => x.key === key); if (i >= 0) return { s, i, slot: s.slots[i] }; } return null; }
@@ -119,8 +119,13 @@ VIEWS.editor = () => {
   const ph = edPhase(b), phName = b.plan.phases.find((p) => p.key === ph).name;
   let h = backTop("Edit plan", b.title, "goToday", `<button class="tp-btn tp-sm" data-act="goToday">Done</button>`) +
     note(`Changes are yours alone and apply from your next session. Rep ranges shown are for the current phase: <b>${esc(phName)}</b>.`);
+  // Days start folded, except the one that is up next, so the page is a short list you open as needed.
+  if (ED.block !== b.id || !ED.open) { ED.block = b.id; const p = pos(b); ED.open = new Set([(!p.done && p.entry.session) || nextSession(b)?.session.key || b.plan.sessions[0].key]); }
   for (const s of b.plan.sessions) {
-    h += sect(s.title, `<button data-act="edAdd" data-s="${s.key}">+ Add a lift</button>`) + `<div class="glass">`;
+    const open = ED.open.has(s.key);
+    h += `<div class="glass edday">` + row({ tile: icon("dumbbell"), title: s.title, sub: `${s.slots.length} lift${s.slots.length === 1 ? "" : "s"}${s.subtitle ? " · " + s.subtitle : ""}`, act: "edFold", data: { s: s.key }, chev: false, right: `<span class="edchev${open ? " open" : ""}">${icon("chev")}</span>` }) + `</div>`;
+    if (!open) continue;
+    h += `<div class="edopen"><div class="acts" style="justify-content:flex-end;margin:8px 0"><button class="tp-btn tp-ghost tp-sm" data-act="edAdd" data-s="${s.key}">+ Add a lift</button></div><div class="glass">`;
     s.slots.forEach((sl, i) => {
       const r = sl.reps[ph], sets = sl.sets ?? b.plan.roles?.[sl.role]?.sets ?? 3, ranged = Array.isArray(r);
       h += `<div class="edrow"><div class="edname"><b>${esc(sl.display_name || ex(sl.exercise).name)}</b><span>${esc(sl.role)}${sl.superset ? " · superset " + sl.superset : ""}${r === "skip" ? " · not in this phase" : ""}</span></div>
@@ -129,7 +134,7 @@ VIEWS.editor = () => {
         </div><div class="edbtns"><button class="ibtn sm" data-act="edMove" data-k="${sl.key}" data-d="-1" aria-label="Move up"${i ? "" : " disabled"}>${icon("up")}</button><button class="ibtn sm" data-act="edMove" data-k="${sl.key}" data-d="1" aria-label="Move down"${i < s.slots.length - 1 ? "" : " disabled"}>${icon("down")}</button>
         <button class="ibtn sm" data-act="edSwap" data-k="${sl.key}" aria-label="Change exercise">${icon("swap")}</button><button class="ibtn sm" data-act="edRemove" data-k="${sl.key}" aria-label="Remove">${icon("trash")}</button></div></div>`;
     });
-    h += `</div>`;
+    h += `</div></div>`;
   }
   h += `<button class="tp-btn tp-ghost tp-block mt" data-act="edSaveAs">Save as my own plan</button>`;
   return h;
@@ -145,6 +150,7 @@ ACT.edRemove = (d, el) => {
   f.s.slots.splice(f.i, 1); touch(b); render();
 };
 ACT.edSwap = (d) => { ED.slot = d.k; openPicker("Change exercise", "edPick"); };
+ACT.edFold = (d) => { if (ED.open.has(d.s)) ED.open.delete(d.s); else ED.open.add(d.s); render(); };
 ACT.edPick = (d) => { const b = edBlock(), f = findSlot(b, ED.slot); f.slot.exercise = d.id; delete f.slot.display_name; delete f.slot.alternates; applyLoad(f.slot, d.id); touch(b); closeSheet(); render(); };
 ACT.edAdd = (d) => { ED.session = d.s; openPicker("Add a lift", "edAddPick"); };
 function applyLoad(slot, id) {

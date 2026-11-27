@@ -147,3 +147,15 @@ body:has(.updbar) .tp-wrap{margin-top:66px}
 /* Hybrid cardio targets */
 .hyb{margin-bottom:12px}.hyb>div:first-child{display:flex;justify-content:space-between;font-size:13.5px;color:var(--tp-ink2)}.hyb b{color:var(--tp-ink)}
 .hybbar{height:8px;border-radius:4px;background:var(--tp-deep);margin-top:6px;overflow:hidden}.hybbar i{display:block;height:100%;border-radius:4px;background:var(--hi)}
+
+/* Plan editor: one folding row per day */
+.edday{margin-top:10px}.edchev{display:inline-flex;transition:transform .15s;color:var(--tp-ink2)}.edchev.open{transform:rotate(90deg)}.edchev svg{width:18px;height:18px}
+.edopen{margin:0 0 6px}
+
+/* Coach card on Today: dark glass like the rest, one thought per line, numbers as tiles */
+.coachcard{padding:16px;margin-top:12px;cursor:pointer}
+.coachhead{display:flex;align-items:center;gap:10px;margin-bottom:10px}.coachhead b{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--hi)}
+.coachhead .tp-tile{width:32px;height:32px;border-radius:10px}.coachhead .tp-tile svg{width:17px;height:17px}.coachmore{margin-left:auto;color:var(--tp-ink2);display:inline-flex}.coachmore svg{width:16px;height:16px}
+.coachcard p{margin:0 0 10px;font-size:15px;line-height:1.45;color:var(--tp-ink)}.coachcard p:last-child{margin-bottom:0}
+.coachstats{display:grid;grid-template-columns:repeat(auto-fit,minmax(88px,1fr));gap:8px;margin-top:4px}
+.coachstats div{background:var(--tp-deep);border-radius:12px;padding:9px 10px}.coachstats span{display:block;font-size:11px;color:var(--tp-ink2);margin-bottom:2px}.coachstats b{font-size:16px}

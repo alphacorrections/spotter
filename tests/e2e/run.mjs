@@ -149,6 +149,9 @@ try {
   await act(k, "planFocus", '[data-v="strength"]');
   check((await k.locator('[data-act="planDetail"]').count()) === 3, "filtering plans by Strength leaves the two strength plans");
   await act(k, "editPlan"); await see(k, "Edit plan");
+  check((await k.locator('[data-act="edFold"]').count()) >= 3 && (await k.locator('input[data-chg="edSets"]').count()) < 12, "the plan editor shows one folded row per day, with only one day open");
+  if (!(await k.locator('input[data-chg="edSets"][data-k="legs_a.lunge"]').count())) await act(k, "edFold", '[data-s="legs_a"]');
+  await k.locator('input[data-chg="edSets"][data-k="legs_a.lunge"]').waitFor();
   const sets = k.locator('input[data-chg="edSets"][data-k="legs_a.lunge"]'); await sets.fill("5"); await sets.blur();
   await act(k, "edAdd", '[data-s="legs_a"]'); await k.fill("#exq", "hack squat"); await act(k, "edAddPick", '[data-id="Hack_Squat"]');
   await snap(k, "editor");

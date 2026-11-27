@@ -33,23 +33,31 @@ function sessionPreview(b, session, week) {
 }
 
 function coachCard(st) {
-  const lines = [];
+  const tips = [], stats = [];
   const g = gap();
-  if (g.text && st.kind === "session") lines.push(g.text);
+  if (g.text && st.kind === "session") tips.push(g.text);
   const d = deload();
-  if (d.due) lines.push(`<b>Consider an easy week.</b> ${esc(d.reasons.join(" and "))}. Same lifts and weights, two thirds of the sets.`);
+  if (d.due) tips.push(`<b>Consider an easy week.</b> ${esc(d.reasons.join(" and "))}. Same lifts and weights, two thirds of the sets.`);
   const stuck = stalls();
-  if (stuck.length && !d.due) lines.push(`<b>${esc(stuck[0].name)} has stalled.</b> Three sessions with no new best. Open Coach for what to try.`);
+  if (stuck.length && !d.due) tips.push(stuck.length === 1 ? `<b>${esc(stuck[0].name)} has levelled off.</b> Tap Coach for what to try.` : `<b>${stuck.length} lifts have levelled off.</b> Normal mid-block. Tap Coach for what to try.`);
   if (st.block && st.pos && !st.pos.done) {
     const ph = phaseForWeek(st.block.plan, Math.min(st.pos.week, st.block.plan.weeks));
-    if (ph.note && !lines.length) lines.push(`<b>${esc(ph.name)}.</b> ${esc(ph.note)}`);
+    if (ph.note && !tips.length) tips.push(`<b>${esc(ph.name)}.</b> ${esc(ph.note)}`);
   }
   const rec = recovery();
-  if (rec) lines.push(`Oura: ${esc(rec.text)}.${rec.low && st.kind === "session" ? " <b>Recovery is low.</b> Keep the weights, drop a set per lift if it feels heavy." : ""}`);
+  if (rec) {
+    const r = rec.row;
+    if (r.sleep_minutes) stats.push(["Sleep", `${Math.floor(r.sleep_minutes / 60)}h ${r.sleep_minutes % 60}m`]);
+    if (r.readiness) stats.push(["Readiness", String(r.readiness)]);
+    if (r.resting_hr) stats.push(["Resting HR", String(r.resting_hr)]);
+    if (rec.low && st.kind === "session") tips.push("<b>Recovery is low.</b> Keep the weights, drop a set per lift if it feels heavy.");
+  }
   const n = currentTarget();
-  if (n) lines.push(`Eating target: <b>${n.target_kcal} calories</b>, ${n.protein_g} g protein.`);
-  if (!lines.length) return "";
-  return note(`<div class="tipcard"><span class="tp-tile">${icon("spark")}</span><div><div class="coachlbl">Coach</div>${lines.join("<br>")}</div></div>`);
+  if (n) stats.push(["Calories", String(n.target_kcal)], ["Protein", n.protein_g + " g"]);
+  if (!tips.length && !stats.length) return "";
+  return `<div class="glass coachcard" data-act="goCoach"><div class="coachhead"><span class="tp-tile">${icon("spark")}</span><b>Coach</b><span class="coachmore">${icon("chev")}</span></div>
+    ${tips.map((t) => `<p>${t}</p>`).join("")}
+    ${stats.length ? `<div class="coachstats">${stats.map(([k, v]) => `<div><span>${k}</span><b>${esc(v)}</b></div>`).join("")}</div>` : ""}</div>`;
 }
 
 function alsoToday() {
