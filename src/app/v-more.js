@@ -23,15 +23,24 @@ function addActivity(domain, title, minutes, efforts, extra) {
 }
 
 /** The routine that fits what you last trained. */
-export function suggestRoutine() {
-  const last = finished("strength").slice(-1)[0];
-  let key = "full";
-  if (last && ymd(new Date(last.started_at)) >= ymd(new Date(Date.now() - 2 * 86400000))) {
-    const lower = (last.efforts || []).filter((e) => ex(e.exercise_id).region === "lower").length;
-    key = lower > (last.efforts || []).length / 2 ? "hips" : "shoulders";
-  }
-  return ROUTINES.find((r) => r.key === key);
+/** The routine that fits today: it follows the session that is up next, or recovery on a day off. */
+export function suggestPlan() {
+  const st = todayState(), b = st.block;
+  let key = "full", why = "a reset for a day off";
+  const fit = (ses, when) => {
+    const ids = (ses.slots || []).map((x) => x.exercise).filter(Boolean), lower = ids.filter((id) => ex(id).region === "lower").length;
+    const legs = lower > ids.length / 2;
+    key = legs ? "hips" : "shoulders"; why = `${when} ${ses.title}, ${legs ? "a leg day" : "an upper day"}`;
+  };
+  if (st.kind === "session") fit(st.session, "opens you up for");
+  else if (st.kind === "open" && b && st.activity.session_key) { const s = b.plan.sessions.find((x) => x.key === st.activity.session_key); if (s) fit(s, "pairs with"); }
+  else if (st.kind === "done_today") {
+    const a = finished("strength").slice(-1)[0], ef = (a && a.efforts) || [], lower = ef.filter((e) => ex(e.exercise_id).region === "lower").length;
+    if (ef.length) { key = lower > ef.length / 2 ? "hips" : "shoulders"; why = "cools down what you trained today"; }
+  } else if (st.kind === "rest") { key = "full"; why = "recovery on your day off"; }
+  return { routine: ROUTINES.find((r) => r.key === key), why };
 }
+export function suggestRoutine() { const s = suggestPlan(); return { ...s.routine, why: s.why }; }
 /** Something different to try today: a calisthenics or HIIT routine you can do with what you have, rotating daily. */
 export function suggestTry() {
   const have = gear(), bars = !have || have.includes("pullup_bar");
@@ -163,6 +172,19 @@ ACT.pickRoutine = (d) => {
   sheet(move ? "Calisthenics and HIIT" : "Mobility", `<p class="small muted">${move ? "Bodyweight circuits you follow along with. Calisthenics builds strength with your own weight. HIIT is short, hard intervals. Good for days you want something different." : "Each routine has three parts: controlled reps, active holds, then one long hold. Mobility is strength at the end of your range, so move with control."}</p><div class="glass">` +
     list.map((r) => row({ tile: String(r.minutes), title: r.title, sub: move ? `${r.minutes} min ${KIND[r.kind]} · ${r.needs}` : `${r.minutes} min · ${r.why}`, act: "openRoutine", data: { key: r.key } })).join("") + `</div>`);
 };
+// Every mobility routine on one page, with today's pick on top.
+VIEWS.routines = () => {
+  const s = suggestPlan(), done = finished("mobility").some((a) => ymd(new Date(a.started_at)) === ymd());
+  let h = backTop("Mobility", done ? "Done once today. More is fine" : "Ten minutes or less", "goToday");
+  h += `<div class="glass hero"><span class="shine"></span><div class="label">Suggested today</div><div class="heroT">${esc(s.routine.title)}</div>
+    <div class="small muted">${s.routine.minutes} min · ${esc(s.why)}</div>
+    <div class="flex mt"><button class="tp-btn big1" data-act="openRoutine" data-key="${s.routine.key}">${icon("play")} Start</button></div></div>`;
+  h += sect("All routines") + `<div class="glass">` + ROUTINES.filter((r) => r.kind === "mobility").map((r) =>
+    row({ tile: String(r.minutes), title: r.title, sub: `${r.minutes} min · ${r.why}`, act: "openRoutine", data: { key: r.key }, right: r.key === s.routine.key ? pill("Suggested", "ok") : "" })).join("") + `</div>`;
+  h += note("Each routine has three parts: controlled circles, strength at the end of your range, then active movement.");
+  return h;
+};
+ACT.goRoutines = () => go("routines");
 ACT.openRoutine = (d) => { closeSheet(); const r = ROUTINES.find((x) => x.key === d.key); M.done = {}; M.started = Date.now(); M.rounds = r.rounds || 1; go("mobility", { key: d.key }); };
 ACT.mobRounds = (d) => { const r = ROUTINES.find((x) => x.key === R.params.key); M.rounds = Math.max(1, Math.min((r.rounds || 1) + 3, M.rounds + +d.d)); document.getElementById("mobrounds").textContent = M.rounds; };
 const dose = (it) => (it.seconds ? `${it.seconds} sec` : `${it.reps} reps`) + (it.per_side ? " each side" : "");

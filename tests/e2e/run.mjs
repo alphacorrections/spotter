@@ -98,6 +98,8 @@ try {
   await tap(k, '[data-nav="add"]'); await tap(k, '#sheet [data-act="logCardio"]'); await k.fill("#cmin", "30"); await k.fill("#cdist", "3.1"); await act(k, "cardioZone", '[data-v="2"]'); await act(k, "cardioSave");
   await act(k, "logWalk"); await k.fill("#wsteps", "8200"); await act(k, "walkSave");
   await act(k, "logYoga"); await k.fill("#ymin", "45"); await k.fill("#ylink", "https://example.com/class/12"); await act(k, "yogaSave");
+  await act(k, "goRoutines");
+  check((await k.locator('[data-act="openRoutine"]').count()) >= 7 && (await k.getByText("Suggested today").count()) === 1, "mobility lists every routine with today's suggestion on top");
   await act(k, "openRoutine"); await see(k, "Controlled reps"); await snap(k, "mobility");
   await k.locator("#mb0").check(); await act(k, "mobDone");
   await tap(k, '[data-nav="add"]'); await tap(k, '#sheet [data-act="logBody"]'); await k.fill("#bw", "205"); await k.fill("#bsleep", "7.5"); await act(k, "bodySave");

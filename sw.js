@@ -47,6 +47,7 @@ self.addEventListener('push', function (e) {
 self.addEventListener('notificationclick', function (e) {
   e.notification.close();
   var hash = (e.notification.data && e.notification.data.url) || '';
+  if (e.notification.tag === 'mobility') hash = '#routines';   /* straight to the routines, not the home screen */
   e.waitUntil(self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function (list) {
     for (var i = 0; i < list.length; i++) {
       if ('focus' in list[i]) { if (hash && 'navigate' in list[i]) list[i].navigate(self.registration.scope + hash).catch(function () {}); return list[i].focus(); }
