@@ -7,6 +7,7 @@ import { SYNC, syncNow } from "./sync.js";
 import { startBlock } from "./train.js";
 import { FOCUS, EQUIPMENT } from "./words.js";
 import { recommended } from "./v-plans.js";
+import { openPicker } from "./v-log.js";
 import { resetFriends } from "./v-friends.js";
 
 const ALL_GEAR = EQUIPMENT.map(([k]) => k);
@@ -28,10 +29,11 @@ VIEWS.prefs = () => {
     <button class="tp-btn tp-sm mt" data-act="setSave">Save</button></div>`;
   h += sect("Your gym") + `<div class="glass pad"><p class="small muted">Used to mark plans that fit and to filter swaps. Leave it empty if you have everything.</p>${chips("setGear", EQUIPMENT, me.equipment, true)}
     <label class="tp-label">Training days a week</label>${chips("setDays", [2, 3, 4, 5, 6, 7].map((n) => [String(n), String(n)]), String(me.days_per_week || ""))}</div>`;
-  h += sect("No-go list") + (me.no_go.length ? `<div class="glass">` + me.no_go.map((n, i) => row({ tile: icon("close"), title: ex(n.exercise_id).name, sub: `${n.reason === "pain" ? "Swapped for pain" : "Avoid"} · since ${n.since || "a while ago"}`, act: "noGoDrop", data: { i }, chev: false, right: `<span class="tp-pill tp-plain">Allow again</span>` })).join("") + `</div>`
-    : `<div class="glass"><div class="empty">Lifts you swap out for pain land here, so no plan brings them back unasked.</div></div>`);
+  h += sect("No-go list", `<button data-act="noGoAdd">+ Add a lift</button>`) + (me.no_go.length ? `<div class="glass">` + me.no_go.map((n, i) => row({ tile: icon("close"), title: ex(n.exercise_id).name, sub: `${n.reason === "pain" ? "Swapped for pain" : "Avoid"} · since ${n.since || "a while ago"}`, act: "noGoDrop", data: { i }, chev: false, right: `<span class="tp-pill tp-plain">Allow again</span>` })).join("") + `</div>`
+    : `<div class="glass"><div class="empty">Lifts to keep out of your training. Add one here, or swap a lift mid-session and pick It hurts.</div></div>`);
   h += sect("Look") + `<div class="glass pad"><div class="seg">${[["dark", "Dark"], ["light", "Light"], ["auto", "Match phone"]].map(([v, l]) => `<button type="button" data-act="setMode" data-v="${v}" class="${mode === v ? "on" : ""}">${l}</button>`).join("")}</div><div class="dotsrow mt"><span class="small">Color</span>${TG.dots()}</div></div>`;
   h += sect("This phone") + `<div class="glass">` +
+    row({ tile: icon("bell"), title: "Notifications", sub: "Training nudges, friends, weekly recap. Off until you turn them on", act: "goNotify" }) +
     row({ tile: icon("home"), title: "Add Spotter to your Home Screen", sub: "Opens like an app, works with no signal", act: "installHelp" }) +
     row({ tile: icon("spark"), title: "Check for an update", sub: "Version " + CONFIG.version, act: "updateTap" }) +
     row({ tile: icon("doc"), title: "Download my data", sub: "Everything on this phone, as one file", act: "exportTap" }) +
@@ -49,6 +51,11 @@ ACT.setSave = () => {
 ACT.setUnits = (d) => { if (S.me.units === d.v) return; S.me.units = d.v; S.me.increments = d.v === "kg" ? { upper: 2.5, lower: 5 } : { upper: 5, lower: 10 }; touchMe(); render(); toast(`New sets log in ${d.v}. Past sets stay as you logged them.`); };
 ACT.setGear = (d) => { const g = S.me.equipment, i = g.indexOf(d.v); if (i >= 0) g.splice(i, 1); else g.push(d.v); touchMe(); render(); };
 ACT.setDays = (d) => { S.me.days_per_week = +d.v; touchMe(); render(); };
+ACT.noGoAdd = () => openPicker("Add to your no-go list", "noGoPick");
+ACT.noGoPick = (d) => {
+  if (!S.me.no_go.some((n) => n.exercise_id === d.id)) S.me.no_go.push({ exercise_id: d.id, reason: "avoid", since: new Date().toISOString().slice(0, 10) });
+  touchMe(); closeSheet(); render(); toast(`${ex(d.id).name} will not be suggested. Plans that include it will flag it.`);
+};
 ACT.noGoDrop = (d) => { S.me.no_go.splice(+d.i, 1); touchMe(); render(); };
 ACT.setMode = (d) => { TG.look.set(null, d.v); };
 ACT.syncTap = async () => { toast("Syncing…"); const ok = await syncNow(); render(); toast(ok ? "Up to date" : S.sync.error || "Could not sync"); };

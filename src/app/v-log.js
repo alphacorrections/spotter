@@ -1,5 +1,6 @@
 // The session screen: one card per lift, the next set ready to log with the
 // target already filled in. Also the swap, how-to and add-exercise sheets.
+import { tellFriends } from "./v-notify.js";
 import { S, save, touch, uid, ex, allExercises, openSession, lastSets, historyFor, fmtW, fmtN, unit, loadStep, imageUrl, howToUrl, nice } from "./store.js";
 import { ACT, CHG, VIEWS, go, render, backTop, sect, row, note, icon, esc, pill, tone, sheet, closeSheet, toast, chips, field, val, numVal, TP, gearName } from "./ui.js";
 import { itemPlan, itemKey, setsLogged, logSet, addExtra, unlog, finishSession, discardSession, swapNow, alternatives, isNoGo } from "./train.js";
@@ -278,6 +279,7 @@ ACT.finishDo = () => {
   const a = openSession(), rating = +(document.querySelector("#rate .on")?.getAttribute("data-v") || 3), noteTxt = val("fnote");
   const work = a.efforts.filter((e) => e.kind === "work"), beat = work.filter((e) => e.verdict === "beat").length, title = a.title;
   finishSession(a, rating, noteTxt);
+  tellFriends(title);
   REST.until = 0; clearInterval(REST.timer);
   go("today");
   sheet("", TP.done(`${title} logged`, `${work.length} sets${beat ? ` · ${beat} beat last time` : ""}. Saved on this phone${S.sync.at ? " and syncing to your account" : ""}.`) + `<div class="acts"><button class="tp-btn" data-close>Done</button></div>`);
