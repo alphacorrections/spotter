@@ -1,9 +1,10 @@
 // Notifications: off until you turn them on, and you pick which ones.
-import { ACT, CHG, VIEWS, go, render, backTop, sect, row, note, icon, pill, toast } from "./ui.js";
+import { ACT, CHG, VIEWS, go, render, backTop, sect, row, note, icon, pill, toast, chips } from "./ui.js";
 import { CLOUD } from "./cloud.js";
 
 const LS = "spotter.push";
-const DEF = { hour: 17, train: true, mobility: false, friends: true, weekly: true };
+// Each kind has its own time: mobility in the morning, the training nudge after work, the recap on Sunday evening.
+const DEF = { train: true, train_hour: 17, mobility: false, mobility_hours: [7], friends: true, weekly: true, weekly_day: 0, weekly_hour: 18 };
 const N = { here: false, busy: false, checked: false, prefs: load() };
 function load() { try { return Object.assign({}, DEF, JSON.parse(localStorage.getItem(LS) || "{}")); } catch (e) { return Object.assign({}, DEF); } }
 function keep() { try { localStorage.setItem(LS, JSON.stringify(N.prefs)); } catch (e) { /* fine */ } }
@@ -34,12 +35,13 @@ async function check() {
 }
 
 const hourName = (h) => (h % 12 || 12) + (h < 12 ? " am" : " pm");
-const KINDS = [
-  ["train", "dumbbell", "Training nudge", "Only when it has been two days since you lifted. Stops after two weeks."],
-  ["mobility", "stretch", "Mobility reminder", "Once a day, if you have not done a routine yet."],
-  ["friends", "heart", "Friends", "When someone in one of your groups finishes a workout."],
-  ["weekly", "chart", "Weekly recap", "Sunday: what you logged this week."],
-];
+const hours = (id, cur, from, to) => `<select id="${id}" class="tp-input" data-chg="${id}">${Array.from({ length: to - from + 1 }, (_, i) => from + i).map((i) => `<option value="${i}"${+cur === i ? " selected" : ""}>${hourName(i)}</option>`).join("")}</select>`;
+const MOB_TIMES = [[7, "7 am"], [9, "9 am"], [11, "11 am"], [13, "1 pm"], [15, "3 pm"], [17, "5 pm"], [20, "8 pm"]];
+const DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+function kind(k, ic, title, sub, body) {
+  const on = N.prefs[k];
+  return `<div class="glass">` + row({ tile: icon(ic), title, sub, act: "pushFlip", data: { k }, chev: false, right: pill(on ? "On" : "Off", on ? "ok" : "plain") }) + (on && body ? `<div style="padding:0 16px 16px">${body}</div>` : "") + `</div>`;
+}
 
 VIEWS.notify = () => {
   let h = backTop("Notifications", "Off until you turn them on");
@@ -51,23 +53,34 @@ VIEWS.notify = () => {
   }
   if (Notification.permission === "denied") return h + note("<b>Notifications are blocked for Spotter on this phone.</b><br>Open the phone's Settings, find Spotter under Notifications, and allow them. Then come back here.");
   check();
+  const p = N.prefs;
   h += `<div class="glass hero"><span class="shine"></span><div class="label">This phone</div><div class="heroT">${N.here ? "Notifications are on" : "Notifications are off"}</div>
-    <div class="small muted">${N.here ? "You get only what is switched on below." : "Nothing is sent until you turn this on. You choose what you hear about."}</div>
+    <div class="small muted">${N.here ? "You get only what is switched on below, at the times you pick." : "Nothing is sent until you turn this on. You choose what you hear about, and when."}</div>
     <div class="flex mt">${N.here
       ? `<button class="tp-btn" data-act="pushTest">Send a test</button><button class="tp-btn tp-ghost" data-act="pushOff">Turn off</button>`
       : `<button class="tp-btn big1" data-act="pushOn"${N.busy ? " disabled" : ""}>${icon("bell")} Turn on</button>`}</div></div>`;
-  h += sect("What you get") + `<div class="glass">` + KINDS.map(([k, ic, title, sub]) =>
-    row({ tile: icon(ic), title, sub, act: "pushFlip", data: { k }, chev: false, right: pill(N.prefs[k] ? "On" : "Off", N.prefs[k] ? "ok" : "plain") })).join("") + `</div>`;
-  h += sect("When") + `<div class="glass pad"><label class="small muted" for="pushHour">Reminders arrive around</label>
-    <select id="pushHour" class="tp-input" data-chg="pushHour">${Array.from({ length: 24 }, (_, i) => `<option value="${i}"${+N.prefs.hour === i ? " selected" : ""}>${hourName(i)}</option>`).join("")}</select>
-    <p class="small muted mt">Friend activity arrives when it happens. Everything else waits for this hour.</p></div>`;
+  h += sect("Training") + kind("train", "dumbbell", "Training nudge", "Only when it has been two days since you lifted. Stops after two weeks.",
+    `<label class="tp-label" for="pushTrainHour">Around when you usually train</label>${hours("pushTrainHour", p.train_hour, 5, 22)}`);
+  h += sect("Mobility") + kind("mobility", "stretch", "Mobility reminders", "A short routine. Morning gets blood moving; a couple more break up a day of sitting.",
+    `<div class="tp-label">Remind me at</div>${chips("pushMob", MOB_TIMES.map(([v, l]) => [String(v), l]), p.mobility_hours.map(String), true)}<p class="small muted mt">Pick as many as you want. One is skipped if you did a routine in the two hours before it.</p>`);
+  h += sect("Friends") + kind("friends", "heart", "Friend finished a workout", "Arrives when it happens, for anyone in your groups.");
+  h += sect("Recap") + kind("weekly", "chart", "Weekly recap", "What you logged over the last seven days.",
+    `<div class="flex"><div style="flex:1"><label class="tp-label" for="pushWeekDay">Day</label><select id="pushWeekDay" class="tp-input" data-chg="pushWeekDay">${DAYS.map((d, i) => `<option value="${i}"${+p.weekly_day === i ? " selected" : ""}>${d}</option>`).join("")}</select></div>
+     <div style="flex:1"><label class="tp-label" for="pushWeekHour">Time</label>${hours("pushWeekHour", p.weekly_hour, 5, 22)}</div></div>`);
   return h;
 };
 
 async function sendPrefs() { keep(); if (N.here) { try { await fn({ action: "prefs", tz: tz(), prefs: N.prefs }); } catch (e) { toast("Could not save that. Check your signal."); } } }
 ACT.goNotify = () => go("notify");
 ACT.pushFlip = (d) => { N.prefs[d.k] = !N.prefs[d.k]; render(); sendPrefs(); };
-CHG.pushHour = (v) => { N.prefs.hour = +v; sendPrefs(); };
+CHG.pushTrainHour = (v) => { N.prefs.train_hour = +v; sendPrefs(); };
+CHG.pushWeekHour = (v) => { N.prefs.weekly_hour = +v; sendPrefs(); };
+CHG.pushWeekDay = (v) => { N.prefs.weekly_day = +v; sendPrefs(); };
+ACT.pushMob = (d) => {
+  const g = N.prefs.mobility_hours, v = +d.v, i = g.indexOf(v);
+  if (i >= 0) { if (g.length > 1) g.splice(i, 1); else return toast("Keep at least one time, or switch mobility reminders off."); } else g.push(v);
+  g.sort((a, b) => a - b); render(); sendPrefs();
+};
 ACT.pushOn = async () => {
   if (N.busy) return;
   N.busy = true;

@@ -83,11 +83,13 @@ async function tick() {
   for (const p of people) {
     try {
       const tz = p.tz || "America/New_York", now = localNow(tz);
-      if (now.hr !== +p.hour) continue;
+      const mobHours: number[] = (p.mobility_hours || []).map(Number);
+      const due = { train: p.train && now.hr === +p.train_hour, mob: p.mobility && mobHours.includes(now.hr), week: p.weekly && now.wd === +p.weekly_day && now.hr === +p.weekly_hour };
+      if (!due.train && !due.mob && !due.week) continue;
       const today = dayIn(tz);
       const acts = await sql`select domain, started_at from public.activities where user_id = ${p.user_id} and ended_at is not null and started_at > now() - interval '15 days' order by started_at desc`;
       const days = (domain: string) => acts.filter((a) => a.domain === domain).map((a) => dayIn(tz, a.started_at));
-      if (p.train) {
+      if (due.train) {
         const lifts = days("strength");
         // Only after two quiet days, and only for two weeks: a nudge, not a nag.
         if (lifts.length && lifts[0] !== today) {
@@ -95,10 +97,16 @@ async function tick() {
           if (gap >= 2 && gap <= 14 && await once(p.user_id, "train:" + today, { title: plural(gap, "day", "days") + " since your last session", body: "Your next session is ready when you are. Missed days just shift forward, nothing is lost.", tag: "train", url: "#today" })) sent++;
         }
       }
-      if (p.mobility && !days("mobility").includes(today)) {
-        if (await once(p.user_id, "mob:" + today, { title: "Ten minutes of mobility", body: "A short routine is picked for you on Today.", tag: "mobility", url: "#today" })) sent++;
+      if (due.mob) {
+        // Skipped if a routine was logged in the two hours before this reminder.
+        const recent = acts.some((a) => a.domain === "mobility" && Date.now() - new Date(a.started_at).getTime() < 2 * 3600e3);
+        const first = now.hr === Math.min(...mobHours);
+        const note = first && now.hr < 11
+          ? { title: "Morning mobility", body: "Five to ten minutes to get blood moving. A routine is picked for you on Today." }
+          : { title: "Movement break", body: "Stand up and loosen up for five minutes. A routine is picked for you on Today." };
+        if (!recent && await once(p.user_id, "mob:" + today + ":" + now.hr, { ...note, tag: "mobility", url: "#today" })) sent++;
       }
-      if (p.weekly && now.wd === 0) {
+      if (due.week) {
         const wk = acts.filter((a) => daysBetween(dayIn(tz, a.started_at), today) < 7);
         const n = (d: string) => wk.filter((a) => a.domain === d).length;
         const parts = [n("strength") && plural(n("strength"), "lift", "lifts"), n("cardio") && plural(n("cardio"), "cardio session", "cardio sessions"), n("yoga") && plural(n("yoga"), "yoga session", "yoga sessions"), n("mobility") && plural(n("mobility"), "mobility session", "mobility sessions")].filter(Boolean);
@@ -117,10 +125,13 @@ async function savePrefs(uid: string, b: any) {
   const sql = db(), f = b.prefs || {};
   let tz = String(b.tz || "America/New_York").slice(0, 60);
   try { new Intl.DateTimeFormat("en-US", { timeZone: tz }); } catch { tz = "America/New_York"; }
-  const hour = Math.min(23, Math.max(0, Math.round(+f.hour) || 0));
-  await sql`insert into public.push_prefs (user_id, tz, hour, train, mobility, friends, weekly)
-            values (${uid}, ${tz}, ${f.hour == null ? 17 : hour}, ${bool(f.train, true)}, ${bool(f.mobility, false)}, ${bool(f.friends, true)}, ${bool(f.weekly, true)})
-            on conflict (user_id) do update set tz = excluded.tz, hour = excluded.hour, train = excluded.train, mobility = excluded.mobility, friends = excluded.friends, weekly = excluded.weekly, updated_at = now()`;
+  const hr = (v: unknown, d: number) => (v == null || isNaN(+v) ? d : Math.min(23, Math.max(0, Math.round(+v))));
+  const mob = [...new Set((Array.isArray(f.mobility_hours) ? f.mobility_hours : [7]).map((v: unknown) => hr(v, 7)))].slice(0, 8) as number[];
+  const day = Math.min(6, Math.max(0, Math.round(+f.weekly_day) || 0));
+  await sql`insert into public.push_prefs (user_id, tz, train, train_hour, mobility, mobility_hours, friends, weekly, weekly_day, weekly_hour)
+            values (${uid}, ${tz}, ${bool(f.train, true)}, ${hr(f.train_hour, 17)}, ${bool(f.mobility, false)}, ${mob.length ? mob : [7]}, ${bool(f.friends, true)}, ${bool(f.weekly, true)}, ${day}, ${hr(f.weekly_hour, 18)})
+            on conflict (user_id) do update set tz = excluded.tz, train = excluded.train, train_hour = excluded.train_hour, mobility = excluded.mobility, mobility_hours = excluded.mobility_hours,
+              friends = excluded.friends, weekly = excluded.weekly, weekly_day = excluded.weekly_day, weekly_hour = excluded.weekly_hour, updated_at = now()`;
 }
 
 Deno.serve(async (req) => {
@@ -153,7 +164,7 @@ Deno.serve(async (req) => {
     if (b.action === "unsub") { await sql`delete from public.push_subs where endpoint = ${String(b.endpoint || "")} and user_id = ${user.id}`; return json({ ok: true }); }
     if (b.action === "status") {
       const mine = b.endpoint ? await sql`select 1 from public.push_subs where endpoint = ${String(b.endpoint)} and user_id = ${user.id}` : [];
-      const p = await sql`select hour, train, mobility, friends, weekly from public.push_prefs where user_id = ${user.id}`;
+      const p = await sql`select train, train_hour, mobility, mobility_hours, friends, weekly, weekly_day, weekly_hour from public.push_prefs where user_id = ${user.id}`;
       return json({ ok: true, here: mine.length > 0, prefs: p[0] || null });
     }
     if (b.action === "test") {
