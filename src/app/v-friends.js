@@ -88,7 +88,7 @@ VIEWS.friends = () => {
   h += sect("Group blocks", activeBlock() ? `<button data-act="gbShareAsk" data-id="${g.id}">Share my plan</button>` : "");
   h += gbs.length ? gbs.map((b) => blockCard(b, g.id)).join("") : `<div class="glass"><div class="empty">Share the plan you are running and the others can run it with you, each on their own weights.</div></div>`;
   const ids = new Set(ms.map((m) => m.user_id));
-  const own = finished().filter((a) => a.pushed).map((a) => ({ ...a, user_id: CLOUD.uid() }));
+  const own = finished().filter((a) => a.pushed && a.source !== "import" && !/^Imported from your sheet/.test(a.note || "")).map((a) => ({ ...a, user_id: CLOUD.uid() }));
   const feed = G.feed.filter((a) => ids.has(a.user_id)).concat(own).sort((a, b) => b.started_at.localeCompare(a.started_at)).slice(0, 30);
   h += sect("Feed", `<button data-act="frReload">Refresh</button>`);
   h += feed.length ? feed.map((a) => feedCard(a, g.id)).join("") : `<div class="glass"><div class="empty">Finished sessions show up here.</div></div>`;
