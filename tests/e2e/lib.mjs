@@ -56,6 +56,7 @@ export async function shot(page, name, dir) {
 }
 
 export async function onboard(page, name, { focus = "hypertrophy", days = 5, gear = "obGym", start = true } = {}) {
+  if (await page.locator('[data-act="obNoAccount"]').count()) await act(page, "obNoAccount");
   await page.fill("#obname", name);
   await act(page, "obNext");
   await act(page, "obFocus", `[data-v="${focus}"]`);

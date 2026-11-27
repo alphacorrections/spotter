@@ -4,6 +4,7 @@ import { ACT, VIEWS, go, render, top, sect, row, note, icon, esc, pill, toast, s
 import { todayState, startSession, startFreeSession, specFor, targetsFor, skipRest, gap, stalls, deload, stepGoal, stepsByDay, pos, phaseForWeek, nextSession } from "./train.js";
 import { FOCUS, TECH } from "./words.js";
 import { currentTarget } from "./v-coach.js";
+import { CLOUD } from "./cloud.js";
 import { suggestRoutine, suggestTry } from "./v-more.js";
 import { recovery } from "./v-wear.js";
 
@@ -145,7 +146,8 @@ VIEWS.today = () => {
       <div class="small muted">${esc(s.subtitle || "")} · ${count} lifts · ${esc(FOCUS[b.focus].name)}</div>
       <div class="flex mt"><button class="tp-btn big1" data-act="start">${icon("play")} Start session</button><button class="tp-btn tp-ghost" data-act="otherDay">Do a different day</button></div></div>`;
   }
-  return top("Today", sub, topIcons()) + hero + coachCard(st) + weekCard(st) + body + alsoToday();
+  const backup = CLOUD.ready() && !CLOUD.on() ? `<div class="glass" style="margin-bottom:12px">` + row({ tile: icon("cloud"), title: "Not backed up yet", sub: "Sign in with your email to save your training and join a group", act: "signIn" }) + `</div>` : "";
+  return top("Today", sub, topIcons()) + backup + hero + coachCard(st) + weekCard(st) + body + alsoToday();
 };
 
 ACT.goPlans = () => go("plans");

@@ -191,12 +191,19 @@ const O = { step: 0 };
 const dots = () => `<div class="sxhead">${O.step ? `<button class="ibtn" data-act="obBack" aria-label="Back">${icon("back")}</button>` : ""}<div class="stepdots">${[0, 1, 2, 3].map((i) => `<i class="${i <= O.step ? "on" : ""}"></i>`).join("")}</div></div>`;
 VIEWS.onboard = () => {
   const me = S.me;
+  // Account first: your training is backed up from the first set, and groups work straight away.
+  if (CLOUD.ready() && !CLOUD.on() && !O.noAccount) return `<span class="eyebrow hi">Spotter</span><h1 class="flowh">Know what to lift today, and beat it next time</h1>
+    <p class="flowp muted">Start with your email. It creates your account, backs up every session, and lets you join your friends' group.</p>
+    <div class="glass pad"><p class="small muted">No password. You get a code by email and type it in. New here or coming back, it is the same step.</p>
+    <button class="tp-btn big1 tp-block mt" data-act="signIn">Continue with email</button></div>
+    <button class="tp-btn tp-ghost tp-block mt" data-act="obNoAccount">Not now, set up without an account</button>
+    <p class="small muted mt" style="text-align:center">Without an account your training lives only on this phone.</p>`;
   if (O.step === 0) return dots() + `<span class="eyebrow hi">Spotter</span><h1 class="flowh">Know what to lift today, and beat it next time</h1>
     <p class="flowp muted">A plan, a target for every set, and a reason behind each one. Four quick questions, then you are in.</p>
     ${field("obname", "Your first name", me.display_name, "What your friends will see")}
     <label class="tp-label">Units</label><div class="seg" id="obunits">${[["lb", "Pounds"], ["kg", "Kilos"]].map(([v, l]) => `<button type="button" data-v="${v}" class="${me.units === v ? "on" : ""}">${l}</button>`).join("")}</div>
     <button class="tp-btn big1 tp-block mt" data-act="obNext">Next</button>
-    ${CLOUD.ready() && !CLOUD.on() ? `<button class="tp-btn tp-ghost tp-block mt" data-act="signIn">I already have an account</button>` : ""}`;
+    ${CLOUD.ready() && !CLOUD.on() ? `<button class="tp-btn tp-ghost tp-block mt" data-act="signIn">Sign in with email instead</button>` : ""}`;
   if (O.step === 1) return dots() + `<h1 class="flowh">What are you training for?</h1><p class="flowp muted">This picks your plan. You can change it any time.</p>` +
     Object.entries(FOCUS).map(([k, f]) => `<button class="tp-opt${me.settings.focus === k ? " tp-on" : ""}" data-act="obFocus" data-v="${k}"><span><b>${esc(f.name)}</b><span>${esc(f.line)}. ${esc(f.how.split(". ")[0])}.</span></span></button>`).join("");
   if (O.step === 2) return dots() + `<h1 class="flowh">How many days a week?</h1><p class="flowp muted">Be honest. A plan you finish beats a bigger one you skip.</p>
@@ -231,7 +238,8 @@ ACT.obDays = (d) => { S.me.days_per_week = +d.v; touchMe(); render(); };
 ACT.obGym = () => { S.me.equipment = ALL_GEAR.slice(); delete S.me.settings.gear; touchMe(); render(); };
 ACT.obHome = () => { S.me.equipment = ["dumbbell", "bench"]; delete S.me.settings.gear; touchMe(); render(); };
 ACT.obNone = () => { S.me.equipment = []; S.me.settings.gear = "none"; touchMe(); render(); };
-function finishOnboard() { S.me.settings.onboarded = true; O.step = 0; touchMe(); saveNow(); }
+function finishOnboard() { S.me.settings.onboarded = true; O.step = 0; touchMe(); saveNow(); syncNow(); }   // push the new profile now, not on the next change
+ACT.obNoAccount = () => { O.noAccount = true; render(); };
 ACT.obStart = (d) => { startBlock(templates.find((t) => t.slug === d.slug)); finishOnboard(); go("today"); };
 ACT.obBrowse = () => { finishOnboard(); go("plans"); };
 ACT.obSkip = () => { finishOnboard(); go("today"); };

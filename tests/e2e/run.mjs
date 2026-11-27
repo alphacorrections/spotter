@@ -360,11 +360,19 @@ try {
     await act(k, "switchYes"); await k.locator("#obname").waitFor();
     check((await state(k)).activities.length === 0, "switching opens the second account on a clean slate");
     await onboard(k, "Burner");
-    const rows = await sql(`select count(*) from public.activities a join auth.users u on u.id = a.user_id where u.email = 'burner@example.test'`);
-    check(String(rows).trim() === "0", "none of the first account's training reaches the second account");
+    await k.waitForTimeout(2500); const rows = await sql(`select count(*) from public.activities a join public.profiles p on p.id = a.user_id where p.display_name = 'Burner'`), made0 = await sql(`select count(*) from public.profiles where display_name = 'Burner'`);
+    check(String(rows).trim() === "0" && String(made0).trim() === "1", "none of the first account's training reaches the second account");
     await swap("kevin@example.test"); await act(k, "switchYes"); await k.locator("#sheet").waitFor({ state: "detached", timeout: 10000 });
     const back = await state(k);
     check(back.activities.length === mine && back.me.display_name !== "Burner", "switching back brings the first account's data back, nothing lost");
+  }
+  {
+    const n = await phone(browser, "fresh"); await n.goto(APP);
+    check((await n.locator("#obname").count()) === 0 && (await n.getByText("Continue with email").count()) === 1, "a new person is asked for their email before anything else");
+    await act(n, "signIn"); await signIn(n, "fresh@example.test"); await n.locator("#obname").waitFor();
+    await onboard(n, "Fresh"); await n.waitForTimeout(3500);
+    const made = await sql(`select count(*) from public.profiles where display_name = 'Fresh'`);
+    check(String(made).trim() === "1" && (await n.getByText("Not backed up yet").count()) === 0, "signing in first creates the account, then setup carries on");
   }
 } catch (e) {
   failed = e;
