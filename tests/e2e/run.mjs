@@ -338,6 +338,26 @@ try {
 
   const errors = pages.flatMap((p) => p.errors);
   check(errors.length === 0, "no page errors on any phone", errors.join(" | "));
+  // ============================================================ two accounts, one phone
+  {
+    const codeFor = async (email) => (await (await fetch(`http://127.0.0.1:54321/__test/code?email=${encodeURIComponent(email)}`)).json()).code;
+    const swap = async (email) => {
+      await k.goto(APP + "#prefs"); await act(k, "signOutAsk"); await act(k, "signOutDo"); await act(k, "signIn");
+      await k.fill("#sgemail", email); await act(k, "signSend"); await k.locator("#sgcode").waitFor();
+      await k.fill("#sgcode", await codeFor(email)); await act(k, "signVerify"); await see(k, "A different account");
+    };
+    const mine = (await state(k)).activities.length;
+    await swap("burner@example.test");
+    check((await state(k)).activities.length === mine && mine > 0, "signing in as someone else leaves the phone's data alone until you choose");
+    await act(k, "switchYes"); await k.locator("#obname").waitFor();
+    check((await state(k)).activities.length === 0, "switching opens the second account on a clean slate");
+    await onboard(k, "Burner");
+    const rows = await sql(`select count(*) from public.activities a join auth.users u on u.id = a.user_id where u.email = 'burner@example.test'`);
+    check(String(rows).trim() === "0", "none of the first account's training reaches the second account");
+    await swap("kevin@example.test"); await act(k, "switchYes"); await k.locator("#sheet").waitFor({ state: "detached", timeout: 10000 });
+    const back = await state(k);
+    check(back.activities.length === mine && back.me.display_name !== "Burner", "switching back brings the first account's data back, nothing lost");
+  }
 } catch (e) {
   failed = e;
   for (const [i, p] of pages.entries()) { try { await p.screenshot({ path: `/tmp/spotter-fail-${i}.png` }); } catch (x) { /* page gone */ } }

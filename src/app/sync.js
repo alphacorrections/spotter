@@ -139,6 +139,9 @@ async function pull() {
 
 export async function syncNow() {
   if (!CLOUD.ready() || !CLOUD.on()) return false;
+  // This phone's data belongs to one account. It is never synced into a different one.
+  if (!S.owner) { S.owner = CLOUD.uid(); S.owner_email = CLOUD.email(); save(); }
+  else if (S.owner !== CLOUD.uid()) return false;
   if (SYNC.busy) { SYNC.queued = true; return false; }
   SYNC.busy = true; emit();
   try {

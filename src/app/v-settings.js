@@ -147,16 +147,41 @@ ACT.signVerify = async (d, el) => {
   try {
     await CLOUD.verify(A.email, code);
     clearPending();
-    const wasNew = !S.me.settings.onboarded;
-    await syncNow();
-    resetFriends(); closeSheet();
-    if (wasNew && S.me.settings.onboarded) go("today"); else render();
-    toast(S.sync.error ? "Signed in, but the first sync failed. It will retry." : "Signed in. Your training is backed up.");
+    if (S.owner && S.owner !== CLOUD.uid()) return switchAsk();
+    await afterSignIn();
   } catch (e) { el.disabled = false; el.textContent = "Sign in"; toast(/expired|invalid/i.test(e.message) ? "That code is wrong or has expired" : e.message); }
+};
+async function afterSignIn() {
+  const wasNew = !S.me.settings.onboarded;
+  await syncNow();
+  resetFriends(); closeSheet();
+  if (!S.me.settings.onboarded) go("onboard"); else if (wasNew) go("today"); else render();
+  toast(S.sync.error ? "Signed in, but the first sync failed. It will retry." : "Signed in. Your training is backed up.");
+}
+// Two accounts, one phone. The first account's data is set aside, never merged and never deleted.
+const STASH = "spotter.v1.stash.";
+const unsentCount = () => (S.me._d ? 1 : 0) + S.dels.length + [S.exercises, S.programs, S.blocks, S.changes, S.body, S.health, S.nutrition, S.saved, S.activities].reduce((n, t) => n + t.filter((r) => r._d && !r.open).length, 0);
+function switchAsk() {
+  const old = S.owner_email || "another account", n = unsentCount();
+  sheet("A different account", `<p class="muted">This phone holds training for <b>${esc(old)}</b>. You just signed in as <b>${esc(CLOUD.email())}</b>.</p>
+    <p class="muted">Switching sets the first account's data aside and opens this one on its own. Nothing is deleted or mixed. It comes back when ${esc(old)} signs in on this phone again.</p>
+    ${n ? `<p class="muted"><b>${n} change${n === 1 ? " has" : "s have"} not synced yet.</b> ${n === 1 ? "It is" : "They are"} kept on this phone, but will only reach that account once ${esc(old)} signs in here again.</p>` : ""}
+    <div class="acts"><button class="tp-btn tp-ghost" data-act="switchNo">Go back</button><button class="tp-btn" data-act="switchYes">Switch accounts</button></div>`);
+}
+ACT.switchNo = () => { CLOUD.signOut(); closeSheet(); render(); toast("Signed out. Nothing changed on this phone."); };
+ACT.switchYes = async () => {
+  saveNow();
+  try { localStorage.setItem(STASH + S.owner, JSON.stringify(S)); } catch (e) { return toast("This phone is out of storage, so the switch was stopped. Nothing changed."); }
+  let next = {};
+  try { next = JSON.parse(localStorage.getItem(STASH + CLOUD.uid()) || "{}"); } catch (e) { next = {}; }
+  replaceState(next);
+  S.owner = CLOUD.uid(); S.owner_email = CLOUD.email(); saveNow();
+  try { localStorage.removeItem(STASH + CLOUD.uid()); } catch (e) { /* fine */ }
+  await afterSignIn();
 };
 ACT.signOutAsk = () => {
   const unsent = S.me._d || S.activities.some((a) => a._d && !a.open) || S.blocks.some((b) => b._d);
-  sheet("Sign out?", `<p class="muted">${unsent ? "Some changes have not reached your account yet. Tap Sync now first, or they stay only on this phone." : "Everything is backed up. Your data stays on this phone until you erase it, and syncs again when you sign back in."}</p>
+  sheet("Sign out?", `<p class="muted">${unsent ? "Some changes have not reached your account yet. Tap Sync now first, or they stay only on this phone." : "Everything is backed up. Your data stays on this phone until you erase it, and syncs again when you sign back in. If someone else signs in here, your data is set aside for you, not mixed with theirs."}</p>
     <div class="acts"><button class="tp-btn tp-ghost" data-close>Stay signed in</button><button class="tp-btn tp-danger" data-act="signOutDo">Sign out</button></div>`);
 };
 ACT.signOutDo = () => { CLOUD.signOut(); resetFriends(); closeSheet(); render(); toast("Signed out"); };
