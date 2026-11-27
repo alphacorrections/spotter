@@ -70,7 +70,8 @@ ACT.eatOpen = () => {
     <div id="eatyes"${EAT.know === "yes" ? "" : " hidden"}>${field("eatm", "Calories a day that hold your weight steady", n && n.maintenance_source !== "estimated" ? n.maintenance_kcal : "", "e.g. 2800", "text", "numeric")}</div>
     <div id="eatno"${EAT.know === "no" ? "" : " hidden"}>
       <label class="tp-label">Sex, for the estimate</label><div class="seg" id="eatsex"><button type="button" data-v="male" class="${me.sex_for_estimate !== "female" ? "on" : ""}">Male</button><button type="button" data-v="female" class="${me.sex_for_estimate === "female" ? "on" : ""}">Female</button></div>
-      <div class="fgrid">${field("eatage", "Age", age, "", "text", "numeric")}${isKg() ? field("eatcm", "Height (cm)", me.height_cm || "", "", "text", "decimal") : field("eatft", "Height (ft)", hIn ? Math.floor(hIn / 12) : "", "", "text", "numeric") + field("eatin", "and inches", hIn ? hIn % 12 : "", "", "text", "numeric")}</div>
+      ${isKg() ? `<div class="fgrid">${field("eatage", "Age", age, "", "text", "numeric")}${field("eatcm", "Height (cm)", me.height_cm || "", "175", "text", "decimal")}</div>`
+        : `${field("eatage", "Age", age, "", "text", "numeric")}<label class="tp-label">Height</label><div class="fgrid htrow">${field("eatft", "Feet", hIn ? Math.floor(hIn / 12) : "", "5", "text", "numeric")}${field("eatin", "Inches", hIn ? hIn % 12 : "", "10", "text", "numeric")}</div><p class="small muted">For 5 foot 10, enter 5 and 10.</p>`}
       <label class="tp-label">Day to day, outside training</label><div class="seg" id="eatact">${[["sedentary", "Desk"], ["light", "Some"], ["moderate", "Active"], ["very", "Very"]].map(([v, l]) => `<button type="button" data-v="${v}" class="${(me.activity_level || "moderate") === v ? "on" : ""}">${l}</button>`).join("")}</div>
     </div>
     ${field("eatw", `Bodyweight (${me.units})`, w ? w.value : "", "", "text", "decimal")}
