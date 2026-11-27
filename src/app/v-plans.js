@@ -66,7 +66,7 @@ ACT.planDetail = (d) => {
   const t = allPlans().find((x) => (x.mine || x.slug) === d.id);
   const b = activeBlock();
   sheet(t.title, planBody(t) + (b ? `<p class="small muted mt">Starting this pauses ${esc(b.title)}. It stays in your list and you can go back to it.</p>` : "") +
-    `<div class="acts"><button class="tp-btn tp-ghost" data-close>Not now</button><button class="tp-btn" data-act="planStart" data-id="${esc(d.id)}">Start this plan</button></div>`);
+    `<div class="acts"><button class="tp-btn tp-ghost" data-close>Not now</button><button class="tp-btn" data-act="planStart" data-id="${esc(d.id)}">Start this plan</button></div><div class="acts"><button class="tp-btn tp-ghost tp-sm" data-act="planWeekAsk" data-id="${esc(d.id)}">Already part-way through it?</button></div>`);
 };
 ACT.planStart = (d) => {
   if (openSession()) return toast("Finish the session you have open first");
@@ -74,6 +74,23 @@ ACT.planStart = (d) => {
   const tpl = { ...t }; delete tpl.mine;
   startBlock(tpl, { nutritionPhase: currentTarget()?.phase, programId: t.mine || null });
   closeSheet(); go("today"); toast(`${t.title} started`);
+};
+// Joining a plan you are already running elsewhere: pick the week, and sessions you logged for it count.
+ACT.planWeekAsk = (d) => {
+  const t = allPlans().find((x) => (x.mine || x.slug) === d.id);
+  sheet("Which week are you on?", `<p class="muted">Start ${esc(t.title)} from the week you are really in. Your logged history sets the targets.</p>
+    <div class="chips">${Array.from({ length: t.weeks }, (_, i) => `<button type="button" class="chip" data-act="planStartAt" data-id="${esc(d.id)}" data-w="${i + 1}">Week ${i + 1}</button>`).join("")}</div>
+    <div class="acts"><button class="tp-btn tp-ghost" data-close>Never mind</button></div>`);
+};
+ACT.planStartAt = (d) => {
+  if (openSession()) return toast("Finish the session you have open first");
+  const t = allPlans().find((x) => (x.mine || x.slug) === d.id), w = +d.w;
+  const tpl = { ...t }; delete tpl.mine;
+  const b = startBlock(tpl, { nutritionPhase: currentTarget()?.phase, programId: t.mine || null, position: (w - 1) * tpl.rotation.length });
+  const keys = tpl.sessions.map((x) => x.key), cut = new Date(Date.now() - 9 * 864e5).toISOString();
+  let n = 0;
+  for (const a of S.activities) if (!a.block_id && a.ended_at && a.week === w && keys.includes(a.session_key) && a.started_at >= cut) { a.block_id = b.id; touch(a); n++; }
+  closeSheet(); go("today"); toast(`${t.title} started at week ${w}${n ? `. ${n} session${n === 1 ? "" : "s"} this week already counted` : ""}`);
 };
 ACT.runAgain = (d) => {
   const b = S.blocks.find((x) => x.id === d.id);

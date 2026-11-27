@@ -170,6 +170,15 @@ try {
     await act(k, "cancelAsk"); await act(k, "discard");
     check((await state(k)).activities.length === before && (await k.locator('[data-act="resume"]').count()) === 0, "a session started by accident can be cancelled from Today");
   }
+  {
+    const b0 = (await state(k)).blocks.find((x) => x.status === "active");
+    await k.goto(APP + "#plans"); await k.locator('[data-act="planDetail"]').last().click();
+    await act(k, "planWeekAsk"); await act(k, "planStartAt", '[data-w="3"]');
+    const s3 = await state(k), nb = s3.blocks.find((x) => x.status === "active");
+    check(nb.position === 2 * nb.plan.rotation.length && nb.id !== b0.id, "a plan can be started part-way through, at the week you are on");
+    await setState(k, (s, id) => { s.blocks = s.blocks.filter((x) => x.status !== "active"); s.blocks.find((x) => x.id === id).status = "active"; }, b0.id);
+    await k.goto(APP + "#today");
+  }
   if (await k.locator('[data-act="otherDay"]').count()) {
     await act(k, "otherDay");
     check((await k.locator('#sheet [data-act="weekStart"]').count()) >= 2, "Up next is a suggestion: you can pick a different day");
