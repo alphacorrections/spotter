@@ -69,21 +69,42 @@ ACT.eraseDo = (d, el) => {
 };
 
 // ---------------------------------------------------------------- account
+// The email a code went to, and when, survive a refresh or the app being closed,
+// so a code already in your inbox can still be typed in. Codes last an hour.
 const A = { email: "" };
-ACT.signIn = () => sheet("Sign in", `<p class="muted">Enter your email and we send a 6-digit code. No password. New here? The same steps make your account.</p>
-  ${field("sgemail", "Email", CLOUD.email(), "you@example.com", "email")}
-  <div class="acts"><button class="tp-btn tp-ghost" data-close>Cancel</button><button class="tp-btn" data-act="signSend">Email me a code</button></div>`);
+const PEND = "spotter.pending";
+function pending() { try { const p = JSON.parse(localStorage.getItem(PEND) || "null"); return p && Date.now() - p.at < 3600000 ? p : null; } catch (e) { return null; } }
+function setPending(email) { try { localStorage.setItem(PEND, JSON.stringify({ email, at: Date.now() })); } catch (e) { /* in memory only */ } }
+function clearPending() { try { localStorage.removeItem(PEND); } catch (e) { /* nothing to clear */ } }
+function codeSheet(email) {
+  A.email = email;
+  sheet("Check your email", `<p class="muted">We sent a 6-digit code to <b>${esc(email)}</b>. It can take a minute. Check spam if it is not there. Use the newest email if you got more than one.</p>
+    ${field("sgcode", "6-digit code", "", "123456", "text", "numeric")}
+    <div class="acts"><button class="tp-btn tp-ghost" data-act="signNew">Different email</button><button class="tp-btn" data-act="signVerify">Sign in</button></div>`);
+}
+ACT.signIn = () => {
+  const p = pending();
+  sheet("Sign in", `<p class="muted">Enter your email and we send a 6-digit code. No password. New here? The same steps make your account.</p>
+  ${field("sgemail", "Email", p ? p.email : CLOUD.email(), "you@example.com", "email")}
+  <div class="acts"><button class="tp-btn tp-ghost" data-close>Cancel</button><button class="tp-btn" data-act="signSend">Email me a code</button></div>
+  ${p ? `<button class="tp-btn tp-ghost tp-block mt" data-act="signHave">I already have a code</button>` : ""}`);
+};
+ACT.signHave = () => codeSheet(pending().email);
+ACT.signNew = () => { clearPending(); ACT.signIn(); };
 ACT.signSend = async (d, el) => {
   const email = val("sgemail").toLowerCase();
   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return toast("That email does not look right");
   el.disabled = true; el.textContent = "Sending…";
   try {
     await CLOUD.sendCode(email);
-    A.email = email;
-    sheet("Check your email", `<p class="muted">We sent a 6-digit code to <b>${esc(email)}</b>. It can take a minute. Check spam if it is not there.</p>
-      ${field("sgcode", "6-digit code", "", "123456", "text", "numeric")}
-      <div class="acts"><button class="tp-btn tp-ghost" data-act="signIn">Different email</button><button class="tp-btn" data-act="signVerify">Sign in</button></div>`);
-  } catch (e) { el.disabled = false; el.textContent = "Email me a code"; toast(e.status === 429 ? "Too many tries. Wait a minute and try again." : e.message); }
+    setPending(email);
+    codeSheet(email);
+  } catch (e) {
+    el.disabled = false; el.textContent = "Email me a code";
+    // One code a minute: if one already went to this address, let them type it in.
+    if (e.status === 429 && pending()?.email === email) { toast("A code was just sent. Enter it here."); return codeSheet(email); }
+    toast(e.status === 429 ? "A code was sent less than a minute ago. Wait a minute, then try again." : e.message);
+  }
 };
 ACT.signVerify = async (d, el) => {
   const code = val("sgcode").replace(/\D/g, "");
@@ -91,6 +112,7 @@ ACT.signVerify = async (d, el) => {
   el.disabled = true; el.textContent = "Checking…";
   try {
     await CLOUD.verify(A.email, code);
+    clearPending();
     const wasNew = !S.me.settings.onboarded;
     await syncNow();
     resetFriends(); closeSheet();
