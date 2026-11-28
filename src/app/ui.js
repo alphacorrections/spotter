@@ -71,6 +71,13 @@ export function row(o) {
     `<span class="tp-t"><b>${esc(o.title)}</b>${o.sub ? `<span>${esc(o.sub)}</span>` : ""}</span>` +
     (o.right || "") + (o.act && o.chev !== false ? `<span class="tp-chev">${icon("chev")}</span>` : "") + `</${tag}>`;
 }
+/** A round profile picture, or coloured initials when there is none. Pictures come from other people, so the source is checked. */
+const FACE_OK = /^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/;
+export function face(name, src, key, cls) {
+  const n = String(name || "?").trim(), ini = (n.split(/\s+/).map((w) => w[0]).join("").slice(0, 2) || "?").toUpperCase();
+  let h = 0; for (const ch of String(key || n)) h = (h * 31 + ch.charCodeAt(0)) % 360;
+  return src && FACE_OK.test(src) && src.length <= 80000 ? `<img class="face ${cls || ""}" src="${src}" alt="${esc(n)}">` : `<span class="face ini ${cls || ""}" style="background:hsl(${h} 50% 40%)" aria-label="${esc(n)}">${esc(ini)}</span>`;
+}
 export function note(html, cls) { return `<div class="solid ${cls || ""}">${html}</div>`; }
 export function sheet(title, body) { TG.sheet(TG.sheetHead(title) + body); }
 export const closeSheet = () => TG.closeSheet();

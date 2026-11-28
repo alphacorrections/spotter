@@ -28,7 +28,7 @@ async function push() {
   const uid = CLOUD.uid();
   const me = S.me;
   if (me._d && me.display_name) {
-    await CLOUD.upsert("profiles", [{ id: uid, display_name: me.display_name }]);
+    await CLOUD.upsert("profiles", [{ id: uid, display_name: me.display_name, avatar: me.avatar || null }]);
     await CLOUD.upsert("profile_private", [pick(me, PRIVATE_COLS, { user_id: uid })], "user_id");
     delete me._d;
   }
@@ -111,7 +111,7 @@ async function pull() {
     CLOUD.get("daily_health?" + own), CLOUD.get("nutrition_targets?" + own), CLOUD.get("saved_links?" + own),
   ]);
   if (prof[0] && !S.me._d) {
-    S.me.display_name = prof[0].display_name;
+    S.me.display_name = prof[0].display_name; S.me.avatar = prof[0].avatar || null;
     if (priv[0]) for (const c of PRIVATE_COLS) if (priv[0][c] != null) S.me[c] = priv[0][c];
   }
   const byAct = new Map(checks.map((c) => [c.activity_id, c]));

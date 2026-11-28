@@ -75,6 +75,22 @@ export function resumeBlock(b) {
   b.status = "active"; b.finished_on = null; touch(b);
 }
 export function pos(b) { return blockPosition(b.plan, b.position); }
+/**
+ * Put the days of the week in a new order. order = the old rotation indexes, in the order you want.
+ * The week you are in carries on: sessions already done this week stay done, and the next one up is the
+ * first day in the new order you have not done yet. If the week is finished, next week starts at the top.
+ */
+export function reorderDays(b, order) {
+  const old = b.plan.rotation, len = old.length;
+  if (!Array.isArray(order) || order.length !== len || new Set(order).size !== len || order.some((i) => !old[i])) return false;
+  const week = Math.floor(b.position / len) + 1;
+  b.plan.rotation = order.map((i) => old[i]);
+  const done = (key) => S.activities.some((a) => a.block_id === b.id && a.week === week && a.session_key === key && a.ended_at);
+  const next = b.plan.rotation.findIndex((e) => e.session && !done(e.session));
+  b.position = (week - 1) * len + (next < 0 ? len : next);
+  touch(b);
+  return true;
+}
 export function sessionOf(b, key) { return b.plan.sessions.find((s) => s.key === key); }
 
 /** How many rest entries sit at the block's current position. */

@@ -1,6 +1,6 @@
 // Settings, the account sign-in, and the first-run setup.
 import { S, save, saveNow, touchMe, replaceState, exportData, ex, templates, ago } from "./store.js";
-import { ACT, CHG, VIEWS, go, render, backTop, sect, row, note, icon, esc, pill, sheet, closeSheet, toast, chips, field, val, TG } from "./ui.js";
+import { ACT, CHG, VIEWS, go, render, backTop, sect, row, note, icon, esc, pill, sheet, closeSheet, toast, chips, field, val, TG , face } from "./ui.js";
 import { CLOUD } from "./cloud.js";
 import { CONFIG } from "./config.js";
 import { SYNC, syncNow } from "./sync.js";
@@ -51,7 +51,10 @@ function settingsPage(pg) {
   const me = S.me, mode = TG.look.get().mode || "dark";
   let h = backTop(PAGES[pg][0], PAGES[pg][1], "goSettings");
   if (pg === "profile") {
-  h += `<div class="glass pad">${field("setname", "Name your friends see", me.display_name, "First name")}
+  h += `<div class="glass pad"><div class="photorow">${face(me.display_name, me.avatar, CLOUD.uid() || me.display_name, "lg")}<div><b>Profile picture</b><span class="small muted">Shown to people in your groups. No picture shows your initials.</span>
+      <div class="flex mt"><label class="tp-btn tp-sm" for="setphoto">${me.avatar ? "Change photo" : "Add a photo"}</label>${me.avatar ? `<button class="tp-btn tp-ghost tp-sm" data-act="photoDrop">Remove</button>` : ""}</div>
+      <input type="file" id="setphoto" accept="image/*" data-chg="setPhoto" hidden></div></div></div>
+    <div class="glass pad">${field("setname", "Name your friends see", me.display_name, "First name")}
     <label class="tp-label">Units</label><div class="seg">${[["lb", "Pounds"], ["kg", "Kilos"]].map(([v, l]) => `<button type="button" data-act="setUnits" data-v="${v}" class="${me.units === v ? "on" : ""}">${l}</button>`).join("")}</div>
     <label class="tp-label">Usual weight jump (${me.units})</label><div class="fgrid">${field("setup", "Upper body", me.increments.upper, "", "text", "decimal")}${field("setlow", "Lower body", me.increments.lower, "", "text", "decimal")}</div>
     <button class="tp-btn tp-sm mt" data-act="setSave">Save</button></div>`;
@@ -244,3 +247,22 @@ ACT.obStart = (d) => { startBlock(templates.find((t) => t.slug === d.slug)); fin
 ACT.obBrowse = () => { finishOnboard(); go("plans"); };
 ACT.obSkip = () => { finishOnboard(); go("today"); };
 export { SYNC, CHG, save, ago };
+
+// Profile picture: shrink to a 192 px square in the browser, then keep it with the profile.
+async function shrink(file) {
+  let img;
+  try { img = await createImageBitmap(file); }
+  catch (e) { img = await new Promise((ok, bad) => { const el = new Image(); el.onload = () => ok(el); el.onerror = bad; el.src = URL.createObjectURL(file); }); }
+  const w = img.width, hgt = img.height, side = Math.min(w, hgt), c = document.createElement("canvas"); c.width = c.height = 192;
+  c.getContext("2d").drawImage(img, (w - side) / 2, (hgt - side) / 2, side, side, 0, 0, 192, 192);
+  let out = c.toDataURL("image/jpeg", 0.82);
+  if (out.length > 60000) out = c.toDataURL("image/jpeg", 0.6);
+  return out;
+}
+CHG.setPhoto = async (v, d, el) => {
+  const f = el.files && el.files[0]; if (!f) return;
+  if (!/^image\//.test(f.type)) return toast("Pick a photo");
+  try { const out = await shrink(f); if (!/^data:image\/jpeg;base64,/.test(out) || out.length > 80000) throw new Error("size"); S.me.avatar = out; touchMe(); render(); toast("Photo saved"); }
+  catch (e) { toast("That photo could not be read. Try another one."); }
+};
+ACT.photoDrop = () => { S.me.avatar = null; touchMe(); render(); toast("Photo removed"); };

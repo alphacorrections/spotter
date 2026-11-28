@@ -100,7 +100,7 @@ async function send(text) {
   } catch (e) { A.msgs.pop(); A.draft = text; toast("Could not reach Coach. Check your connection."); }
   A.busy = false; keep(); render(); scrollTo(0, document.body.scrollHeight);
 }
-ACT.askSend = () => send(document.getElementById("askbox")?.value);
+ACT.askSend = () => send(document.getElementById("askbox")?.value || A.draft);
 ACT.askStarter = (d) => send(STARTERS[+d.i]);
 ACT.askClear = () => { A.msgs = []; keep(); render(); };
 ACT.askSkip = (d) => { const m = A.msgs[+d.i]; if (m) { delete m.action; keep(); render(); } };
@@ -121,3 +121,5 @@ ACT.askApply = (d) => {
 };
 ACT.goAsk = (d) => { if (d && d.q) A.draft = d.q; go("ask"); };
 CHG.askDraft = (v) => { A.draft = v; };
+// Keep what is being typed through any redraw (the page redraws when the server answers).
+document.addEventListener("input", (e) => { if (e.target && e.target.id === "askbox") A.draft = e.target.value; });

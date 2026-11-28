@@ -1,7 +1,7 @@
 // Friends: groups joined by a six-character code, a feed of finished sessions,
 // and group blocks you run alongside each other. Needs an account and a connection.
 import { S, touch, save, ex, ago, finished, activeBlock, fmtW, fmtN } from "./store.js";
-import { ACT, VIEWS, R, go, render, top, sect, row, note, icon, esc, pill, sheet, closeSheet, toast, field, val } from "./ui.js";
+import { ACT, VIEWS, R, go, render, top, sect, row, note, icon, esc, pill, sheet, closeSheet, toast, field, val , face } from "./ui.js";
 import { CLOUD } from "./cloud.js";
 import { syncNow } from "./sync.js";
 import { startBlock, pos } from "./train.js";
@@ -22,7 +22,7 @@ async function load() {
     const uid = CLOUD.uid();
     const [groups, members, gblocks, feed, runs, reactions, comments] = await Promise.all([
       CLOUD.get("groups?select=id,name,code,created_by&order=created_at"),
-      CLOUD.get("group_members?select=group_id,user_id,role,detail_level,profiles(display_name)"),
+      CLOUD.get("group_members?select=group_id,user_id,role,detail_level,profiles(display_name,avatar)"),
       CLOUD.get("group_blocks?select=id,group_id,program_id,author_id,title,started_on,programs(title,weeks,days_per_week,focus,template)&order=created_at.desc"),
       CLOUD.get(`activities?user_id=neq.${uid}&ended_at=not.is.null&source=neq.import&or=(note.is.null,note.not.like.Imported from your sheet*)&order=started_at.desc&limit=40&select=id,user_id,domain,title,started_at,duration_s,note,link_url,efforts(exercise_id,kind,weight,reps,steps,distance_m,hr_zone,duration_s,seq)`),
       CLOUD.get("blocks?group_block_id=not.is.null&select=id,user_id,group_block_id,position,status"),
@@ -35,6 +35,7 @@ async function load() {
   G.loading = false;
   if (R.name === "friends") render();
 }
+const faceOf = (uid, cls) => { const mine = uid === CLOUD.uid(), m = G.members.find((x) => x.user_id === uid)?.profiles; return face(mine ? S.me.display_name : m?.display_name || "Someone", mine ? S.me.avatar : m?.avatar, uid, cls); };
 const nameOf = (uid) => (uid === CLOUD.uid() ? "You" : G.members.find((m) => m.user_id === uid)?.profiles?.display_name || "Someone");
 const membersOf = (gid) => G.members.filter((m) => m.group_id === gid);
 
@@ -50,9 +51,9 @@ function feedCard(a, gid) {
   }
   const rs = G.reactions.filter((r) => r.activity_id === a.id && r.group_id === gid), my = rs.find((r) => r.user_id === CLOUD.uid());
   const cs = G.comments.filter((c) => c.activity_id === a.id && c.group_id === gid);
-  return `<div class="glass pad feed"><div class="feedhead"><span class="tp-tile">${icon(ICON[a.domain] || "dumbbell")}</span><div class="grow"><b>${esc(nameOf(a.user_id))} · ${esc(a.title)}</b><span>${esc(ago(a.started_at))} · ${esc(subline(a))}</span></div></div>
+  return `<div class="glass pad feed"><div class="feedhead"><span class="facewrap">${faceOf(a.user_id)}<i>${icon(ICON[a.domain] || "dumbbell")}</i></span><div class="grow"><b>${esc(nameOf(a.user_id))} · ${esc(a.title)}</b><span>${esc(ago(a.started_at))} · ${esc(subline(a))}</span></div></div>
     ${a.note ? `<p class="feednote">“${esc(a.note)}”</p>` : ""}${detail}
-    ${cs.map((c) => `<div class="cmt"><b>${esc(nameOf(c.user_id))}</b> ${esc(c.body)}</div>`).join("")}
+    ${cs.map((c) => `<div class="cmt">${faceOf(c.user_id, "xs")}<b>${esc(nameOf(c.user_id))}</b> ${esc(c.body)}</div>`).join("")}
     <div class="reacts">${REACT.map((em) => { const n = rs.filter((r) => r.emoji === em).length; return `<button class="chip${my?.emoji === em ? " on" : ""}" data-act="react" data-id="${a.id}" data-e="${em}" aria-label="React ${em}"${mine ? " disabled" : ""}>${em}${n ? " " + n : ""}</button>`; }).join("")}
     <button class="chip" data-act="cmtOpen" data-id="${a.id}">Comment</button></div></div>`;
 }
@@ -82,7 +83,7 @@ VIEWS.friends = () => {
   h += `<div class="chips">${G.groups.map((x) => `<button class="chip${x.id === g.id ? " on" : ""}" data-act="grPick" data-id="${x.id}">${esc(x.name)}</button>`).join("")}<button class="chip" data-act="grMore" aria-label="Add a group">+ Group</button></div>`;
   h = top("Friends", "Train alongside your people", `<button class="coachbtn" data-act="grInvite" data-id="${g.id}">${icon("plus")}Invite</button>`) + h.slice(top("Friends", "Train alongside your people").length);
   h += `<div class="glass pad mt">
-    <div class="small muted">${ms.length} member${ms.length === 1 ? "" : "s"}: ${esc(ms.map((m) => nameOf(m.user_id)).join(", "))}</div>
+    <div class="faces">${ms.map((m) => `<span class="facecell">${faceOf(m.user_id)}<em>${esc(nameOf(m.user_id))}</em></span>`).join("")}</div>
     <div class="flex mt"><button class="pillbtn" data-act="grPrivacy" data-id="${g.id}" data-cur="${me?.detail_level || "full"}">You share: ${me?.detail_level === "names_only" ? "session names only" : "full detail"}</button><button class="pillbtn" data-act="grLeaveAsk" data-id="${g.id}">Leave</button></div></div>`;
   const gbs = G.gblocks.filter((b) => b.group_id === g.id);
   h += sect("Group blocks", activeBlock() ? `<button data-act="gbShareAsk" data-id="${g.id}">Share my plan</button>` : "");

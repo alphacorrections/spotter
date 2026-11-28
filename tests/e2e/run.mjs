@@ -387,6 +387,19 @@ try {
   await act(small, "sizeAsk"); await tap(small, '#sheet [data-act="sizeDo"][data-v="2"]');
   sb = (await state(small)).blocks.find((b) => b.status === "active");
   check(sb.plan.size === 2 && sb.plan.sessions[0].slots.length === 8 && sb.plan.sessions[2].slots.length === 7, "and switching down to Standard trims them again");
+  // ---- Day order
+  const rot0 = sb.plan.rotation.map((e) => e.session || "rest");
+  await setState(small, (st) => { const b = st.blocks.find((x) => x.status === "active"), len = b.plan.rotation.length, second = b.plan.rotation.filter((e) => e.session)[1].session;
+    b.position = 0; b.last_done = null; st.activities.push({ id: crypto.randomUUID(), domain: "strength", title: "done early", block_id: b.id, week: 1, session_key: second, started_at: new Date(Date.now() - 2 * 864e5).toISOString(), ended_at: new Date(Date.now() - 2 * 864e5).toISOString(), duration_s: 60, efforts: [] }); });
+  await small.goto(APP + "#plans"); await act(small, "orderAsk");
+  const firstSes = rot0.findIndex((x) => x !== "rest"), lastIdx = rot0.length - 1;
+  for (let i = firstSes; i < lastIdx; i++) await tap(small, `#sheet [data-act="orderMove"][data-i="${i}"][data-d="1"]`);   // send the first day to the end of the week
+  await snap(small, "day-order", 340);
+  await tap(small, '#sheet [data-act="orderSave"]');
+  sb = (await state(small)).blocks.find((b) => b.status === "active");
+  const rot1 = sb.plan.rotation.map((e) => e.session || "rest"), sess0 = rot0.filter((x) => x !== "rest"), sess1 = rot1.filter((x) => x !== "rest");
+  check(rot1[rot1.length - 1] === sess0[0] && sess1[0] === sess0[1] && rot1.length === rot0.length, "the days of the week can be put in a new order", rot1.join());
+  check(sb.plan.rotation[sb.position % rot1.length].session === sess0[2], "after reordering, up next is the first day not yet done this week", String(sb.position));
 
   const errors = pages.flatMap((p) => p.errors);
   check(errors.length === 0, "no page errors on any phone", errors.join(" | "));
@@ -492,6 +505,23 @@ try {
     await k.goto(APP + "#eat"); await see(k, "Your day from Coach");
     check((await state(k)).me.settings.eat.custom.items.length === 3 && (await k.getByText("No-fish day").count()) >= 1, "a day of eating from Coach is saved and shows on the eating page");
     await k.unroute("**/functions/v1/coach"); await k.goto(APP + "#today");
+    // ---- Profile picture
+    await k.goto(APP + "#prefs"); await tap(k, '[data-act="setPage"][data-p="profile"]');
+    await k.locator("#setphoto").waitFor({ state: "attached" });
+    check((await k.locator(".photorow .face.ini").count()) === 1, "with no photo, the profile shows your initials");
+    const png = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAIAAABLbSncAAAAFklEQVR4nGP8z8Dwn4EIwESMolGFAEUyAw2Zb1xJAAAAAElFTkSuQmCC", "base64");
+    await k.setInputFiles("#setphoto", { name: "me.png", mimeType: "image/png", buffer: png });
+    await k.locator(".photorow img.face").waitFor();
+    const av = (await state(k)).me.avatar;
+    check(/^data:image\/jpeg;base64,/.test(av) && av.length < 60000, "a photo is shrunk and saved as your profile picture", String(av).slice(0, 40));
+    let dbAv = "";
+    for (let i = 0; i < 20 && !/jpeg/.test(dbAv); i++) { await k.waitForTimeout(400); dbAv = String(await sql(`select coalesce(left(avatar, 22), '') from public.profiles where display_name = 'Kevin'`)).trim(); }
+    check(/^data:image\/jpeg/.test(dbAv), "the picture syncs to your account", dbAv);
+    await act(k, "goSettings");
+    await k.goto(APP + "#friends"); await k.locator(".faces").waitFor();
+    check((await k.locator(".faces img.face").count()) === 1 && (await k.locator(".faces .face").count()) >= 2, "the group shows your picture and initials for members without one");
+    await snap(k, "friends-faces", 390);
+    await k.goto(APP + "#today");
   }
   // ============================================================ two accounts, one phone
   {

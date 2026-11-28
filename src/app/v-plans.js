@@ -2,7 +2,7 @@
 // that lets you change anything about a plan once it is yours.
 import { S, touch, save, uid, ex, allExercises, templates, template, activeBlock, openSession, nice, gear } from "./store.js";
 import { ACT, CHG, VIEWS, R, go, render, top, backTop, sect, row, note, icon, esc, pill, sheet, closeSheet, toast, chips, field, val } from "./ui.js";
-import { startBlock, endBlock, resumeBlock, pos, phaseForWeek, nextSession, SIZES, sizeName, hasSizes, sizePlan, sizeFacts, resizeBlock, isCustom, ensureSize, isNoGo } from "./train.js";
+import { startBlock, endBlock, resumeBlock, pos, phaseForWeek, nextSession, SIZES, sizeName, hasSizes, sizePlan, sizeFacts, resizeBlock, isCustom, ensureSize, isNoGo, reorderDays, sessionOf } from "./train.js";
 import { FOCUS, TECH, EQUIPMENT } from "./words.js";
 import { openPicker } from "./v-log.js";
 import { currentTarget } from "./v-coach.js";
@@ -31,7 +31,7 @@ VIEWS.plans = () => {
     h += `<div class="glass hero tp-rise"><div class="label">Running now</div><div class="heroT">${esc(b.title)}</div>
       <div class="small muted">Week ${wk} of ${b.plan.weeks} · ${esc(phaseForWeek(b.plan, wk).name)} · ${esc(FOCUS[b.focus].name)}${b.plan.size ? " · " + sizeName(b.plan.size) + (isCustom(b, template(b.program_slug)) ? ", customized" : "") : ""}</div>
       <div class="bar" style="margin-top:12px"><i style="width:${pct}%"></i></div>
-      <div class="flex mt"><button class="tp-btn tp-sm" data-act="editPlan">Edit plan</button>${template(b.program_slug) && hasSizes(template(b.program_slug)) ? `<button class="tp-btn tp-ghost tp-sm" data-act="sizeAsk">Size</button>` : ""}<button class="tp-btn tp-ghost tp-sm" data-act="planDetail" data-id="${b.id}" data-block="1">See it all</button><button class="tp-btn tp-ghost tp-sm" data-act="endAsk" data-id="${b.id}">End</button></div>
+      <div class="flex mt"><button class="tp-btn tp-sm" data-act="editPlan">Edit plan</button>${template(b.program_slug) && hasSizes(template(b.program_slug)) ? `<button class="tp-btn tp-ghost tp-sm" data-act="sizeAsk">Size</button>` : ""}<button class="tp-btn tp-ghost tp-sm" data-act="orderAsk">Day order</button><button class="tp-btn tp-ghost tp-sm" data-act="planDetail" data-id="${b.id}" data-block="1">See it all</button><button class="tp-btn tp-ghost tp-sm" data-act="endAsk" data-id="${b.id}">End</button></div>
       <button class="tp-btn tp-ghost tp-block mt" data-act="goAsk" data-q="Change my plan: ">${icon("spark")} Ask Coach to change it</button></div>`;
   }
   const old = S.blocks.filter((x) => x.status !== "active").sort((a, c) => (c.started_on || "").localeCompare(a.started_on || "")).slice(0, 5);
@@ -80,6 +80,27 @@ ACT.planDetail = (d) => {
 ACT.planSize = (d) => {
   PS.size = +d.v; const t = allPlans().find((x) => (x.mine || x.slug) === PS.id), el = document.getElementById("planbody");
   el.innerHTML = sect("How much work") + sizePick(t, PS.size, "planSize") + planBody(t, PS.size);
+};
+// Change the order of the days in your week.
+const OD = { order: [] };
+function orderList() {
+  const b = activeBlock(), rot = b.plan.rotation;
+  return OD.order.map((ri, i) => { const e = rot[ri], s = e.session ? sessionOf(b, e.session) : null;
+    return `<div class="tp-row static"><span class="tp-tile">${i + 1}</span><span class="tp-t"><b>${esc(s ? s.title : "Rest day")}</b>${s && s.subtitle ? `<span>${esc(s.subtitle)}</span>` : ""}</span>
+      <button class="ibtn sm" data-act="orderMove" data-i="${i}" data-d="-1" aria-label="Move up"${i === 0 ? " disabled" : ""}>${icon("up")}</button><button class="ibtn sm" data-act="orderMove" data-i="${i}" data-d="1" aria-label="Move down"${i === OD.order.length - 1 ? " disabled" : ""}>${icon("down")}</button></div>`; }).join("");
+}
+ACT.orderAsk = () => {
+  const b = activeBlock(); OD.order = b.plan.rotation.map((_, i) => i);
+  sheet("Order of your days", `<p class="small muted">Set the order you usually train in. It applies from now on. Days you already did this week stay done, and the next one up is the first you have not done.</p>
+    <div class="glass" id="orderlist">${orderList()}</div>
+    <p class="small muted mt">For a one-off change, leave this alone and use "Do a different day" on Today.</p>
+    <div class="acts"><button class="tp-btn tp-ghost" data-close>Cancel</button><button class="tp-btn" data-act="orderSave">Save order</button></div>`);
+};
+ACT.orderMove = (d) => { const i = +d.i, j = i + +d.d; if (j < 0 || j >= OD.order.length) return; [OD.order[i], OD.order[j]] = [OD.order[j], OD.order[i]]; document.getElementById("orderlist").innerHTML = orderList(); };
+ACT.orderSave = () => {
+  if (openSession()) return toast("Finish the session you have open first");
+  const b = activeBlock(); if (!reorderDays(b, OD.order)) return toast("That order could not be saved");
+  closeSheet(); render(); toast("Day order saved");
 };
 // Change the size of the plan you are running.
 ACT.sizeAsk = () => {
