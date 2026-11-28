@@ -1,8 +1,8 @@
 // Plans: the block you are running, the library to pick from, and the editor
 // that lets you change anything about a plan once it is yours.
-import { S, touch, save, uid, ex, templates, activeBlock, openSession, nice, gear } from "./store.js";
+import { S, touch, save, uid, ex, templates, template, activeBlock, openSession, nice, gear } from "./store.js";
 import { ACT, CHG, VIEWS, R, go, render, top, backTop, sect, row, note, icon, esc, pill, sheet, closeSheet, toast, chips, field, val } from "./ui.js";
-import { startBlock, endBlock, resumeBlock, pos, phaseForWeek, nextSession } from "./train.js";
+import { startBlock, endBlock, resumeBlock, pos, phaseForWeek, nextSession, SIZES, sizeName, hasSizes, sizePlan, sizeFacts, resizeBlock } from "./train.js";
 import { FOCUS, TECH, EQUIPMENT } from "./words.js";
 import { openPicker } from "./v-log.js";
 import { currentTarget } from "./v-coach.js";
@@ -28,9 +28,9 @@ VIEWS.plans = () => {
     const p = pos(b), wk = Math.min(p.week, b.plan.weeks), len = b.plan.rotation.length;
     const pct = Math.min(100, Math.round((b.position / (b.plan.weeks * len)) * 100));
     h += `<div class="glass hero tp-rise"><div class="label">Running now</div><div class="heroT">${esc(b.title)}</div>
-      <div class="small muted">Week ${wk} of ${b.plan.weeks} · ${esc(phaseForWeek(b.plan, wk).name)} · ${esc(FOCUS[b.focus].name)}</div>
+      <div class="small muted">Week ${wk} of ${b.plan.weeks} · ${esc(phaseForWeek(b.plan, wk).name)} · ${esc(FOCUS[b.focus].name)}${b.plan.size ? " · " + sizeName(b.plan.size) : ""}</div>
       <div class="bar" style="margin-top:12px"><i style="width:${pct}%"></i></div>
-      <div class="flex mt"><button class="tp-btn tp-sm" data-act="editPlan">Edit plan</button><button class="tp-btn tp-ghost tp-sm" data-act="planDetail" data-id="${b.id}" data-block="1">See it all</button><button class="tp-btn tp-ghost tp-sm" data-act="endAsk" data-id="${b.id}">End</button></div></div>`;
+      <div class="flex mt"><button class="tp-btn tp-sm" data-act="editPlan">Edit plan</button>${template(b.program_slug) && hasSizes(template(b.program_slug)) ? `<button class="tp-btn tp-ghost tp-sm" data-act="sizeAsk">Size</button>` : ""}<button class="tp-btn tp-ghost tp-sm" data-act="planDetail" data-id="${b.id}" data-block="1">See it all</button><button class="tp-btn tp-ghost tp-sm" data-act="endAsk" data-id="${b.id}">End</button></div></div>`;
   }
   const old = S.blocks.filter((x) => x.status !== "active").sort((a, c) => (c.started_on || "").localeCompare(a.started_on || "")).slice(0, 5);
   if (old.length) {
@@ -39,15 +39,21 @@ VIEWS.plans = () => {
   h += sect("Find a plan") + chips("planFocus", [["all", "All"], ["hypertrophy", "Hypertrophy"], ["strength", "Strength"], ["maintain", "Maintain"], ["general", "Just move"]], F.focus);
   const list = allPlans().filter((t) => F.focus === "all" || t.focus === F.focus);
   h += `<div class="glass mt">` + list.map((t) => row({
-    tile: String(t.days_per_week), title: t.title, sub: `${t.days_per_week} days a week · ${t.weeks} weeks · ${FOCUS[t.focus].name}`,
+    tile: String(t.days_per_week), title: t.title, sub: `${t.days_per_week} days a week · ${t.weeks} weeks · ${FOCUS[t.focus].name}${hasSizes(t) ? " · 3 sizes" : ""}`,
     act: "planDetail", data: { id: t.mine || t.slug }, right: t.mine ? pill("Yours", "plain") : fits(t) ? pill("Fits you", "ok") : "",
   })).join("") + `</div>`;
-  h += note(`<b>Every plan can be changed.</b> Start one, then use Edit plan to swap lifts, change sets and reps, or add your own. Mid-session swaps work too.`);
+  h += note(`<b>Every plan comes in three sizes.</b> Starter is the essentials, Standard is the plan as written, Full adds extra work. Pick one when you start and change it any time.<br><br><b>Every plan can be changed.</b> Start one, then use Edit plan to swap lifts, change sets and reps, or add your own. Mid-session swaps work too.`);
   return h;
 };
 ACT.planFocus = (d) => { F.focus = d.v; render(); };
 
-function planBody(t) {
+// Size picker: Starter, Standard, Full. Shows what each one costs in lifts and time.
+const PS = { size: 2, id: null };
+function sizePick(t, cur, act) {
+  return `<div class="sizes">` + SIZES.map(([n, name, why]) => { const f = sizeFacts(t, n); return `<button type="button" class="sizeopt${n === cur ? " on" : ""}" data-act="${act}" data-v="${n}" aria-pressed="${n === cur}"><b>${name}</b><span>${f.lifts} lifts a day · about ${f.minutes} min</span><em>${why}</em></button>`; }).join("") + `</div>`;
+}
+function planBody(t0, size) {
+  const t = size && hasSizes(t0) ? sizePlan(t0, size) : t0;
   const miss = missing(t);
   return `<p class="muted">${esc(t.summary || "")}</p>
     <div class="kv"><span>Goal</span><b>${esc(FOCUS[t.focus].name)}</b></div>
@@ -65,14 +71,30 @@ ACT.planDetail = (d) => {
   if (d.block) { const b = S.blocks.find((x) => x.id === d.id); return sheet(b.title, planBody(b.plan) + `<div class="acts"><button class="tp-btn" data-close>Close</button></div>`); }
   const t = allPlans().find((x) => (x.mine || x.slug) === d.id);
   const b = activeBlock();
-  sheet(t.title, planBody(t) + (b ? `<p class="small muted mt">Starting this pauses ${esc(b.title)}. It stays in your list and you can go back to it.</p>` : "") +
+  PS.id = d.id; PS.size = t.size || 2;
+  sheet(t.title, `<div id="planbody">${hasSizes(t) ? sect("How much work") + sizePick(t, PS.size, "planSize") : ""}${planBody(t, PS.size)}</div>` + (b ? `<p class="small muted mt">Starting this pauses ${esc(b.title)}. It stays in your list and you can go back to it.</p>` : "") +
     `<div class="acts"><button class="tp-btn tp-ghost" data-close>Not now</button><button class="tp-btn" data-act="planStart" data-id="${esc(d.id)}">Start this plan</button></div><div class="acts"><button class="tp-btn tp-ghost tp-sm" data-act="planWeekAsk" data-id="${esc(d.id)}">Already part-way through it?</button></div>`);
+};
+ACT.planSize = (d) => {
+  PS.size = +d.v; const t = allPlans().find((x) => (x.mine || x.slug) === PS.id), el = document.getElementById("planbody");
+  el.innerHTML = sect("How much work") + sizePick(t, PS.size, "planSize") + planBody(t, PS.size);
+};
+// Change the size of the plan you are running.
+ACT.sizeAsk = () => {
+  const b = activeBlock(), t = template(b.program_slug);
+  if (!t || !hasSizes(t)) return toast("This plan has one size. Use Edit plan to add or remove lifts.");
+  sheet("How much work", `<p class="small muted">Changes the lifts in each day from your next session. Your history, your swaps and any lifts you added yourself all stay.</p>${sizePick(t, b.plan.size || 0, "sizeDo")}
+    <div class="acts"><button class="tp-btn tp-ghost" data-close>Close</button></div>`);
+};
+ACT.sizeDo = (d) => {
+  if (openSession()) return toast("Finish the session you have open first");
+  const b = activeBlock(); resizeBlock(b, template(b.program_slug), +d.v); closeSheet(); render(); toast(`${b.title} is now ${sizeName(+d.v)}`);
 };
 ACT.planStart = (d) => {
   if (openSession()) return toast("Finish the session you have open first");
   const t = allPlans().find((x) => (x.mine || x.slug) === d.id);
   const tpl = { ...t }; delete tpl.mine;
-  startBlock(tpl, { nutritionPhase: currentTarget()?.phase, programId: t.mine || null });
+  startBlock(tpl, { nutritionPhase: currentTarget()?.phase, programId: t.mine || null, size: PS.id === d.id ? PS.size : undefined });
   closeSheet(); go("today"); toast(`${t.title} started`);
 };
 // Joining a plan you are already running elsewhere: pick the week, and sessions you logged for it count.
@@ -86,7 +108,7 @@ ACT.planStartAt = (d) => {
   if (openSession()) return toast("Finish the session you have open first");
   const t = allPlans().find((x) => (x.mine || x.slug) === d.id), w = +d.w;
   const tpl = { ...t }; delete tpl.mine;
-  const b = startBlock(tpl, { nutritionPhase: currentTarget()?.phase, programId: t.mine || null, position: (w - 1) * tpl.rotation.length });
+  const b = startBlock(tpl, { nutritionPhase: currentTarget()?.phase, programId: t.mine || null, position: (w - 1) * tpl.rotation.length, size: PS.id === d.id ? PS.size : undefined });
   const keys = tpl.sessions.map((x) => x.key), cut = new Date(Date.now() - 9 * 864e5).toISOString();
   let n = 0;
   for (const a of S.activities) if (!a.block_id && a.ended_at && a.week === w && keys.includes(a.session_key) && a.started_at >= cut) { a.block_id = b.id; touch(a); n++; }
@@ -170,6 +192,7 @@ ACT.edSaveAs = () => sheet("Save as my own plan", `<p class="small muted">It sho
 ACT.edSaveDo = () => { const p = saveAsProgram(edBlock(), val("pname")); closeSheet(); toast(`Saved as ${p.title}`); };
 export function saveAsProgram(b, title) {
   const tpl = JSON.parse(JSON.stringify(b.plan));
+  delete tpl.size; tpl.sessions.forEach((s) => s.slots.forEach((x) => delete x.tier));   // a plan you saved is exactly what you built: one size
   tpl.title = title || b.title; tpl.slug = "my-" + uid().slice(0, 8); tpl.author = S.me.display_name || "Me";
   const p = touch({ id: uid(), slug: tpl.slug, version: 1, title: tpl.title, focus: tpl.focus, weeks: tpl.weeks, days_per_week: tpl.days_per_week, template: tpl });
   S.programs.push(p); save();

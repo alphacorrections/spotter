@@ -115,7 +115,8 @@
           "load": "bodyweight",
           "swap_tags": [
             "quadriceps"
-          ]
+          ],
+          "tier": 1
         },
         {
           "key": "move_a.pushup",
@@ -130,7 +131,8 @@
           "load": "bodyweight",
           "swap_tags": [
             "chest"
-          ]
+          ],
+          "tier": 1
         },
         {
           "key": "move_a.bridge",
@@ -146,7 +148,8 @@
           "load": "bodyweight",
           "swap_tags": [
             "glutes"
-          ]
+          ],
+          "tier": 1
         },
         {
           "key": "move_a.plank",
@@ -162,7 +165,40 @@
           "measure": "seconds",
           "swap_tags": [
             "abdominals"
-          ]
+          ],
+          "tier": 2
+        },
+        {
+          "key": "move_a.superman",
+          "role": "accessory",
+          "reps": {
+            "base": [
+              8,
+              15
+            ]
+          },
+          "load": "bodyweight",
+          "exercise": "Superman",
+          "swap_tags": [
+            "lower back"
+          ],
+          "tier": 3
+        },
+        {
+          "key": "move_a.dips",
+          "role": "accessory",
+          "reps": {
+            "base": [
+              6,
+              15
+            ]
+          },
+          "load": "bodyweight",
+          "exercise": "Bench_Dips",
+          "swap_tags": [
+            "triceps"
+          ],
+          "tier": 3
         }
       ]
     },
@@ -185,7 +221,8 @@
           "load": "bodyweight",
           "swap_tags": [
             "quadriceps"
-          ]
+          ],
+          "tier": 1
         },
         {
           "key": "move_b.pushup",
@@ -201,7 +238,8 @@
           "load": "bodyweight",
           "swap_tags": [
             "chest"
-          ]
+          ],
+          "tier": 1
         },
         {
           "key": "move_b.bridge",
@@ -216,7 +254,8 @@
           "load": "bodyweight",
           "swap_tags": [
             "glutes"
-          ]
+          ],
+          "tier": 1
         },
         {
           "key": "move_b.dead_bug",
@@ -231,7 +270,41 @@
           "load": "bodyweight",
           "swap_tags": [
             "abdominals"
-          ]
+          ],
+          "tier": 2
+        },
+        {
+          "key": "move_b.plank",
+          "role": "accessory",
+          "reps": {
+            "base": [
+              20,
+              60
+            ]
+          },
+          "load": "bodyweight",
+          "measure": "seconds",
+          "exercise": "Plank",
+          "swap_tags": [
+            "abdominals"
+          ],
+          "tier": 3
+        },
+        {
+          "key": "move_b.squat",
+          "role": "accessory",
+          "reps": {
+            "base": [
+              10,
+              20
+            ]
+          },
+          "load": "bodyweight",
+          "exercise": "Bodyweight_Squat",
+          "swap_tags": [
+            "quadriceps"
+          ],
+          "tier": 3
         }
       ]
     },
@@ -253,7 +326,8 @@
           "load": "bodyweight",
           "swap_tags": [
             "quadriceps"
-          ]
+          ],
+          "tier": 1
         },
         {
           "key": "move_c.dips",
@@ -269,7 +343,8 @@
           "load": "bodyweight",
           "swap_tags": [
             "triceps"
-          ]
+          ],
+          "tier": 1
         },
         {
           "key": "move_c.superman",
@@ -285,7 +360,8 @@
           "measure": "seconds",
           "swap_tags": [
             "lower back"
-          ]
+          ],
+          "tier": 1
         },
         {
           "key": "move_c.climbers",
@@ -300,7 +376,40 @@
           "load": "bodyweight",
           "swap_tags": [
             "quadriceps"
-          ]
+          ],
+          "tier": 2
+        },
+        {
+          "key": "move_c.dead_bug",
+          "role": "accessory",
+          "reps": {
+            "base": [
+              6,
+              12
+            ]
+          },
+          "load": "bodyweight",
+          "exercise": "Dead_Bug",
+          "swap_tags": [
+            "abdominals"
+          ],
+          "tier": 3
+        },
+        {
+          "key": "move_c.bridge",
+          "role": "accessory",
+          "reps": {
+            "base": [
+              8,
+              15
+            ]
+          },
+          "load": "bodyweight",
+          "exercise": "Single_Leg_Glute_Bridge",
+          "swap_tags": [
+            "glutes"
+          ],
+          "tier": 3
         }
       ]
     }

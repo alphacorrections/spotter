@@ -131,7 +131,8 @@
           "increment": 10,
           "swap_tags": [
             "quadriceps"
-          ]
+          ],
+          "tier": 1
         },
         {
           "key": "keep_a.bench",
@@ -147,7 +148,8 @@
           "increment": 5,
           "swap_tags": [
             "chest"
-          ]
+          ],
+          "tier": 1
         },
         {
           "key": "keep_a.row",
@@ -163,7 +165,8 @@
           "increment": 10,
           "swap_tags": [
             "middle back"
-          ]
+          ],
+          "tier": 1
         },
         {
           "key": "keep_a.lateral",
@@ -179,7 +182,8 @@
           "increment": 5,
           "swap_tags": [
             "shoulders"
-          ]
+          ],
+          "tier": 1
         },
         {
           "key": "keep_a.plank",
@@ -195,7 +199,40 @@
           "measure": "seconds",
           "swap_tags": [
             "abdominals"
-          ]
+          ],
+          "tier": 2
+        },
+        {
+          "key": "keep_a.leg_curl",
+          "role": "accessory",
+          "exercise": "Lying_Leg_Curls",
+          "reps": {
+            "hold": [
+              12,
+              15
+            ]
+          },
+          "increment": 10,
+          "swap_tags": [
+            "hamstrings"
+          ],
+          "tier": 3
+        },
+        {
+          "key": "keep_a.face_pull",
+          "role": "accessory",
+          "exercise": "Face_Pull",
+          "reps": {
+            "hold": [
+              12,
+              15
+            ]
+          },
+          "increment": 5,
+          "swap_tags": [
+            "shoulders"
+          ],
+          "tier": 3
         }
       ]
     },
@@ -217,7 +254,8 @@
           "increment": 10,
           "swap_tags": [
             "hamstrings"
-          ]
+          ],
+          "tier": 1
         },
         {
           "key": "keep_b.press",
@@ -232,7 +270,8 @@
           "increment": 5,
           "swap_tags": [
             "shoulders"
-          ]
+          ],
+          "tier": 1
         },
         {
           "key": "keep_b.pulldown",
@@ -247,7 +286,8 @@
           "increment": 10,
           "swap_tags": [
             "lats"
-          ]
+          ],
+          "tier": 1
         },
         {
           "key": "keep_b.curl",
@@ -263,7 +303,8 @@
           "swap_tags": [
             "biceps"
           ],
-          "superset": "A"
+          "superset": "A",
+          "tier": 1
         },
         {
           "key": "keep_b.pushdown",
@@ -279,7 +320,40 @@
           "swap_tags": [
             "triceps"
           ],
-          "superset": "A"
+          "superset": "A",
+          "tier": 2
+        },
+        {
+          "key": "keep_b.leg_ext",
+          "role": "accessory",
+          "exercise": "Leg_Extensions",
+          "reps": {
+            "hold": [
+              8,
+              12
+            ]
+          },
+          "increment": 10,
+          "swap_tags": [
+            "quadriceps"
+          ],
+          "tier": 3
+        },
+        {
+          "key": "keep_b.calf",
+          "role": "accessory",
+          "exercise": "Standing_Calf_Raises",
+          "reps": {
+            "hold": [
+              8,
+              12
+            ]
+          },
+          "increment": 10,
+          "swap_tags": [
+            "calves"
+          ],
+          "tier": 3
         }
       ]
     }

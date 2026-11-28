@@ -151,7 +151,8 @@
           "increment": 10,
           "swap_tags": [
             "quadriceps"
-          ]
+          ],
+          "tier": 1
         },
         {
           "key": "home_a.bench",
@@ -170,7 +171,8 @@
           "increment": 10,
           "swap_tags": [
             "chest"
-          ]
+          ],
+          "tier": 1
         },
         {
           "key": "home_a.row",
@@ -189,7 +191,8 @@
           "increment": 5,
           "swap_tags": [
             "middle back"
-          ]
+          ],
+          "tier": 1
         },
         {
           "key": "home_a.lateral",
@@ -209,7 +212,8 @@
           "increment": 5,
           "swap_tags": [
             "shoulders"
-          ]
+          ],
+          "tier": 1
         },
         {
           "key": "home_a.curl",
@@ -228,7 +232,8 @@
           "increment": 5,
           "swap_tags": [
             "biceps"
-          ]
+          ],
+          "tier": 2
         },
         {
           "key": "home_a.finisher",
@@ -242,7 +247,48 @@
           "swap_tags": [
             "chest"
           ],
-          "load": "bodyweight"
+          "load": "bodyweight",
+          "tier": 2
+        },
+        {
+          "key": "home_a.fly",
+          "role": "accessory",
+          "exercise": "Dumbbell_Flyes",
+          "reps": {
+            "base": [
+              10,
+              12
+            ],
+            "heavy": [
+              8,
+              10
+            ]
+          },
+          "increment": 5,
+          "swap_tags": [
+            "chest"
+          ],
+          "tier": 3
+        },
+        {
+          "key": "home_a.calf",
+          "role": "accessory",
+          "exercise": "Standing_Dumbbell_Calf_Raise",
+          "reps": {
+            "base": [
+              10,
+              12
+            ],
+            "heavy": [
+              8,
+              10
+            ]
+          },
+          "increment": 5,
+          "swap_tags": [
+            "calves"
+          ],
+          "tier": 3
         }
       ]
     },
@@ -269,7 +315,8 @@
           "increment": 10,
           "swap_tags": [
             "hamstrings"
-          ]
+          ],
+          "tier": 1
         },
         {
           "key": "home_b.press",
@@ -288,7 +335,8 @@
           "increment": 10,
           "swap_tags": [
             "shoulders"
-          ]
+          ],
+          "tier": 1
         },
         {
           "key": "home_b.row",
@@ -308,7 +356,8 @@
           "increment": 10,
           "swap_tags": [
             "middle back"
-          ]
+          ],
+          "tier": 1
         },
         {
           "key": "home_b.tricep",
@@ -328,7 +377,8 @@
           "increment": 5,
           "swap_tags": [
             "triceps"
-          ]
+          ],
+          "tier": 1
         },
         {
           "key": "home_b.calf",
@@ -347,7 +397,8 @@
           "increment": 10,
           "swap_tags": [
             "calves"
-          ]
+          ],
+          "tier": 2
         },
         {
           "key": "home_b.finisher",
@@ -360,7 +411,48 @@
           "swap_tags": [
             "quadriceps"
           ],
-          "load": "bodyweight"
+          "load": "bodyweight",
+          "tier": 2
+        },
+        {
+          "key": "home_b.incline_curl",
+          "role": "accessory",
+          "exercise": "Incline_Dumbbell_Curl",
+          "reps": {
+            "base": [
+              10,
+              15
+            ],
+            "heavy": [
+              8,
+              12
+            ]
+          },
+          "increment": 5,
+          "swap_tags": [
+            "biceps"
+          ],
+          "tier": 3
+        },
+        {
+          "key": "home_b.rear_fly",
+          "role": "accessory",
+          "exercise": "Reverse_Flyes",
+          "reps": {
+            "base": [
+              10,
+              15
+            ],
+            "heavy": [
+              8,
+              12
+            ]
+          },
+          "increment": 5,
+          "swap_tags": [
+            "shoulders"
+          ],
+          "tier": 3
         }
       ]
     },
@@ -387,7 +479,8 @@
           "increment": 10,
           "swap_tags": [
             "quadriceps"
-          ]
+          ],
+          "tier": 1
         },
         {
           "key": "home_c.incline",
@@ -406,7 +499,8 @@
           "increment": 10,
           "swap_tags": [
             "chest"
-          ]
+          ],
+          "tier": 1
         },
         {
           "key": "home_c.lunge",
@@ -426,7 +520,8 @@
           "increment": 10,
           "swap_tags": [
             "quadriceps"
-          ]
+          ],
+          "tier": 1
         },
         {
           "key": "home_c.hammer",
@@ -446,7 +541,8 @@
           "increment": 5,
           "swap_tags": [
             "biceps"
-          ]
+          ],
+          "tier": 1
         },
         {
           "key": "home_c.plank",
@@ -466,7 +562,8 @@
           "measure": "seconds",
           "swap_tags": [
             "abdominals"
-          ]
+          ],
+          "tier": 2
         },
         {
           "key": "home_c.finisher",
@@ -479,7 +576,48 @@
           "swap_tags": [
             "triceps"
           ],
-          "load": "bodyweight"
+          "load": "bodyweight",
+          "tier": 2
+        },
+        {
+          "key": "home_c.row",
+          "role": "accessory",
+          "exercise": "One-Arm_Dumbbell_Row",
+          "reps": {
+            "base": [
+              10,
+              12
+            ],
+            "heavy": [
+              8,
+              10
+            ]
+          },
+          "increment": 5,
+          "swap_tags": [
+            "middle back"
+          ],
+          "tier": 3
+        },
+        {
+          "key": "home_c.lateral",
+          "role": "accessory",
+          "exercise": "Side_Lateral_Raise",
+          "reps": {
+            "base": [
+              10,
+              12
+            ],
+            "heavy": [
+              8,
+              10
+            ]
+          },
+          "increment": 5,
+          "swap_tags": [
+            "shoulders"
+          ],
+          "tier": 3
         }
       ]
     }

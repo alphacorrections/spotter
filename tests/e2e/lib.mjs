@@ -55,7 +55,7 @@ export async function shot(page, name, dir) {
   await page.screenshot({ path: path.join(dir, name + ".png"), fullPage: false });
 }
 
-export async function onboard(page, name, { focus = "hypertrophy", days = 5, gear = "obGym", start = true } = {}) {
+export async function onboard(page, name, { focus = "hypertrophy", days = 5, gear = "obGym", start = true, size = 3 } = {}) {
   if (await page.locator('[data-act="obNoAccount"]').count()) await act(page, "obNoAccount");
   await page.fill("#obname", name);
   await act(page, "obNext");
@@ -64,6 +64,12 @@ export async function onboard(page, name, { focus = "hypertrophy", days = 5, gea
   await act(page, gear);
   await act(page, "obNext");
   if (start) await act(page, "obStart"); else await act(page, "obSkip");
+  // New plans start at Standard. Most tests were written against the Full plan, so switch up through the real screen.
+  if (start && size && size !== 2) {
+    await page.evaluate(() => { location.hash = "#plans"; }); await page.waitForSelector('[data-act="sizeAsk"]');
+    await act(page, "sizeAsk"); await page.locator(`#sheet [data-act="sizeDo"][data-v="${size}"]`).click();
+    await page.evaluate(() => { location.hash = "#today"; }); await page.waitForSelector('[data-nav="add"]');
+  }
 }
 export async function signIn(page, email) {
   await page.fill("#sgemail", email);

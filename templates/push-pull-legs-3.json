@@ -156,7 +156,8 @@
           "increment": 5,
           "swap_tags": [
             "chest"
-          ]
+          ],
+          "tier": 1
         },
         {
           "key": "push.press",
@@ -175,7 +176,8 @@
           "increment": 5,
           "swap_tags": [
             "shoulders"
-          ]
+          ],
+          "tier": 1
         },
         {
           "key": "push.incline",
@@ -194,7 +196,8 @@
           "increment": 5,
           "swap_tags": [
             "chest"
-          ]
+          ],
+          "tier": 1
         },
         {
           "key": "push.lateral",
@@ -221,7 +224,8 @@
           },
           "swap_tags": [
             "shoulders"
-          ]
+          ],
+          "tier": 1
         },
         {
           "key": "push.pushdown",
@@ -247,7 +251,8 @@
           },
           "swap_tags": [
             "triceps"
-          ]
+          ],
+          "tier": 2
         },
         {
           "key": "push.overhead",
@@ -267,7 +272,42 @@
           "increment": 10,
           "swap_tags": [
             "triceps"
-          ]
+          ],
+          "tier": 2
+        },
+        {
+          "key": "push.fly",
+          "role": "accessory",
+          "exercise": "Cable_Crossover",
+          "reps": {
+            "base": [
+              10,
+              15
+            ],
+            "heavy": [
+              8,
+              12
+            ]
+          },
+          "increment": 5,
+          "swap_tags": [
+            "chest"
+          ],
+          "tier": 3
+        },
+        {
+          "key": "push.finisher",
+          "role": "finisher",
+          "reps": {
+            "base": "amrap",
+            "heavy": "amrap"
+          },
+          "load": "bodyweight",
+          "exercise": "Dips_-_Chest_Version",
+          "swap_tags": [
+            "chest"
+          ],
+          "tier": 3
         }
       ]
     },
@@ -293,7 +333,8 @@
           "increment": 5,
           "swap_tags": [
             "middle back"
-          ]
+          ],
+          "tier": 1
         },
         {
           "key": "pull.pulldown",
@@ -319,7 +360,8 @@
           },
           "swap_tags": [
             "lats"
-          ]
+          ],
+          "tier": 1
         },
         {
           "key": "pull.cable_row",
@@ -339,7 +381,8 @@
           "increment": 10,
           "swap_tags": [
             "middle back"
-          ]
+          ],
+          "tier": 1
         },
         {
           "key": "pull.face_pull",
@@ -358,7 +401,8 @@
           "increment": 10,
           "swap_tags": [
             "shoulders"
-          ]
+          ],
+          "tier": 1
         },
         {
           "key": "pull.curl",
@@ -384,7 +428,8 @@
           },
           "swap_tags": [
             "biceps"
-          ]
+          ],
+          "tier": 2
         },
         {
           "key": "pull.hammer",
@@ -404,7 +449,48 @@
           "increment": 5,
           "swap_tags": [
             "biceps"
-          ]
+          ],
+          "tier": 2
+        },
+        {
+          "key": "pull.straight_arm",
+          "role": "accessory",
+          "exercise": "Straight-Arm_Pulldown",
+          "reps": {
+            "base": [
+              8,
+              12
+            ],
+            "heavy": [
+              8,
+              10
+            ]
+          },
+          "increment": 5,
+          "swap_tags": [
+            "lats"
+          ],
+          "tier": 3
+        },
+        {
+          "key": "pull.rear_fly",
+          "role": "accessory",
+          "exercise": "Reverse_Flyes",
+          "reps": {
+            "base": [
+              8,
+              12
+            ],
+            "heavy": [
+              8,
+              10
+            ]
+          },
+          "increment": 5,
+          "swap_tags": [
+            "shoulders"
+          ],
+          "tier": 3
         }
       ]
     },
@@ -430,7 +516,8 @@
           "increment": 10,
           "swap_tags": [
             "quadriceps"
-          ]
+          ],
+          "tier": 1
         },
         {
           "key": "legs.rdl",
@@ -449,7 +536,8 @@
           "increment": 10,
           "swap_tags": [
             "hamstrings"
-          ]
+          ],
+          "tier": 1
         },
         {
           "key": "legs.leg_press",
@@ -475,7 +563,8 @@
           },
           "swap_tags": [
             "quadriceps"
-          ]
+          ],
+          "tier": 1
         },
         {
           "key": "legs.leg_curl",
@@ -495,7 +584,8 @@
           "increment": 10,
           "swap_tags": [
             "hamstrings"
-          ]
+          ],
+          "tier": 1
         },
         {
           "key": "legs.calf",
@@ -515,7 +605,8 @@
           "increment": 10,
           "swap_tags": [
             "calves"
-          ]
+          ],
+          "tier": 2
         },
         {
           "key": "legs.crunch",
@@ -534,7 +625,48 @@
           "increment": 10,
           "swap_tags": [
             "abdominals"
-          ]
+          ],
+          "tier": 2
+        },
+        {
+          "key": "legs.leg_ext",
+          "role": "accessory",
+          "exercise": "Leg_Extensions",
+          "reps": {
+            "base": [
+              10,
+              15
+            ],
+            "heavy": [
+              8,
+              12
+            ]
+          },
+          "increment": 10,
+          "swap_tags": [
+            "quadriceps"
+          ],
+          "tier": 3
+        },
+        {
+          "key": "legs.hip_thrust",
+          "role": "accessory",
+          "exercise": "Barbell_Hip_Thrust",
+          "reps": {
+            "base": [
+              10,
+              15
+            ],
+            "heavy": [
+              8,
+              12
+            ]
+          },
+          "increment": 10,
+          "swap_tags": [
+            "glutes"
+          ],
+          "tier": 3
         }
       ]
     }

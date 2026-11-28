@@ -5,12 +5,45 @@ import { slotSpec, planSets, blockPosition, verdict, e1rm, phaseForWeek } from "
 import { stalled, deloadCheck, gapRule, stepTarget } from "../engine/coach.mjs";
 
 // ---------------------------------------------------------------- blocks
+// Plan sizes. Every slot carries a tier (1 Starter, 2 Standard, 3 Full); a plan run at size N keeps tiers up to N.
+export const SIZES = [[1, "Starter", "The essentials. Shortest sessions."], [2, "Standard", "The full plan most people should run."], [3, "Full", "Extra work for lagging areas. Longest sessions."]];
+export const sizeName = (n) => (SIZES.find((s) => s[0] === n) || [])[1] || "";
+export const hasSizes = (plan) => plan.sessions.some((s) => s.slots.some((x) => (x.tier || 1) > 1));
+export function sizePlan(plan, n) {
+  const p = JSON.parse(JSON.stringify(plan));
+  if (!hasSizes(p)) return p;
+  p.sessions.forEach((s) => { s.slots = s.slots.filter((x) => (x.tier || 1) <= n); });
+  p.size = n;
+  return p;
+}
+/** Lifts per day and rough minutes per session at a size. */
+export function sizeFacts(plan, n) {
+  const p = sizePlan(plan, n), per = p.sessions.map((s) => s.slots.length);
+  const secs = p.sessions.map((s) => s.slots.reduce((t, x) => { const r = p.roles?.[x.role] || {}; return t + (x.sets ?? r.sets ?? 3) * ((x.rest_s ?? r.rest_s ?? 90) + 45); }, 0));
+  const lo = Math.min(...per), hi = Math.max(...per), avg = secs.reduce((a, c) => a + c, 0) / secs.length / 60;
+  return { lifts: lo === hi ? String(lo) : `${lo} to ${hi}`, minutes: Math.round(avg / 5) * 5 };
+}
+/**
+ * Change the size of a running block. Lifts you swapped keep your swap, lifts you added yourself stay,
+ * history is untouched. Lifts you removed by hand come back if the new size includes them.
+ */
+export function resizeBlock(b, tpl, n) {
+  const want = sizePlan(tpl, n);
+  for (const s of b.plan.sessions) {
+    const ws = want.sessions.find((x) => x.key === s.key); if (!ws) continue;
+    const mine = new Map(s.slots.map((x) => [x.key, x])), all = new Set(tpl.sessions.find((x) => x.key === s.key).slots.map((x) => x.key));
+    s.slots = ws.slots.map((x) => (mine.has(x.key) ? Object.assign(mine.get(x.key), { tier: x.tier }) : x)).concat(s.slots.filter((x) => !all.has(x.key)));
+  }
+  for (const [k, v] of Object.entries(want.roles || {})) if (!b.plan.roles[k]) b.plan.roles[k] = v;
+  b.plan.size = n; touch(b);
+  return b;
+}
 export function startBlock(tpl, opts = {}) {
   S.blocks.filter((b) => b.status === "active").forEach((b) => { b.status = "paused"; touch(b); });
   const b = {
     id: uid(), title: tpl.title, focus: tpl.focus, nutrition_phase: opts.nutritionPhase || null,
     program_slug: tpl.slug, program_id: opts.programId || null, group_block_id: opts.groupBlockId || null,
-    plan: JSON.parse(JSON.stringify(tpl)), status: "active", position: opts.position || 0,
+    plan: hasSizes(tpl) ? sizePlan(tpl, opts.size || tpl.size || 2) : JSON.parse(JSON.stringify(tpl)), status: "active", position: opts.position || 0,
     started_on: ymd(), finished_on: null, last_done: null,
   };
   S.blocks.push(b);

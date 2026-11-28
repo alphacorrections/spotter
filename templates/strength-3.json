@@ -143,7 +143,8 @@
           "increment": 10,
           "swap_tags": [
             "quadriceps"
-          ]
+          ],
+          "tier": 1
         },
         {
           "key": "str_a.bench",
@@ -163,7 +164,8 @@
           "increment": 5,
           "swap_tags": [
             "chest"
-          ]
+          ],
+          "tier": 1
         },
         {
           "key": "str_a.row",
@@ -190,7 +192,8 @@
               "lower": 10,
               "core": 5
             }
-          }
+          },
+          "tier": 1
         },
         {
           "key": "str_a.plank",
@@ -218,7 +221,64 @@
               "lower": 10,
               "core": 5
             }
-          }
+          },
+          "tier": 2
+        },
+        {
+          "key": "str_a.pushdown",
+          "role": "accessory",
+          "exercise": "Triceps_Pushdown",
+          "reps": {
+            "volume": [
+              6,
+              8
+            ],
+            "peak": [
+              5,
+              8
+            ]
+          },
+          "increment": 5,
+          "swap_tags": [
+            "triceps"
+          ],
+          "progression": {
+            "type": "double_progression",
+            "increment": {
+              "upper": 5,
+              "lower": 10,
+              "core": 5
+            }
+          },
+          "tier": 3
+        },
+        {
+          "key": "str_a.leg_curl",
+          "role": "accessory",
+          "exercise": "Lying_Leg_Curls",
+          "reps": {
+            "volume": [
+              6,
+              8
+            ],
+            "peak": [
+              5,
+              8
+            ]
+          },
+          "increment": 10,
+          "swap_tags": [
+            "hamstrings"
+          ],
+          "progression": {
+            "type": "double_progression",
+            "increment": {
+              "upper": 5,
+              "lower": 10,
+              "core": 5
+            }
+          },
+          "tier": 3
         }
       ]
     },
@@ -244,7 +304,8 @@
           "increment": 10,
           "swap_tags": [
             "lower back"
-          ]
+          ],
+          "tier": 1
         },
         {
           "key": "str_b.press",
@@ -264,7 +325,8 @@
           "increment": 5,
           "swap_tags": [
             "shoulders"
-          ]
+          ],
+          "tier": 1
         },
         {
           "key": "str_b.chin",
@@ -291,7 +353,8 @@
               "lower": 10,
               "core": 5
             }
-          }
+          },
+          "tier": 1
         },
         {
           "key": "str_b.leg_raise",
@@ -318,7 +381,64 @@
               "lower": 10,
               "core": 5
             }
-          }
+          },
+          "tier": 2
+        },
+        {
+          "key": "str_b.lateral",
+          "role": "accessory",
+          "exercise": "Side_Lateral_Raise",
+          "reps": {
+            "volume": [
+              5,
+              8
+            ],
+            "peak": [
+              4,
+              6
+            ]
+          },
+          "swap_tags": [
+            "shoulders"
+          ],
+          "progression": {
+            "type": "double_progression",
+            "increment": {
+              "upper": 5,
+              "lower": 10,
+              "core": 5
+            }
+          },
+          "tier": 3,
+          "increment": 5
+        },
+        {
+          "key": "str_b.leg_ext",
+          "role": "accessory",
+          "exercise": "Leg_Extensions",
+          "reps": {
+            "volume": [
+              5,
+              8
+            ],
+            "peak": [
+              4,
+              6
+            ]
+          },
+          "swap_tags": [
+            "quadriceps"
+          ],
+          "progression": {
+            "type": "double_progression",
+            "increment": {
+              "upper": 5,
+              "lower": 10,
+              "core": 5
+            }
+          },
+          "tier": 3,
+          "increment": 10
         }
       ]
     },
@@ -345,7 +465,8 @@
           "increment": 5,
           "swap_tags": [
             "chest"
-          ]
+          ],
+          "tier": 1
         },
         {
           "key": "str_c.leg_press",
@@ -372,7 +493,8 @@
               "lower": 10,
               "core": 5
             }
-          }
+          },
+          "tier": 1
         },
         {
           "key": "str_c.cable_row",
@@ -400,7 +522,8 @@
               "lower": 10,
               "core": 5
             }
-          }
+          },
+          "tier": 1
         },
         {
           "key": "str_c.curl",
@@ -427,7 +550,64 @@
               "lower": 10,
               "core": 5
             }
-          }
+          },
+          "tier": 2
+        },
+        {
+          "key": "str_c.rdl",
+          "role": "accessory",
+          "exercise": "Romanian_Deadlift",
+          "reps": {
+            "volume": [
+              6,
+              10
+            ],
+            "peak": [
+              6,
+              8
+            ]
+          },
+          "increment": 10,
+          "swap_tags": [
+            "hamstrings"
+          ],
+          "progression": {
+            "type": "double_progression",
+            "increment": {
+              "upper": 5,
+              "lower": 10,
+              "core": 5
+            }
+          },
+          "tier": 3
+        },
+        {
+          "key": "str_c.face_pull",
+          "role": "accessory",
+          "exercise": "Face_Pull",
+          "reps": {
+            "volume": [
+              8,
+              10
+            ],
+            "peak": [
+              8,
+              10
+            ]
+          },
+          "increment": 5,
+          "swap_tags": [
+            "shoulders"
+          ],
+          "progression": {
+            "type": "double_progression",
+            "increment": {
+              "upper": 5,
+              "lower": 10,
+              "core": 5
+            }
+          },
+          "tier": 3
         }
       ]
     }

@@ -226,6 +226,7 @@
           "$ref": "#/$defs/slot_key"
         },
         "role": { "enum": ["primary", "accessory", "finisher"] },
+        "tier": { "description": "The smallest plan size that includes this slot: 1 Starter, 2 Standard, 3 Full. Left out means 1.", "enum": [1, 2, 3], "default": 1 },
         "exercise": { "description": "An id from the exercise library.", "type": "string", "minLength": 1 },
         "display_name": { "description": "What to call it on screen, when the library name is not how you say it.", "type": "string" },
         "sets": { "type": "integer", "minimum": 1, "maximum": 12 },

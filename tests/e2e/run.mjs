@@ -353,6 +353,27 @@ try {
   check((await small.locator("#lift0 input[data-f=weight]").inputValue()) === "210", "and the back-off sets come in 10 percent lighter");
   await snap(small, "log-backoff", 340);
 
+  // ---- Plan sizes: Starter, Standard, Full
+  await act(small, "finishAsk"); await act(small, "finishDo"); await tap(small, "#sheet [data-close]");
+  await small.goto(APP + "#plans"); await tap(small, '[data-act="planDetail"][data-id="full-body-3"]');
+  const sizeTxt = await small.locator("#sheet .sizes").innerText();
+  check((await small.locator("#sheet .sizeopt").count()) === 3 && /5 lifts a day/.test(sizeTxt) && /7 lifts a day/.test(sizeTxt) && /9 lifts a day/.test(sizeTxt), "a plan shows three sizes with lifts and minutes for each", sizeTxt.replace(/\n/g, " ").slice(0, 200));
+  await tap(small, '#sheet [data-act="planSize"][data-v="1"]');
+  check((await small.locator("#sheet .deep").first().locator(".kv").count()) === 5, "picking a size shows that size's lifts before you start");
+  await snap(small, "plan-sizes", 340);
+  await tap(small, '#sheet [data-act="planStart"]');
+  let sb = (await state(small)).blocks.find((b) => b.status === "active");
+  check(sb.program_slug === "full-body-3" && sb.plan.size === 1 && sb.plan.sessions.every((s) => s.slots.length === 5), "starting at Starter gives the short version of the plan");
+  await setState(small, (st) => { const b = st.blocks.find((x) => x.status === "active"), s = b.plan.sessions[0]; s.slots[0].exercise = "Leg_Press"; s.slots.push({ key: "full_a.mine", role: "accessory", exercise: "Barbell_Shrug", reps: { base: [10, 12], heavy: [8, 10] } }); });
+  await small.goto(APP + "#plans"); await act(small, "sizeAsk"); await tap(small, '#sheet [data-act="sizeDo"][data-v="3"]');
+  sb = (await state(small)).blocks.find((b) => b.status === "active");
+  const s0 = sb.plan.sessions[0].slots;
+  check(sb.plan.size === 3 && s0.length === 10 && sb.plan.sessions[1].slots.length === 9, "switching to Full adds the extra lifts", String(s0.length));
+  check(s0[0].exercise === "Leg_Press" && s0[s0.length - 1].key === "full_a.mine", "changing size keeps a lift you swapped and a lift you added");
+  await act(small, "sizeAsk"); await tap(small, '#sheet [data-act="sizeDo"][data-v="2"]');
+  sb = (await state(small)).blocks.find((b) => b.status === "active");
+  check(sb.plan.size === 2 && sb.plan.sessions[0].slots.length === 8 && sb.plan.sessions[2].slots.length === 7, "and switching down to Standard trims them again");
+
   const errors = pages.flatMap((p) => p.errors);
   check(errors.length === 0, "no page errors on any phone", errors.join(" | "));
   {

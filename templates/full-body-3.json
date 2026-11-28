@@ -155,7 +155,8 @@
           "increment": 10,
           "swap_tags": [
             "quadriceps"
-          ]
+          ],
+          "tier": 1
         },
         {
           "key": "full_a.bench",
@@ -175,7 +176,8 @@
           "increment": 5,
           "swap_tags": [
             "chest"
-          ]
+          ],
+          "tier": 1
         },
         {
           "key": "full_a.row",
@@ -195,7 +197,8 @@
           "increment": 10,
           "swap_tags": [
             "middle back"
-          ]
+          ],
+          "tier": 1
         },
         {
           "key": "full_a.press",
@@ -214,7 +217,8 @@
           "increment": 5,
           "swap_tags": [
             "shoulders"
-          ]
+          ],
+          "tier": 1
         },
         {
           "key": "full_a.plank",
@@ -234,7 +238,88 @@
           "measure": "seconds",
           "swap_tags": [
             "abdominals"
-          ]
+          ],
+          "tier": 1
+        },
+        {
+          "key": "full_a.leg_curl",
+          "role": "accessory",
+          "exercise": "Lying_Leg_Curls",
+          "reps": {
+            "base": [
+              10,
+              12
+            ],
+            "heavy": [
+              8,
+              10
+            ]
+          },
+          "increment": 10,
+          "swap_tags": [
+            "hamstrings"
+          ],
+          "tier": 2
+        },
+        {
+          "key": "full_a.curl",
+          "role": "accessory",
+          "exercise": "Barbell_Curl",
+          "reps": {
+            "base": [
+              10,
+              12
+            ],
+            "heavy": [
+              8,
+              10
+            ]
+          },
+          "increment": 5,
+          "swap_tags": [
+            "biceps"
+          ],
+          "tier": 2
+        },
+        {
+          "key": "full_a.calf",
+          "role": "accessory",
+          "exercise": "Standing_Calf_Raises",
+          "reps": {
+            "base": [
+              10,
+              12
+            ],
+            "heavy": [
+              8,
+              10
+            ]
+          },
+          "increment": 10,
+          "swap_tags": [
+            "calves"
+          ],
+          "tier": 3
+        },
+        {
+          "key": "full_a.face_pull",
+          "role": "accessory",
+          "exercise": "Face_Pull",
+          "reps": {
+            "base": [
+              10,
+              12
+            ],
+            "heavy": [
+              8,
+              10
+            ]
+          },
+          "increment": 5,
+          "swap_tags": [
+            "shoulders"
+          ],
+          "tier": 3
         }
       ]
     },
@@ -260,7 +345,8 @@
           "increment": 10,
           "swap_tags": [
             "hamstrings"
-          ]
+          ],
+          "tier": 1
         },
         {
           "key": "full_b.pulldown",
@@ -279,7 +365,8 @@
           "increment": 10,
           "swap_tags": [
             "lats"
-          ]
+          ],
+          "tier": 1
         },
         {
           "key": "full_b.incline",
@@ -298,7 +385,8 @@
           "increment": 5,
           "swap_tags": [
             "chest"
-          ]
+          ],
+          "tier": 1
         },
         {
           "key": "full_b.leg_ext",
@@ -318,7 +406,8 @@
           "increment": 10,
           "swap_tags": [
             "quadriceps"
-          ]
+          ],
+          "tier": 1
         },
         {
           "key": "full_b.curl",
@@ -337,7 +426,88 @@
           "increment": 5,
           "swap_tags": [
             "biceps"
-          ]
+          ],
+          "tier": 1
+        },
+        {
+          "key": "full_b.lateral",
+          "role": "accessory",
+          "exercise": "Side_Lateral_Raise",
+          "reps": {
+            "base": [
+              10,
+              12
+            ],
+            "heavy": [
+              8,
+              10
+            ]
+          },
+          "increment": 5,
+          "swap_tags": [
+            "shoulders"
+          ],
+          "tier": 2
+        },
+        {
+          "key": "full_b.pushdown",
+          "role": "accessory",
+          "exercise": "Triceps_Pushdown",
+          "reps": {
+            "base": [
+              10,
+              12
+            ],
+            "heavy": [
+              8,
+              10
+            ]
+          },
+          "increment": 5,
+          "swap_tags": [
+            "triceps"
+          ],
+          "tier": 2
+        },
+        {
+          "key": "full_b.calf",
+          "role": "accessory",
+          "exercise": "Seated_Calf_Raise",
+          "reps": {
+            "base": [
+              10,
+              12
+            ],
+            "heavy": [
+              8,
+              10
+            ]
+          },
+          "increment": 10,
+          "swap_tags": [
+            "calves"
+          ],
+          "tier": 3
+        },
+        {
+          "key": "full_b.crunch",
+          "role": "accessory",
+          "exercise": "Cable_Crunch",
+          "reps": {
+            "base": [
+              10,
+              12
+            ],
+            "heavy": [
+              8,
+              10
+            ]
+          },
+          "increment": 5,
+          "swap_tags": [
+            "abdominals"
+          ],
+          "tier": 3
         }
       ]
     },
@@ -363,7 +533,8 @@
           "increment": 10,
           "swap_tags": [
             "quadriceps"
-          ]
+          ],
+          "tier": 1
         },
         {
           "key": "full_c.db_bench",
@@ -382,7 +553,8 @@
           "increment": 5,
           "swap_tags": [
             "chest"
-          ]
+          ],
+          "tier": 1
         },
         {
           "key": "full_c.db_row",
@@ -401,7 +573,8 @@
           "increment": 5,
           "swap_tags": [
             "middle back"
-          ]
+          ],
+          "tier": 1
         },
         {
           "key": "full_c.lateral",
@@ -421,7 +594,8 @@
           "increment": 5,
           "swap_tags": [
             "shoulders"
-          ]
+          ],
+          "tier": 1
         },
         {
           "key": "full_c.pushdown",
@@ -440,7 +614,88 @@
           "increment": 10,
           "swap_tags": [
             "triceps"
-          ]
+          ],
+          "tier": 1
+        },
+        {
+          "key": "full_c.leg_curl",
+          "role": "accessory",
+          "exercise": "Seated_Leg_Curl",
+          "reps": {
+            "base": [
+              10,
+              15
+            ],
+            "heavy": [
+              8,
+              12
+            ]
+          },
+          "increment": 10,
+          "swap_tags": [
+            "hamstrings"
+          ],
+          "tier": 2
+        },
+        {
+          "key": "full_c.hammer",
+          "role": "accessory",
+          "exercise": "Hammer_Curls",
+          "reps": {
+            "base": [
+              10,
+              15
+            ],
+            "heavy": [
+              8,
+              12
+            ]
+          },
+          "increment": 5,
+          "swap_tags": [
+            "biceps"
+          ],
+          "tier": 2
+        },
+        {
+          "key": "full_c.rear_fly",
+          "role": "accessory",
+          "exercise": "Reverse_Flyes",
+          "reps": {
+            "base": [
+              12,
+              15
+            ],
+            "heavy": [
+              10,
+              12
+            ]
+          },
+          "increment": 5,
+          "swap_tags": [
+            "shoulders"
+          ],
+          "tier": 3
+        },
+        {
+          "key": "full_c.leg_raise",
+          "role": "accessory",
+          "reps": {
+            "base": [
+              8,
+              15
+            ],
+            "heavy": [
+              8,
+              15
+            ]
+          },
+          "load": "bodyweight",
+          "exercise": "Hanging_Leg_Raise",
+          "swap_tags": [
+            "abdominals"
+          ],
+          "tier": 3
         }
       ]
     }
