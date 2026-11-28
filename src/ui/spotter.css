@@ -195,3 +195,9 @@ body:has(.updbar) .tp-wrap{margin-top:66px}
 .photorow b{display:block}
 
 .ibtn.flip svg{transform:rotate(180deg)}
+
+/* Photo crop */
+.cropstage{position:relative;margin:6px auto 14px;overflow:hidden;border-radius:18px;background:#000;touch-action:none;cursor:grab;user-select:none;-webkit-user-select:none}
+.cropstage img{position:absolute;left:0;top:0;max-width:none;transform-origin:0 0;pointer-events:none;-webkit-user-drag:none}
+.cropring{position:absolute;inset:0;border-radius:50%;box-shadow:0 0 0 999px rgba(0,0,0,.55);border:2px solid rgba(255,255,255,.85);pointer-events:none}
+#cropzoom{width:100%}

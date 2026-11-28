@@ -248,21 +248,61 @@ ACT.obBrowse = () => { finishOnboard(); go("plans"); };
 ACT.obSkip = () => { finishOnboard(); go("today"); };
 export { SYNC, CHG, save, ago };
 
-// Profile picture: shrink to a 192 px square in the browser, then keep it with the profile.
-async function shrink(file) {
-  let img;
-  try { img = await createImageBitmap(file); }
-  catch (e) { img = await new Promise((ok, bad) => { const el = new Image(); el.onload = () => ok(el); el.onerror = bad; el.src = URL.createObjectURL(file); }); }
-  const w = img.width, hgt = img.height, side = Math.min(w, hgt), c = document.createElement("canvas"); c.width = c.height = 192;
-  c.getContext("2d").drawImage(img, (w - side) / 2, (hgt - side) / 2, side, side, 0, 0, 192, 192);
-  let out = c.toDataURL("image/jpeg", 0.82);
-  if (out.length > 60000) out = c.toDataURL("image/jpeg", 0.6);
-  return out;
+// Profile picture: pick a photo, then drag and zoom it inside the circle. Saved as a 192 px square.
+const CROP = { img: null, box: 260, z: 1, x: 0, y: 0, base: 1, url: null };
+function cropClamp() {
+  const k = CROP.base * CROP.z, w = CROP.img.naturalWidth * k, h = CROP.img.naturalHeight * k;
+  CROP.x = Math.min(0, Math.max(CROP.box - w, CROP.x)); CROP.y = Math.min(0, Math.max(CROP.box - h, CROP.y));
 }
-CHG.setPhoto = async (v, d, el) => {
-  const f = el.files && el.files[0]; if (!f) return;
+function cropDraw() {
+  const el = document.getElementById("cropimg"); if (!el) return;
+  cropClamp(); const k = CROP.base * CROP.z;
+  el.style.width = CROP.img.naturalWidth * k + "px"; el.style.height = CROP.img.naturalHeight * k + "px"; el.style.transform = `translate(${CROP.x}px, ${CROP.y}px)`;
+}
+function cropZoom(z) {   // zoom about the middle of the circle
+  const c = CROP.box / 2, k0 = CROP.base * CROP.z, px = (c - CROP.x) / k0, py = (c - CROP.y) / k0;
+  CROP.z = Math.min(4, Math.max(1, z)); const k = CROP.base * CROP.z; CROP.x = c - px * k; CROP.y = c - py * k; cropDraw();
+}
+function cropOpen(img) {
+  const stage0 = Math.min(260, Math.max(180, innerWidth - 96));
+  Object.assign(CROP, { img, box: stage0, z: 1, base: stage0 / Math.min(img.naturalWidth, img.naturalHeight) });
+  CROP.x = (stage0 - img.naturalWidth * CROP.base) / 2; CROP.y = (stage0 - img.naturalHeight * CROP.base) / 2;
+  sheet("Fit your photo", `<p class="small muted">Drag to move it. Use the slider to zoom. What is inside the circle is what your group sees.</p>
+    <div class="cropstage" id="cropstage" style="width:${stage0}px;height:${stage0}px"><img id="cropimg" alt="" draggable="false"><span class="cropring"></span></div>
+    <label class="tp-label" for="cropzoom">Zoom</label><input type="range" id="cropzoom" min="1" max="4" step="0.01" value="1" aria-label="Zoom">
+    <div class="acts"><button class="tp-btn tp-ghost" data-close>Cancel</button><button class="tp-btn" data-act="cropSave">Use this photo</button></div>`);
+  const el = document.getElementById("cropimg"), stage = document.getElementById("cropstage"), zoom = document.getElementById("cropzoom");
+  el.src = img.src; cropDraw();
+  const pts = new Map(); let pinch = 0;
+  stage.addEventListener("pointerdown", (e) => { stage.setPointerCapture(e.pointerId); pts.set(e.pointerId, [e.clientX, e.clientY]); pinch = 0; });
+  stage.addEventListener("pointermove", (e) => {
+    const p = pts.get(e.pointerId); if (!p) return;
+    if (pts.size === 1) { CROP.x += e.clientX - p[0]; CROP.y += e.clientY - p[1]; cropDraw(); }
+    pts.set(e.pointerId, [e.clientX, e.clientY]);
+    if (pts.size === 2) { const [a, b] = [...pts.values()], d = Math.hypot(a[0] - b[0], a[1] - b[1]); if (pinch) { cropZoom(CROP.z * (d / pinch)); zoom.value = CROP.z; } pinch = d; }
+  });
+  const up = (e) => { pts.delete(e.pointerId); pinch = 0; };
+  stage.addEventListener("pointerup", up); stage.addEventListener("pointercancel", up);
+  zoom.addEventListener("input", () => cropZoom(+zoom.value));
+}
+ACT.cropSave = () => {
+  if (!CROP.img) return closeSheet();
+  try {
+    const k = CROP.base * CROP.z, side = CROP.box / k, c = document.createElement("canvas"); c.width = c.height = 192;
+    c.getContext("2d").drawImage(CROP.img, -CROP.x / k, -CROP.y / k, side, side, 0, 0, 192, 192);
+    let out = c.toDataURL("image/jpeg", 0.82);
+    if (out.length > 60000) out = c.toDataURL("image/jpeg", 0.6);
+    if (!/^data:image\/jpeg;base64,/.test(out) || out.length > 80000) throw new Error("size");
+    S.me.avatar = out; touchMe(); closeSheet(); render(); toast("Photo saved");
+  } catch (e) { toast("That photo could not be saved. Try another one."); }
+  if (CROP.url) { URL.revokeObjectURL(CROP.url); CROP.url = null; } CROP.img = null;
+};
+CHG.setPhoto = (v, d, el) => {
+  const f = el.files && el.files[0]; el.value = ""; if (!f) return;
   if (!/^image\//.test(f.type)) return toast("Pick a photo");
-  try { const out = await shrink(f); if (!/^data:image\/jpeg;base64,/.test(out) || out.length > 80000) throw new Error("size"); S.me.avatar = out; touchMe(); render(); toast("Photo saved"); }
-  catch (e) { toast("That photo could not be read. Try another one."); }
+  const img = new Image(), url = URL.createObjectURL(f);
+  img.onload = () => { if (!img.naturalWidth) return toast("That photo could not be read. Try another one."); CROP.url = url; cropOpen(img); };
+  img.onerror = () => { URL.revokeObjectURL(url); toast("That photo could not be read. Try another one."); };
+  img.src = url;
 };
 ACT.photoDrop = () => { S.me.avatar = null; touchMe(); render(); toast("Photo removed"); };

@@ -511,6 +511,15 @@ try {
     check((await k.locator(".photorow .face.ini").count()) === 1, "with no photo, the profile shows your initials");
     const png = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAIAAABLbSncAAAAFklEQVR4nGP8z8Dwn4EIwESMolGFAEUyAw2Zb1xJAAAAAElFTkSuQmCC", "base64");
     await k.setInputFiles("#setphoto", { name: "me.png", mimeType: "image/png", buffer: png });
+    await k.locator("#cropstage").waitFor();
+    check((await k.locator(".photorow img.face").count()) === 0, "picking a photo opens the crop step and saves nothing yet");
+    await k.evaluate(() => { const z = document.getElementById("cropzoom"); z.value = "2"; z.dispatchEvent(new Event("input")); });
+    const box = await k.locator("#cropstage").boundingBox();
+    await k.mouse.move(box.x + box.width / 2, box.y + box.height / 2); await k.mouse.down(); await k.mouse.move(box.x + box.width / 2 - 60, box.y + box.height / 2 - 40, { steps: 4 }); await k.mouse.up();
+    const tf = await k.locator("#cropimg").evaluate((el) => [el.style.transform, parseFloat(el.style.width)]);
+    check(/translate\(-\d/.test(tf[0]) && Math.abs(tf[1] - box.width * 2) < 2, "the photo can be zoomed and dragged inside the circle", tf.join(" "));
+    await snap(k, "photo-crop", 390);
+    await tap(k, '#sheet [data-act="cropSave"]');
     await k.locator(".photorow img.face").waitFor();
     const av = (await state(k)).me.avatar;
     check(/^data:image\/jpeg;base64,/.test(av) && av.length < 60000, "a photo is shrunk and saved as your profile picture", String(av).slice(0, 40));
