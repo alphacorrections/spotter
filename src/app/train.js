@@ -38,6 +38,25 @@ export function resizeBlock(b, tpl, n) {
   b.plan.size = n; touch(b);
   return b;
 }
+/** Has this block drifted from the plan at its size (a lift removed, added or swapped)? */
+export function isCustom(b, tpl) {
+  if (!tpl || !b.plan.size || !hasSizes(tpl)) return false;
+  const want = sizePlan(tpl, b.plan.size);
+  return want.sessions.some((ws) => { const s = b.plan.sessions.find((x) => x.key === ws.key); return !s || s.slots.length !== ws.slots.length || ws.slots.some((x, i) => { const m = s.slots.find((y) => y.key === x.key); return !m || m.exercise !== x.exercise; }); });
+}
+/** A block started before sizes existed: work out which size it is closest to and remember it. */
+export function ensureSize(b, tpl) {
+  if (!b || b.plan.size || !tpl || !hasSizes(tpl)) return b;
+  const have = new Set(b.plan.sessions.flatMap((s) => s.slots.map((x) => x.key)));
+  let best = 2, score = -1;
+  for (const n of [1, 2, 3]) {
+    const keys = new Set(sizePlan(tpl, n).sessions.flatMap((s) => s.slots.map((x) => x.key)));
+    const both = [...keys].filter((k) => have.has(k)).length, sc = both / (keys.size + have.size - both || 1);
+    if (sc > score) { score = sc; best = n; }
+  }
+  b.plan.size = best; touch(b);
+  return b;
+}
 export function startBlock(tpl, opts = {}) {
   S.blocks.filter((b) => b.status === "active").forEach((b) => { b.status = "paused"; touch(b); });
   const b = {

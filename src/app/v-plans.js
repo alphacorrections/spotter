@@ -2,7 +2,7 @@
 // that lets you change anything about a plan once it is yours.
 import { S, touch, save, uid, ex, templates, template, activeBlock, openSession, nice, gear } from "./store.js";
 import { ACT, CHG, VIEWS, R, go, render, top, backTop, sect, row, note, icon, esc, pill, sheet, closeSheet, toast, chips, field, val } from "./ui.js";
-import { startBlock, endBlock, resumeBlock, pos, phaseForWeek, nextSession, SIZES, sizeName, hasSizes, sizePlan, sizeFacts, resizeBlock } from "./train.js";
+import { startBlock, endBlock, resumeBlock, pos, phaseForWeek, nextSession, SIZES, sizeName, hasSizes, sizePlan, sizeFacts, resizeBlock, isCustom, ensureSize } from "./train.js";
 import { FOCUS, TECH, EQUIPMENT } from "./words.js";
 import { openPicker } from "./v-log.js";
 import { currentTarget } from "./v-coach.js";
@@ -25,10 +25,11 @@ VIEWS.plans = () => {
   const b = activeBlock();
   let h = top("Plans", b ? "What you are running, and what else there is" : "Pick what you train for");
   if (b) {
+    ensureSize(b, template(b.program_slug));
     const p = pos(b), wk = Math.min(p.week, b.plan.weeks), len = b.plan.rotation.length;
     const pct = Math.min(100, Math.round((b.position / (b.plan.weeks * len)) * 100));
     h += `<div class="glass hero tp-rise"><div class="label">Running now</div><div class="heroT">${esc(b.title)}</div>
-      <div class="small muted">Week ${wk} of ${b.plan.weeks} · ${esc(phaseForWeek(b.plan, wk).name)} · ${esc(FOCUS[b.focus].name)}${b.plan.size ? " · " + sizeName(b.plan.size) : ""}</div>
+      <div class="small muted">Week ${wk} of ${b.plan.weeks} · ${esc(phaseForWeek(b.plan, wk).name)} · ${esc(FOCUS[b.focus].name)}${b.plan.size ? " · " + sizeName(b.plan.size) + (isCustom(b, template(b.program_slug)) ? ", customized" : "") : ""}</div>
       <div class="bar" style="margin-top:12px"><i style="width:${pct}%"></i></div>
       <div class="flex mt"><button class="tp-btn tp-sm" data-act="editPlan">Edit plan</button>${template(b.program_slug) && hasSizes(template(b.program_slug)) ? `<button class="tp-btn tp-ghost tp-sm" data-act="sizeAsk">Size</button>` : ""}<button class="tp-btn tp-ghost tp-sm" data-act="planDetail" data-id="${b.id}" data-block="1">See it all</button><button class="tp-btn tp-ghost tp-sm" data-act="endAsk" data-id="${b.id}">End</button></div></div>`;
   }
@@ -83,7 +84,10 @@ ACT.planSize = (d) => {
 ACT.sizeAsk = () => {
   const b = activeBlock(), t = template(b.program_slug);
   if (!t || !hasSizes(t)) return toast("This plan has one size. Use Edit plan to add or remove lifts.");
-  sheet("How much work", `<p class="small muted">Changes the lifts in each day from your next session. Your history, your swaps and any lifts you added yourself all stay.</p>${sizePick(t, b.plan.size || 0, "sizeDo")}
+  ensureSize(b, t);
+  const custom = isCustom(b, t);
+  sheet("How much work", `<p class="small muted">Changes the lifts in each day from your next session. Your history, your swaps and any lifts you added yourself all stay.</p>
+    ${custom ? `<p class="small muted"><b>You have customized this plan.</b> It is closest to ${sizeName(b.plan.size)}. If you pick a size, lifts you removed that belong to it come back.</p>` : ""}${sizePick(t, b.plan.size || 0, "sizeDo")}
     <div class="acts"><button class="tp-btn tp-ghost" data-close>Close</button></div>`);
 };
 ACT.sizeDo = (d) => {

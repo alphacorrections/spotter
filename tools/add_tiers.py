@@ -14,12 +14,12 @@ def FIN(key, exercise):                # bodyweight finisher, to failure
     return ("fin", key, exercise)
 
 P = {
- "block-2-hypertrophy-strength-lean": {
-  "legs_a": (["lunge", "hip_thrust", "leg_curl", "calf"], ["pendulum", "crunch"], ["back_ext", "finisher"]),
-  "upper_1": (["incline_press", "pulldown", "row", "lateral"], ["curl", "pushdown"], ["finisher"]),
-  "legs_b": (["leg_press", "split_squat", "leg_curl", "leg_ext"], ["calf", "leg_raise"], ["finisher"]),
-  "upper_2": (["bench", "row", "fly", "face_pull"], ["curl", "tricep"], ["finisher"]),
-  "upper_3": (["press", "pulldown", "fly", "lateral"], ["curl", "pushdown"], ["finisher"])},
+ "block-2-hypertrophy-strength-lean": {   # Standard is the plan as written
+  "legs_a": (["lunge", "hip_thrust", "leg_curl", "calf", "pendulum"], ["crunch", "back_ext", "finisher"], [N("adductor", "Thigh_Adductor", "pendulum")]),
+  "upper_1": (["incline_press", "pulldown", "row", "lateral", "curl"], ["pushdown", "finisher"], [N("rear_fly", "Reverse_Flyes", "curl")]),
+  "legs_b": (["leg_press", "split_squat", "leg_curl", "leg_ext", "calf"], ["leg_raise", "finisher"], [N("abductor", "Thigh_Abductor", "calf")]),
+  "upper_2": (["bench", "row", "fly", "face_pull", "curl"], ["tricep", "finisher"], [N("lateral", "Side_Lateral_Raise", "curl")]),
+  "upper_3": (["press", "pulldown", "fly", "lateral", "curl"], ["pushdown", "finisher"], [N("face_pull", "Face_Pull", "curl")])},
  "upper-lower-4": {
   "upper_a": (["bench", "row", "press", "pulldown"], ["lateral", "pushdown", "curl"], [N("face_pull", "Face_Pull", "lateral"), FIN("finisher", "Pushups")]),
   "lower_a": (["squat", "rdl", "leg_ext", "leg_curl"], ["calf", "crunch"], [N("lunge", "Dumbbell_Walking_Lunge", "calf"), N("back_ext", "Hyperextensions_Back_Extensions", "crunch")]),

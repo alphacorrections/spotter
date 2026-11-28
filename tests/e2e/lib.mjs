@@ -55,7 +55,7 @@ export async function shot(page, name, dir) {
   await page.screenshot({ path: path.join(dir, name + ".png"), fullPage: false });
 }
 
-export async function onboard(page, name, { focus = "hypertrophy", days = 5, gear = "obGym", start = true, size = 3 } = {}) {
+export async function onboard(page, name, { focus = "hypertrophy", days = 5, gear = "obGym", start = true, size = 2 } = {}) {
   if (await page.locator('[data-act="obNoAccount"]').count()) await act(page, "obNoAccount");
   await page.fill("#obname", name);
   await act(page, "obNext");

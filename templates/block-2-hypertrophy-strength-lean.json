@@ -269,7 +269,7 @@
           "swap_tags": [
             "quadriceps"
           ],
-          "tier": 2
+          "tier": 1
         },
         {
           "key": "legs_a.crunch",
@@ -311,7 +311,7 @@
             "lower back"
           ],
           "load": "external",
-          "tier": 3
+          "tier": 2
         },
         {
           "key": "legs_a.finisher",
@@ -325,6 +325,26 @@
             "quadriceps"
           ],
           "load": "bodyweight",
+          "tier": 2
+        },
+        {
+          "key": "legs_a.adductor",
+          "role": "accessory",
+          "exercise": "Thigh_Adductor",
+          "reps": {
+            "base": [
+              8,
+              12
+            ],
+            "heavy": [
+              6,
+              10
+            ]
+          },
+          "increment": 10,
+          "swap_tags": [
+            "adductors"
+          ],
           "tier": 3
         }
       ]
@@ -465,7 +485,7 @@
             "biceps"
           ],
           "superset": "A",
-          "tier": 2
+          "tier": 1
         },
         {
           "key": "upper_1.pushdown",
@@ -509,6 +529,26 @@
             "lats"
           ],
           "load": "bodyweight",
+          "tier": 2
+        },
+        {
+          "key": "upper_1.rear_fly",
+          "role": "accessory",
+          "exercise": "Reverse_Flyes",
+          "reps": {
+            "base": [
+              8,
+              12
+            ],
+            "heavy": [
+              8,
+              10
+            ]
+          },
+          "increment": 5,
+          "swap_tags": [
+            "shoulders"
+          ],
           "tier": 3
         }
       ]
@@ -648,7 +688,7 @@
             "calves"
           ],
           "load": "bodyweight",
-          "tier": 2
+          "tier": 1
         },
         {
           "key": "legs_b.leg_raise",
@@ -684,7 +724,27 @@
           ],
           "load": "bodyweight",
           "note": "Seconds per side.",
-          "tier": 3
+          "tier": 2
+        },
+        {
+          "key": "legs_b.abductor",
+          "role": "accessory",
+          "exercise": "Thigh_Abductor",
+          "reps": {
+            "base": [
+              10,
+              15
+            ],
+            "heavy": [
+              8,
+              12
+            ]
+          },
+          "swap_tags": [
+            "abductors"
+          ],
+          "tier": 3,
+          "increment": 10
         }
       ]
     },
@@ -817,7 +877,7 @@
             "biceps"
           ],
           "superset": "A",
-          "tier": 2
+          "tier": 1
         },
         {
           "key": "upper_2.tricep",
@@ -861,6 +921,26 @@
             "chest"
           ],
           "load": "bodyweight",
+          "tier": 2
+        },
+        {
+          "key": "upper_2.lateral",
+          "role": "accessory",
+          "exercise": "Side_Lateral_Raise",
+          "reps": {
+            "base": [
+              8,
+              12
+            ],
+            "heavy": [
+              8,
+              10
+            ]
+          },
+          "increment": 5,
+          "swap_tags": [
+            "shoulders"
+          ],
           "tier": 3
         }
       ]
@@ -1002,7 +1082,7 @@
             "biceps"
           ],
           "superset": "A",
-          "tier": 2
+          "tier": 1
         },
         {
           "key": "upper_3.pushdown",
@@ -1046,6 +1126,26 @@
             "chest"
           ],
           "load": "bodyweight",
+          "tier": 2
+        },
+        {
+          "key": "upper_3.face_pull",
+          "role": "accessory",
+          "exercise": "Face_Pull",
+          "reps": {
+            "base": [
+              8,
+              12
+            ],
+            "heavy": [
+              8,
+              10
+            ]
+          },
+          "increment": 5,
+          "swap_tags": [
+            "shoulders"
+          ],
           "tier": 3
         }
       ]
