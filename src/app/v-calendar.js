@@ -78,6 +78,7 @@ ACT.calDay = (d) => {
     const p = [];
     if (hl.sleep_minutes) p.push(`slept ${Math.floor(hl.sleep_minutes / 60)}h ${hl.sleep_minutes % 60}m`);
     if (hl.readiness) p.push(`readiness ${hl.readiness}`);
+    if (hl.activity_score) p.push(`activity ${hl.activity_score}`);
     if (hl.resting_hr) p.push(`resting HR ${hl.resting_hr}`);
     if (hl.hrv_ms) p.push(`HRV ${hl.hrv_ms}`);
     if (p.length) h += line("#8FA8FF", "Recovery (Oura)", p.join(" · "));

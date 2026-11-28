@@ -50,6 +50,9 @@ function coachCard(st) {
     if (r.sleep_minutes) stats.push(["Sleep", `${Math.floor(r.sleep_minutes / 60)}h ${r.sleep_minutes % 60}m`]);
     if (r.readiness) stats.push(["Readiness", String(r.readiness)]);
     if (r.resting_hr) stats.push(["Resting HR", String(r.resting_hr)]);
+    // The same number the Oura app shows: today's activity score so far, or yesterday's before it syncs.
+    const act = S.health.filter((h) => h.source === "oura" && h.activity_score).sort((a, b) => (a.day < b.day ? 1 : -1))[0];
+    if (act && act.day >= ymd(new Date(Date.now() - 2 * 864e5))) stats.push(["Activity", String(act.activity_score)]);
     if (rec.low && st.kind === "session") tips.push("<b>Recovery is low.</b> Keep the weights, drop a set per lift if it feels heavy.");
   }
   const n = currentTarget();

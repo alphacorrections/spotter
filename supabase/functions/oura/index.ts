@@ -57,7 +57,7 @@ async function sync(uid: string, days: number): Promise<number> {
   const row = (d: string) => (by[d] ||= {});
   for (const x of ds) if (x.day) row(x.day).sleep_score = clamp(x.score, 0, 100);
   for (const x of dr) if (x.day) row(x.day).readiness = clamp(x.score, 0, 100);
-  for (const x of da) if (x.day) row(x.day).steps = clamp(x.steps, 0, 200000);
+  for (const x of da) if (x.day) { row(x.day).steps = clamp(x.steps, 0, 200000); row(x.day).activity_score = clamp(x.score, 0, 100); }
   for (const x of sl) {
     if (!x.day || (x.type && x.type !== "long_sleep")) continue;
     const mins = clamp((x.total_sleep_duration || 0) / 60, 0, 1440) || 0;
@@ -67,11 +67,11 @@ async function sync(uid: string, days: number): Promise<number> {
   let n = 0;
   for (const [day, v] of Object.entries(by)) {
     if (!/^\d{4}-\d\d-\d\d$/.test(day)) continue;
-    await sql`insert into public.daily_health (user_id, day, source, steps, sleep_minutes, sleep_score, readiness, resting_hr, hrv_ms, synced_at)
-              values (${uid}, ${day}, 'oura', ${v.steps ?? null}, ${v.sleep_minutes ?? null}, ${v.sleep_score ?? null}, ${v.readiness ?? null}, ${v.resting_hr ?? null}, ${v.hrv_ms ?? null}, now())
+    await sql`insert into public.daily_health (user_id, day, source, steps, sleep_minutes, sleep_score, readiness, resting_hr, hrv_ms, activity_score, synced_at)
+              values (${uid}, ${day}, 'oura', ${v.steps ?? null}, ${v.sleep_minutes ?? null}, ${v.sleep_score ?? null}, ${v.readiness ?? null}, ${v.resting_hr ?? null}, ${v.hrv_ms ?? null}, ${v.activity_score ?? null}, now())
               on conflict (user_id, day, source) do update set steps = coalesce(excluded.steps, public.daily_health.steps), sleep_minutes = coalesce(excluded.sleep_minutes, public.daily_health.sleep_minutes),
                 sleep_score = coalesce(excluded.sleep_score, public.daily_health.sleep_score), readiness = coalesce(excluded.readiness, public.daily_health.readiness),
-                resting_hr = coalesce(excluded.resting_hr, public.daily_health.resting_hr), hrv_ms = coalesce(excluded.hrv_ms, public.daily_health.hrv_ms), synced_at = now()`;
+                resting_hr = coalesce(excluded.resting_hr, public.daily_health.resting_hr), hrv_ms = coalesce(excluded.hrv_ms, public.daily_health.hrv_ms), activity_score = coalesce(excluded.activity_score, public.daily_health.activity_score), synced_at = now()`;
     n++;
   }
   await sql`update public.wearable_links set last_sync = now(), last_error = null where user_id = ${uid} and provider = 'oura'`;
