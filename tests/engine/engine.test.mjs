@@ -213,3 +213,21 @@ test("hybrid: hard cardio stays off leg days, and the long session goes on a res
   assert.equal(cardioToday("upper", { easy: 40, hard: 0, long: 0 }).type, "easy");
   assert.equal(cardioToday("rest", { easy: 0, hard: 0, long: 0 }).type, "done");
 });
+
+// ---------------------------------------------------------------- warm-up and cool-down
+import { prepFor, areaLoad } from "../../src/engine/prep.mjs";
+const PREP = load("../../src/data/prep.json");
+test("warm-up and cool-down follow the muscles in the session", () => {
+  const legs = [{ muscles: ["quadriceps"], secondary: ["glutes", "hamstrings"], sets: 3 }, { muscles: ["hamstrings"], secondary: ["glutes"], sets: 3 }, { muscles: ["calves"], sets: 2 }];
+  const upper = [{ muscles: ["chest"], secondary: ["triceps", "shoulders"], sets: 3 }, { muscles: ["lats"], secondary: ["biceps"], sets: 3 }, { muscles: ["shoulders"], sets: 2 }];
+  assert.ok(["quads", "hams"].includes(areaLoad(legs, PREP)[0].area));
+  const w = prepFor(legs, PREP, "warm"), c = prepFor(legs, PREP, "cool"), u = prepFor(upper, PREP, "warm");
+  assert.ok(w.moves.length >= 4 && w.moves.length <= 5);
+  assert.ok(w.moves.every((m) => ["quads", "hams", "hips", "calves"].includes(m.area)), "leg day warms up legs only");
+  assert.ok(u.moves.every((m) => ["chest", "back", "shoulders", "arms"].includes(m.area)), "upper day warms up the upper body only");
+  assert.ok(c.moves.some((m) => m.name === "Couch stretch"));
+  assert.equal(new Set(w.moves.map((m) => m.name)).size, w.moves.length, "no move twice");
+  assert.ok(!w.moves.some((m) => /\d+ s\b/.test(m.dose)), "warm-ups are reps, not holds");
+  assert.deepEqual(prepFor([], PREP, "warm").moves, []);
+  for (const k of ["warm", "cool"]) for (const a of Object.keys(PREP.areas)) assert.ok(PREP[k][a]?.length, k + " has moves for " + a);
+});

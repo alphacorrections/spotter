@@ -47,6 +47,12 @@ try {
   check(s.blocks[0].plan.sessions[0].slots[1].exercise === "Barbell_Glute_Bridge", "and is replaced for the rest of the block");
   check(s.changes[0].reason === "pain" && s.changes[0].scope === "block", "the reason for the swap is recorded");
 
+  // Warm-up matched to the session
+  await tap(k, '[data-act="warmOpen"]'); await see(k, "Moving, not holding");
+  const warmTxt = await k.locator("#sheet").innerText();
+  check(/squat|Leg swings|hip/i.test(warmTxt) && !/Arm circles|Wall slides/.test(warmTxt) && /ramp up on/i.test(warmTxt), "a leg day suggests a leg warm-up and ramp-up sets", warmTxt.slice(0, 160));
+  await tap(k, '#sheet [data-act="warmDone"]');
+  check((await state(k)).activities[0].warm === 1, "the warm-up can be ticked off");
   // Log the whole session
   await logAll(k, (i, n, cur) => (cur ? null : [70, 185, 70, 90, 50, 80, 45][i]), () => 10);
   s = await state(k);
@@ -56,7 +62,13 @@ try {
   check(a.efforts.find((e) => e.exercise_id === "Sissy_Squat").weight === null, "bodyweight finisher logs reps with no weight");
   await act(k, "finishAsk"); await act(k, "rate", '[data-v="4"]'); await k.fill("#fnote", "Good start");
   await snap(k, "finish");
-  await act(k, "finishDo"); await see(k, "Legs A logged"); await tap(k, "#sheet [data-close]");
+  await act(k, "finishDo"); await see(k, "Legs A logged");
+  await tap(k, '#sheet [data-act="coolOpen"]'); await see(k, "Slow holds");
+  const coolTxt = await k.locator("#sheet").innerText();
+  check(/Couch stretch|hamstring stretch|Figure four/i.test(coolTxt) && !/Doorway chest/.test(coolTxt), "finishing a leg day offers leg stretches to cool down", coolTxt.slice(0, 160));
+  if (process.env.SHOTS) await k.screenshot({ path: process.env.SHOTS + "/cooldown.png" });
+  await tap(k, "#sheet [data-close]");
+  check((await state(k)).activities[0].warm === undefined, "the warm-up tick is not kept on the finished session");
   await see(k, "Done for today");
   s = await state(k);
   check(s.blocks[0].position === 1 && s.activities[0].checkin.rating === 4, "finishing moves the block on and saves the private rating");

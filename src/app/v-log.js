@@ -6,6 +6,31 @@ import { ACT, CHG, VIEWS, go, render, backTop, sect, row, note, icon, esc, pill,
 import { itemPlan, itemKey, setsLogged, logSet, addExtra, unlog, finishSession, discardSession, swapNow, alternatives, isNoGo } from "./train.js";
 import { TECH, RATING, whyTarget, EQUIPMENT } from "./words.js";
 import { verdict } from "../engine/progression.mjs";
+import { prepFor } from "../engine/prep.mjs";
+import PREP from "../data/prep.json";
+
+// Warm-up and cool-down, picked from the muscles in this session.
+let COOL = null;
+function sessionLifts(a) { return (a.items || []).map((it) => { const e = ex(it.exercise_id), p = it.slot_key ? itemPlan(a, it) : null; return { muscles: e.muscles || [], secondary: e.secondary || [], sets: it.sets || p?.spec?.sets || 3 }; }); }
+function prepList(p) { return `<div class="glass">` + p.moves.map((m, i) => `<div class="tp-row static"><span class="tp-tile">${i + 1}</span><span class="tp-t"><b>${esc(m.name)} · ${esc(m.dose)}</b><span>${esc(m.cue)}</span></span></div>`).join("") + `</div>`; }
+function warmRow(a) {
+  if (!a.items.length) return "";
+  const p = prepFor(sessionLifts(a), PREP, "warm");
+  if (!p.moves.length) return "";
+  return `<div class="glass">` + row({ tile: icon("flame"), title: "Warm-up", sub: a.warm ? "Done" : `${p.moves.length} moves for your ${p.areas.join(", ")} · about 5 min`, act: "warmOpen", right: a.warm ? pill("Done", "ok") : "" }) + `</div>`;
+}
+ACT.warmOpen = () => {
+  const a = openSession(), p = prepFor(sessionLifts(a), PREP, "warm"), first = a.items[0] ? ex(a.items[0].exercise_id) : null;
+  sheet("Warm-up", `<p class="small muted">Moving, not holding. These wake up the ${esc(p.areas.join(", "))} you are about to train. Save the long stretches for after.</p>${prepList(p)}
+    ${first && first.load_type !== "bodyweight" ? `<p class="small muted mt"><b>Then ramp up on ${esc(first.name)}:</b> about half your working weight for 8 reps, then three quarters for 4. Those do not count as sets.</p>` : ""}
+    <div class="acts"><button class="tp-btn tp-ghost" data-close>Close</button><button class="tp-btn" data-act="warmDone">Done, start lifting</button></div>`);
+};
+ACT.warmDone = () => { const a = openSession(); if (a) { a.warm = 1; save(); } closeSheet(); render(); };
+ACT.coolOpen = () => {
+  if (!COOL || !COOL.moves.length) return closeSheet();
+  sheet("Cool-down", `<p class="small muted">Slow holds for the ${esc(COOL.areas.join(", "))} you just trained. Breathe out long and let each one settle. About 5 minutes.</p>${prepList(COOL)}
+    <div class="acts"><button class="tp-btn" data-close>Done</button></div>`);
+};
 
 const VERDICT = { first: ["First time", "plain"], beat: ["Beat it", "ok"], held: ["Held", "plain"], big_jump: ["Big jump", "warn"], down: ["Down", "bad"] };
 const EXTRA_KIND = { drop_set: "drop", double_drop: "drop", rest_pause: "rest_pause", rest_pause_stretch: "rest_pause", myo_reps: "myo", lengthened_partials: "partials" };
@@ -83,6 +108,7 @@ VIEWS.log = () => {
   if (!a) return backTop("No session open", "", "goToday") + `<div class="glass"><div class="empty">Start a session from Today.<br><button class="tp-btn tp-sm" data-act="goToday">Go to Today</button></div></div>`;
   const n = a.efforts.filter((e) => e.kind === "work").length;
   return backTop(a.title, (a.week ? `Week ${a.week} · ` : "") + `${n} set${n === 1 ? "" : "s"} logged`, "goToday", `<button class="tp-btn tp-sm" data-act="finishAsk">Finish</button>`) +
+    warmRow(a) +
     (a.items.length ? a.items.map((it, i) => card(a, it, i)).join("") : `<div class="glass"><div class="empty">Add your first exercise to start logging.</div></div>`) +
     `<button class="tp-btn tp-ghost tp-block" data-act="addExercise">${icon("plus")} Add an exercise</button>` +
     `<div class="restspace"></div><div class="restchip" id="restchip" hidden></div>`;
@@ -278,10 +304,11 @@ ACT.rate = (d, el) => [].forEach.call(el.parentNode.children, (x) => x.classList
 ACT.finishDo = () => {
   const a = openSession(), rating = +(document.querySelector("#rate .on")?.getAttribute("data-v") || 3), noteTxt = val("fnote");
   const work = a.efforts.filter((e) => e.kind === "work"), beat = work.filter((e) => e.verdict === "beat").length, title = a.title;
+  COOL = prepFor(sessionLifts(a), PREP, "cool");
   finishSession(a, rating, noteTxt);
   REST.until = 0; clearInterval(REST.timer);
   go("today");
-  sheet("", TP.done(`${title} logged`, `${work.length} sets${beat ? ` · ${beat} beat last time` : ""}. Saved on this phone${S.sync.at ? " and syncing to your account" : ""}.`) + `<div class="acts"><button class="tp-btn" data-close>Done</button></div>`);
+  sheet("", TP.done(`${title} logged`, `${work.length} sets${beat ? ` · ${beat} beat last time` : ""}. Saved on this phone${S.sync.at ? " and syncing to your account" : ""}.`) + `<div class="acts">${COOL.moves.length ? `<button class="tp-btn tp-ghost" data-act="coolOpen">${icon("stretch")} Cool-down stretches</button>` : ""}<button class="tp-btn" data-close>Done</button></div>`);
 };
 ACT.discard = () => { discardSession(openSession()); closeSheet(); go("today"); toast("Session discarded"); };
 

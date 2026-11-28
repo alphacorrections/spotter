@@ -167,7 +167,7 @@ export function finishSession(a, rating, note) {
   a.duration_s = Math.max(0, Math.round((new Date(a.ended_at) - new Date(a.started_at)) / 1000));
   if (rating) a.checkin = { rating, note: null };
   a.note = note || null;
-  delete a.open; delete a.draft; delete a.items; delete a.swaps;
+  delete a.open; delete a.draft; delete a.items; delete a.swaps; delete a.warm;
   touch(a);
   const b = a.block_id ? S.blocks.find((x) => x.id === a.block_id) : null;
   if (b && b.status === "active") {
