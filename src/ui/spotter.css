@@ -172,3 +172,11 @@ body:has(.updbar) .tp-wrap{margin-top:66px}
 .tips{margin:0;padding-left:18px;display:grid;gap:8px;font-size:14.5px;line-height:1.45}
 .tp-row .amt.small{font-size:13px;text-align:right;line-height:1.3}
 .tp-row .amt.small em{font-style:normal;font-weight:500}
+
+/* Ask Coach */
+.askthread{display:grid;gap:10px;margin:12px 0}
+.askq{justify-self:end;max-width:86%;background:var(--hi);color:var(--tp-btn-ink);border-radius:18px 18px 4px 18px;padding:10px 14px;font-size:15px;line-height:1.4;overflow-wrap:anywhere}
+.aska{justify-self:start;max-width:94%;background:var(--tp-card);border:1px solid var(--tp-line);border-radius:18px 18px 18px 4px;padding:12px 14px;font-size:15px;line-height:1.5;overflow-wrap:anywhere}
+.askcard{margin-top:-2px}
+.askbar{display:flex;gap:8px;align-items:flex-end;margin-top:8px}
+.askbar textarea{flex:1;min-width:0;resize:none;font:inherit}

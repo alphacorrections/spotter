@@ -458,6 +458,40 @@ try {
     await k.goto(APP + "#today"); await see(k, "Easy minutes");
     await act(k, "hybridSetup"); await act(k, "hybridOff");
     check((await k.getByText("Add cardio to this plan").count()) === 1, "hybrid can be turned off again");
+    // ---- Ask Coach. The server function is stood in for here: the test checks what the app does with an answer.
+    let asked = null;
+    await k.route("**/functions/v1/coach", async (route) => {
+      const body = JSON.parse(route.request().postData() || "{}");
+      if (body.action === "status") return route.fulfill({ json: { ok: true, allowed: true, ready: true, left: 20, cap: 20 } });
+      asked = body;
+      const last = body.messages[body.messages.length - 1].content;
+      const plan = "Here is a shoulder-friendly version.\n\n- Dumbbells are easier on the joint.\n\n```spotter-action\n" + JSON.stringify({ type: "plan_change", summary: "Shoulder-friendly Upper 2", changes: [
+        { op: "swap", slot: "upper_2.bench", to: "Dumbbell_Bench_Press", why: "easier on the shoulder" }, { op: "swap", slot: "upper_2.row", to: "Not_A_Real_Lift" }, { op: "remove", slot: "upper_2.finisher" },
+        { op: "add", session: "upper_2", exercise: "Reverse_Flyes", sets: 3, reps: [12, 15] }, { op: "sets", slot: "upper_2.fly", sets: 2 }, { op: "reps", slot: "upper_2.curl", reps: [12, 15] }, { op: "nuke", slot: "upper_2.curl" }] }) + "\n```";
+      const eat = "A day with no fish.\n\n```spotter-action\n" + JSON.stringify({ type: "eat_day", title: "No-fish day", items: [{ slot: "Breakfast", name: "Greek yogurt bowl", portion: "1.5 cups yogurt, berries", kcal: 390, protein: 38 }, { slot: "Lunch", name: "Chicken and rice", portion: "6 oz chicken, 1 cup rice", kcal: 555, protein: 58 }, { slot: "Dinner", name: "Steak and potato", portion: "6 oz sirloin, 200 g potato", kcal: 560, protein: 53 }] }) + "\n```";
+      return route.fulfill({ json: { ok: true, left: 19, text: /eating/i.test(last) ? eat : /sore/i.test(last) ? plan : "Your bench is moving. **Keep going.**" } });
+    });
+    await k.goto(APP + "#coach"); await act(k, "goAsk"); await see(k, "Try one");
+    await k.fill("#askbox", "How is my bench?"); await act(k, "askSend"); await see(k, "Your bench is moving");
+    check(asked.context.plan.sessions.length === 5 && asked.context.recent.length > 0 && !asked.context.library && asked.context.me.units, "a question sends Coach the plan and recent sessions, and no exercise library when it is not needed");
+    check((await k.locator(".aska b").first().innerText()) === "Keep going." && /19 questions left/.test(await k.locator(".top").innerText()), "the answer shows with its formatting and the questions left today");
+    await k.fill("#askbox", "My shoulder is sore. Rework Upper 2."); await act(k, "askSend"); await see(k, "Proposed change");
+    check(Object.keys(asked.context.library || {}).length > 5 && !JSON.stringify(asked.context.library).includes("Not_A_Real"), "a request to change the plan also sends the lifts that fit your gear");
+    const cardTxt = await k.locator(".askcard").innerText();
+    check(/not a lift in the library/.test(cardTxt) && /Apply 5 changes/.test(cardTxt) && !/spotter-action/.test(await k.locator(".askthread").innerText()), "the proposal shows as a card, with changes that cannot be made marked and left out", cardTxt.replace(/\n/g, " ").slice(0, 240));
+    const before = (await state(k)).blocks.find((b) => b.status === "active").plan.sessions.find((x) => x.key === "upper_2").slots.map((x) => x.exercise).join();
+    check(before.includes("Barbell_Bench_Press"), "nothing in the plan changes until Apply is tapped");
+    await snap(k, "ask", 390);
+    await tap(k, '[data-act="askApply"]');
+    const u2 = (await state(k)).blocks.find((b) => b.status === "active").plan.sessions.find((x) => x.key === "upper_2").slots;
+    check(u2.find((x) => x.key === "upper_2.bench").exercise === "Dumbbell_Bench_Press" && !u2.some((x) => x.key === "upper_2.finisher") && u2.some((x) => x.exercise === "Reverse_Flyes" && x.sets === 3) && u2.find((x) => x.key === "upper_2.fly").sets === 2 && u2.find((x) => x.key === "upper_2.curl").reps.base.join() === "12,15" && u2.find((x) => x.key === "upper_2.row").exercise !== "Not_A_Real_Lift",
+      "Apply makes the swap, the removal, the added lift, and the set and rep changes, and skips the invalid one", u2.map((x) => x.exercise).join());
+    check((await k.locator('[data-act="askApply"]').count()) === 0 && /Applied 5 changes/.test(await k.locator(".askcard").innerText()), "an applied proposal cannot be applied twice");
+    await k.fill("#askbox", "Write me a day of eating with no fish."); await act(k, "askSend"); await see(k, "A day of eating");
+    await tap(k, '[data-act="askApply"]');
+    await k.goto(APP + "#eat"); await see(k, "Your day from Coach");
+    check((await state(k)).me.settings.eat.custom.items.length === 3 && (await k.getByText("No-fish day").count()) >= 1, "a day of eating from Coach is saved and shows on the eating page");
+    await k.unroute("**/functions/v1/coach"); await k.goto(APP + "#today");
   }
   // ============================================================ two accounts, one phone
   {

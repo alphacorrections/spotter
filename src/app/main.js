@@ -16,6 +16,7 @@ import "./v-notify.js";
 import "./v-wear.js";
 import "./v-calendar.js";
 import "./v-eat.js";
+import "./v-ask.js";
 import "./v-inbox.js";
 import { openSave, firstUrl } from "./v-saved.js";
 

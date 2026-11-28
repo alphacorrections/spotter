@@ -32,6 +32,7 @@ VIEWS.coach = () => {
   if (focus) {
     h += `<div class="glass hero tp-rise"><div class="label">You are training for</div><div class="heroT">${esc(FOCUS[focus].name)}</div><div class="small muted">${esc(FOCUS[focus].how)}</div></div>`;
   }
+  h += `<button class="tp-btn tp-block" data-act="goAsk">${icon("spark")} Ask Coach a question</button>`;
   const d = deload(), stuck = stalls(), g = gap();
   const flags = [];
   if (g.text) flags.push(`<b>Welcome back.</b> ${esc(g.text)}`);

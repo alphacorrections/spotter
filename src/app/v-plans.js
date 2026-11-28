@@ -1,8 +1,8 @@
 // Plans: the block you are running, the library to pick from, and the editor
 // that lets you change anything about a plan once it is yours.
-import { S, touch, save, uid, ex, templates, template, activeBlock, openSession, nice, gear } from "./store.js";
+import { S, touch, save, uid, ex, allExercises, templates, template, activeBlock, openSession, nice, gear } from "./store.js";
 import { ACT, CHG, VIEWS, R, go, render, top, backTop, sect, row, note, icon, esc, pill, sheet, closeSheet, toast, chips, field, val } from "./ui.js";
-import { startBlock, endBlock, resumeBlock, pos, phaseForWeek, nextSession, SIZES, sizeName, hasSizes, sizePlan, sizeFacts, resizeBlock, isCustom, ensureSize } from "./train.js";
+import { startBlock, endBlock, resumeBlock, pos, phaseForWeek, nextSession, SIZES, sizeName, hasSizes, sizePlan, sizeFacts, resizeBlock, isCustom, ensureSize, isNoGo } from "./train.js";
 import { FOCUS, TECH, EQUIPMENT } from "./words.js";
 import { openPicker } from "./v-log.js";
 import { currentTarget } from "./v-coach.js";
@@ -31,7 +31,8 @@ VIEWS.plans = () => {
     h += `<div class="glass hero tp-rise"><div class="label">Running now</div><div class="heroT">${esc(b.title)}</div>
       <div class="small muted">Week ${wk} of ${b.plan.weeks} · ${esc(phaseForWeek(b.plan, wk).name)} · ${esc(FOCUS[b.focus].name)}${b.plan.size ? " · " + sizeName(b.plan.size) + (isCustom(b, template(b.program_slug)) ? ", customized" : "") : ""}</div>
       <div class="bar" style="margin-top:12px"><i style="width:${pct}%"></i></div>
-      <div class="flex mt"><button class="tp-btn tp-sm" data-act="editPlan">Edit plan</button>${template(b.program_slug) && hasSizes(template(b.program_slug)) ? `<button class="tp-btn tp-ghost tp-sm" data-act="sizeAsk">Size</button>` : ""}<button class="tp-btn tp-ghost tp-sm" data-act="planDetail" data-id="${b.id}" data-block="1">See it all</button><button class="tp-btn tp-ghost tp-sm" data-act="endAsk" data-id="${b.id}">End</button></div></div>`;
+      <div class="flex mt"><button class="tp-btn tp-sm" data-act="editPlan">Edit plan</button>${template(b.program_slug) && hasSizes(template(b.program_slug)) ? `<button class="tp-btn tp-ghost tp-sm" data-act="sizeAsk">Size</button>` : ""}<button class="tp-btn tp-ghost tp-sm" data-act="planDetail" data-id="${b.id}" data-block="1">See it all</button><button class="tp-btn tp-ghost tp-sm" data-act="endAsk" data-id="${b.id}">End</button></div>
+      <button class="tp-btn tp-ghost tp-block mt" data-act="goAsk" data-q="Change my plan: ">${icon("spark")} Ask Coach to change it</button></div>`;
   }
   const old = S.blocks.filter((x) => x.status !== "active").sort((a, c) => (c.started_on || "").localeCompare(a.started_on || "")).slice(0, 5);
   if (old.length) {
@@ -191,6 +192,49 @@ ACT.edAddPick = (d) => {
   applyLoad(slot, d.id);
   s.slots.push(slot); touch(b); closeSheet(); render();
 };
+// ---- Changes proposed by Ask Coach. Checked against the plan and the library, shown to you, and only then applied.
+const SIZE_OK = (b) => { const t = template(b.program_slug); return t && hasSizes(t) ? t : null; };
+/** One line per proposed change: what it would do, and whether it can be done. */
+export function describeChanges(b, changes) {
+  const known = new Set(allExercises().map((e) => e.id)), out = [];
+  const range = (r) => Array.isArray(r) && r.length === 2 && r.every((n) => Number.isFinite(+n) && +n >= 1 && +n <= 300) && +r[0] <= +r[1];
+  for (const c of (Array.isArray(changes) ? changes : []).slice(0, 12)) {
+    const f = c.slot ? findSlot(b, String(c.slot)) : null, s = c.session ? b.plan.sessions.find((x) => x.key === c.session) : null, why = typeof c.why === "string" ? c.why.slice(0, 120) : "";
+    const name = (id) => ex(id).name, at = f ? f.s.title : s ? s.title : "";
+    let text = "", problem = "";
+    if (c.op === "swap") { text = `${at}: ${f ? name(f.slot.exercise) : c.slot} → ${name(c.to)}`; problem = !f ? "that lift is not in your plan" : !known.has(c.to) ? "not a lift in the library" : isNoGo(c.to) ? "on your no-go list" : f.slot.exercise === c.to ? "already that lift" : ""; }
+    else if (c.op === "remove") { text = `${at}: remove ${f ? name(f.slot.exercise) : c.slot}`; problem = !f ? "that lift is not in your plan" : f.s.slots.length <= 1 ? "a day needs at least one lift" : ""; }
+    else if (c.op === "add") { text = `${at || c.session}: add ${name(c.exercise)}${c.sets ? `, ${c.sets} × ${range(c.reps) ? c.reps[0] + "–" + c.reps[1] : "8–12"}` : ""}`; problem = !s ? "that day is not in your plan" : !known.has(c.exercise) ? "not a lift in the library" : isNoGo(c.exercise) ? "on your no-go list" : s.slots.some((x) => x.exercise === c.exercise) ? "already in that day" : s.slots.length >= 12 ? "that day is full" : c.sets != null && !(+c.sets >= 1 && +c.sets <= 6) ? "sets out of range" : ""; }
+    else if (c.op === "sets") { text = `${at}: ${f ? name(f.slot.exercise) : c.slot}, ${c.sets} sets`; problem = !f ? "that lift is not in your plan" : !(Number.isInteger(+c.sets) && +c.sets >= 1 && +c.sets <= 8) ? "sets out of range" : ""; }
+    else if (c.op === "reps") { text = `${at}: ${f ? name(f.slot.exercise) : c.slot}, ${range(c.reps) ? c.reps[0] + "–" + c.reps[1] : "?"} reps`; problem = !f ? "that lift is not in your plan" : !range(c.reps) ? "reps out of range" : ""; }
+    else if (c.op === "size") { text = `Change the plan size to ${sizeName(+c.size) || "?"}`; problem = !SIZE_OK(b) ? "this plan has one size" : ![1, 2, 3].includes(+c.size) ? "not a size" : ""; }
+    else { text = "A change the app does not know how to make"; problem = "skipped"; }
+    out.push({ ok: !problem, text, problem, why, c });
+  }
+  return out;
+}
+/** Apply the changes that passed the check. Returns how many were made. History is never touched. */
+export function applyPlanChanges(b, changes) {
+  let n = 0;
+  for (const c of (Array.isArray(changes) ? changes : []).slice(0, 12)) {
+    const line = describeChanges(b, [c])[0]; if (!line || !line.ok) continue;   // re-checked one at a time: an earlier change can rule out a later one
+    const f = c.slot ? findSlot(b, String(c.slot)) : null;
+    if (c.op === "swap") { f.slot.exercise = c.to; delete f.slot.display_name; delete f.slot.alternates; applyLoad(f.slot, c.to); }
+    else if (c.op === "remove") f.s.slots.splice(f.i, 1);
+    else if (c.op === "add") {
+      const s = b.plan.sessions.find((x) => x.key === c.session), secs = ex(c.exercise).measure === "seconds", r = Array.isArray(c.reps) && c.reps.length === 2 ? [+c.reps[0], +c.reps[1]] : secs ? [30, 60] : [8, 12];
+      const slot = { key: `${s.key}.x${uid().slice(0, 6)}`, role: "accessory", exercise: c.exercise, reps: Object.fromEntries(b.plan.phases.map((p) => [p.key, r])) };
+      if (c.sets) slot.sets = +c.sets;
+      applyLoad(slot, c.exercise); s.slots.push(slot);
+    }
+    else if (c.op === "sets") f.slot.sets = +c.sets;
+    else if (c.op === "reps") { for (const k of Object.keys(f.slot.reps)) if (Array.isArray(f.slot.reps[k])) f.slot.reps[k] = [+c.reps[0], +c.reps[1]]; }
+    else if (c.op === "size") resizeBlock(b, SIZE_OK(b), +c.size);
+    n++;
+  }
+  if (n) touch(b);
+  return n;
+}
 ACT.edSaveAs = () => sheet("Save as my own plan", `<p class="small muted">It shows under Find a plan as yours. You can start it again later, or share it with a group.</p>${field("pname", "Name", edBlock().title + " (mine)")}
   <div class="acts"><button class="tp-btn tp-ghost" data-close>Cancel</button><button class="tp-btn" data-act="edSaveDo">Save</button></div>`);
 ACT.edSaveDo = () => { const p = saveAsProgram(edBlock(), val("pname")); closeSheet(); toast(`Saved as ${p.title}`); };

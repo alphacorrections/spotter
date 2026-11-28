@@ -1,7 +1,7 @@
 // How to eat it: turns the calorie and protein target into macros, a per-meal number,
 // a sample day of food, and tips for the phase. Guidance only. Nothing here is logged.
 import { S, touchMe } from "./store.js";
-import { ACT, VIEWS, go, render, backTop, sect, note, esc, chips } from "./ui.js";
+import { ACT, VIEWS, go, render, backTop, sect, note, icon, esc, chips } from "./ui.js";
 import { PHASE } from "./words.js";
 import { currentTarget, latestWeight } from "./v-coach.js";
 import { macros, perMeal, sampleDay, TIPS, BASICS } from "../engine/eating.mjs";
@@ -29,6 +29,12 @@ VIEWS.eat = () => {
     ${pm.aroundTraining ? `<div class="kv"><span>Before and after training</span><b>${pm.aroundTraining[0]} to ${pm.aroundTraining[1]} g protein</b></div>` : ""}
     <p class="small muted mt">${pm.protein > 60 ? "That is a lot of protein in one sitting. Four or five meals will be easier to eat." : "Even meals are the simple way to get there. Uneven is fine if the day's total lands."}</p></div>`;
 
+  if (p.custom && p.custom.items?.length) {
+    const ck = p.custom.items.reduce((t, x) => t + x.kcal, 0), cp = p.custom.items.reduce((t, x) => t + x.protein, 0);
+    h += sect("Your day from Coach", `<button data-act="eatCustomDrop">Remove</button>`) + `<div class="glass">` + p.custom.items.map((it) => `<div class="tp-row static"><span class="tp-t"><b>${esc(it.slot)}: ${esc(it.name)}</b><span>${esc(it.portion)}</span></span><span class="amt small">${it.protein} g<br><em class="muted">${it.kcal} cal</em></span></div>`).join("") +
+      `<div class="tp-row static"><span class="tp-t"><b>Total</b><span>${esc(p.custom.title)}</span></span><span class="amt small">${cp} g<br><em class="muted">${ck} cal</em></span></div></div>`;
+  }
+  h += `<button class="tp-btn tp-ghost tp-block mt" data-act="goAsk" data-q="Write me a day of eating that hits my target. I don't eat ">${icon("spark")} Ask Coach for a day built around you</button>`;
   h += sect("A day that hits it", `<button data-act="eatAnother">Show another</button>`) + chips("eatDiet", DIET_NAMES, p.diet) +
     `<div class="glass mt">` + day.items.map((it) => `<div class="tp-row static"><span class="tp-t"><b>${esc(it.slot === "Add" ? "Add: " : it.slot + ": ")}${esc(it.name)}</b><span>${esc(it.portion)}</span></span><span class="amt small">${it.protein} g<br><em class="muted">${it.kcal} cal</em></span></div>`).join("") +
     `<div class="tp-row static"><span class="tp-t"><b>Total</b><span>${day.shortProtein > 10 ? `About ${Math.round(day.shortProtein / 5) * 5} g of protein short. Add a shake or a bigger portion of the protein at dinner.` : "Protein target met."}</span></span><span class="amt small">${day.protein} g<br><em class="muted">${day.kcal} cal</em></span></div></div>` +
@@ -45,3 +51,4 @@ ACT.eatMeals = (d) => { setPref("meals", +d.v); render(); };
 ACT.eatDiet = (d) => { setPref("diet", d.v); E.seed = 0; render(); };
 ACT.eatAnother = () => { E.seed++; render(); };
 ACT.goEat = () => go("eat");
+ACT.eatCustomDrop = () => { const e = prefs(); delete e.custom; S.me.settings.eat = e; touchMe(); render(); };
