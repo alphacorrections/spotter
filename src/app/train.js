@@ -224,6 +224,18 @@ export function addExtra(a, parent, kind, weight, reps) {
   a.efforts.push(e); save();
   return e;
 }
+/** Sets of this lift you chose to skip in this session. */
+export function setsSkipped(a, item) {
+  return a.efforts.filter((e) => (item.slot_key ? e.slot_key === item.slot_key : !e.slot_key && e.exercise_id === item.exercise_id) && e.kind === "skip");
+}
+/** Mark a set as skipped, with a reason. It is kept with the session, and never counts as a lifted set. */
+export function skipSet(a, item, n, reason, note) {
+  const { spec } = itemPlan(a, item);
+  a.efforts.push({ id: uid(), seq: a.efforts.length, exercise_id: spec.exercise, slot_key: item.slot_key || null, set_number: n, kind: "skip", weight: null, reps: null,
+    note: [reason, note].filter(Boolean).join(": ").slice(0, 200) || null, extra: { reason: reason || null }, logged_at: new Date().toISOString() });
+  a.efforts.forEach((x, i) => { x.seq = i; });
+  save();
+}
 export function unlog(a, effortId) {
   a.efforts = a.efforts.filter((e) => e.id !== effortId && e.parent_id !== effortId);
   a.efforts.forEach((x, i) => { x.seq = i; });
@@ -235,7 +247,7 @@ export function finishSession(a, rating, note) {
   a.duration_s = Math.max(0, Math.round((new Date(a.ended_at) - new Date(a.started_at)) / 1000));
   if (rating) a.checkin = { rating, note: null };
   a.note = note || null;
-  delete a.open; delete a.draft; delete a.items; delete a.swaps; delete a.warm;
+  delete a.open; delete a.draft; delete a.items; delete a.swaps; delete a.warm; delete a.fold;
   touch(a);
   const b = a.block_id ? S.blocks.find((x) => x.id === a.block_id) : null;
   if (b && b.status === "active") {

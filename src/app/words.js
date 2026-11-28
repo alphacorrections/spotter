@@ -31,13 +31,16 @@ export const TECH = {
 /** Why the app is asking for this weight and these reps. */
 export function whyTarget(t, spec, last, u) {
   const range = Array.isArray(spec.reps) ? `${spec.reps[0]} to ${spec.reps[1]}` : "";
-  const lastTxt = last ? (last.weight != null ? `${last.weight} ${u} for ${last.reps}` : `${last.reps} reps`) : "";
+  const lastTxt = last ? (last.weight ? `${last.weight} ${u} for ${last.reps}` : `${last.reps} reps at body weight`) : "";
   switch (t.move) {
     case "calibrate": return `No history for this lift yet. Pick a weight you could move for about ${spec.reps[1] + 2} clean reps and do ${spec.reps[0]} to ${spec.reps[1]}. What you log today sets next week's target.`;
     case "add_weight": return t.flag === "overshoot"
       ? `Last time you did ${lastTxt}. That is far past the top of the ${range} range, so the weight was too light. The jump is double the usual one to catch up.`
       : `Last time you did ${lastTxt}, the top of the ${range} range. So the weight goes up and the reps restart at the bottom. That is progressive overload.`;
-    case "add_rep": return spec.load === "bodyweight"
+    case "add_rep": return t.flag === "bodyweight_top"
+      ? `Last time you did ${lastTxt}, past the top of the ${range} range. Beat it by one rep, or tap + to add weight and restart at ${spec.reps[0]} reps. Either one counts as progress.`
+      : !t.weight && spec.load !== "bodyweight" ? `Last time you did ${lastTxt}. Add one rep. At body weight, reps are how you progress. When you pass ${spec.reps[1]}, adding weight becomes an option.`
+      : spec.load === "bodyweight"
       ? `Last time you did ${lastTxt}. Add one rep. Bodyweight lifts progress by reps until you outgrow the range.`
       : `Last time you did ${lastTxt}. You are inside the ${range} range, so keep the weight and beat it by one rep. When you reach ${spec.reps[1]}, the weight goes up.`;
     case "repeat": return t.flag === "top_of_range"

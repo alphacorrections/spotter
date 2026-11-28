@@ -53,11 +53,41 @@ try {
   check(/squat|Leg swings|hip/i.test(warmTxt) && !/Arm circles|Wall slides/.test(warmTxt) && /ramp up on/i.test(warmTxt), "a leg day suggests a leg warm-up and ramp-up sets", warmTxt.slice(0, 160));
   await tap(k, '#sheet [data-act="warmDone"]');
   check((await state(k)).activities[0].warm === 1, "the warm-up can be ticked off");
+  // Body weight on a weighted lift: − at zero reads BW, and it logs as body weight
+  await k.locator('#lift3 input[data-f="weight"]').fill("5"); await k.locator('#lift3 input[data-f="weight"]').blur();
+  await tap(k, '#lift3 [data-act="stp"][data-f="weight"][data-d="-1"]'); await tap(k, '#lift3 [data-act="stp"][data-f="weight"][data-d="-1"]');
+  check((await k.locator('#lift3 input[data-f="weight"]').inputValue()) === "BW", "stepping the weight down to zero shows BW for body weight", await k.locator('#lift3 input[data-f="weight"]').inputValue());
+  await tap(k, '#lift3 [data-act="stp"][data-f="weight"][data-d="1"]');
+  check(+(await k.locator('#lift3 input[data-f="weight"]').inputValue()) > 0, "and + goes back to a weight");
+  // Hold + to move fast
+  await k.locator('#lift3 input[data-f="weight"]').fill("100"); await k.locator('#lift3 input[data-f="weight"]').blur();
+  const plus = await k.locator('#lift3 [data-act="stp"][data-f="weight"][data-d="1"]').boundingBox();
+  await k.mouse.move(plus.x + plus.width / 2, plus.y + plus.height / 2); await k.mouse.down(); await k.waitForTimeout(1000); await k.mouse.up();
+  const held = +(await k.locator('#lift3 input[data-f="weight"]').inputValue());
+  check(held >= 115, "holding + keeps adding weight", String(held));
+  await tap(k, '#lift3 [data-act="stp"][data-f="weight"][data-d="1"]');
+  const tapped = +(await k.locator('#lift3 input[data-f="weight"]').inputValue());
+  check(tapped > held && tapped - held <= 10, "and a single tap after that is still one step", held + " to " + tapped);
+  await k.locator('#lift3 input[data-f="weight"]').fill(""); await k.locator('#lift3 input[data-f="weight"]').blur();
+  // Skip a set with a reason, undo it, then skip the rest of a lift
+  await tap(k, '[data-act="skipAsk"][data-i="7"]'); await tap(k, '#sheet [data-act="skipWhy"][data-v="Out of time"]'); await k.fill("#skipnote", "gym closing"); await tap(k, '#sheet [data-act="skipDo"]:not([data-all])');
+  let sk = (await state(k)).activities[0].efforts.filter((e) => e.kind === "skip");
+  check(sk.length === 1 && sk[0].set_number === 1 && sk[0].note === "Out of time: gym closing" && sk[0].reps === null && (await k.locator("#lift7 .setrow.skipped").count()) === 1 && (await k.locator('#lift7 [data-act="logSet"][data-n="2"]').count()) === 1, "a set can be skipped with a reason, and the next set moves up", JSON.stringify(sk[0] && sk[0].note));
+  await tap(k, '#lift7 .setrow.skipped [data-act="unlog"]');
+  check((await state(k)).activities[0].efforts.filter((e) => e.kind === "skip").length === 0 && (await k.locator('#lift7 [data-act="logSet"][data-n="1"]').count()) === 1, "a skip can be undone");
   // Log the whole session
   await logAll(k, (i, n, cur) => (cur ? null : [70, 185, 70, 90, 50, 80, 45][i]), () => 10);
   s = await state(k);
   let a = s.activities[0];
   check(a.efforts.filter((e) => e.kind === "work").length === 27, "every set of the session logs (27 sets across 8 lifts)", String(a.efforts.length));
+  // Finished lifts fold to one line and can be opened again
+  const foldedN = await k.locator(".lift.folded").count();
+  check(foldedN >= 5 && (await k.locator("#lift0.folded .setrow").count()) === 0, "a finished lift folds down to one line", String(foldedN));
+  await tap(k, '#lift0 [data-act="liftFold"]');
+  check((await k.locator("#lift0 .setrow.done").count()) >= 3 && (await k.locator('#lift0 [data-act="unlog"]').count()) >= 3, "a folded lift opens again so its sets can be changed");
+  await tap(k, '#lift0 [data-act="liftFold"][data-shut]');
+  check((await k.locator("#lift0.folded").count()) === 1, "and folds back");
+  await snap(k, "log-folded");
   check(a.efforts.every((e) => e.verdict === "first"), "first-time sets are marked First time, not judged");
   check(a.efforts.find((e) => e.exercise_id === "Sissy_Squat").weight === null, "bodyweight finisher logs reps with no weight");
   await act(k, "finishAsk"); await act(k, "rate", '[data-v="4"]'); await k.fill("#fnote", "Good start");

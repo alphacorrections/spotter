@@ -3,7 +3,7 @@
 import { tellFriends } from "./v-notify.js";
 import { S, save, touch, uid, ex, allExercises, openSession, lastSets, historyFor, fmtW, fmtN, unit, loadStep, imageUrl, howToUrl, nice } from "./store.js";
 import { ACT, CHG, VIEWS, go, render, backTop, sect, row, note, icon, esc, pill, tone, sheet, closeSheet, toast, chips, field, val, numVal, TP, gearName } from "./ui.js";
-import { itemPlan, itemKey, setsLogged, logSet, addExtra, unlog, finishSession, discardSession, swapNow, alternatives, isNoGo } from "./train.js";
+import { itemPlan, itemKey, setsLogged, setsSkipped, skipSet, logSet, addExtra, unlog, finishSession, discardSession, swapNow, alternatives, isNoGo } from "./train.js";
 import { TECH, RATING, whyTarget, EQUIPMENT } from "./words.js";
 import { verdict } from "../engine/progression.mjs";
 import { prepFor } from "../engine/prep.mjs";
@@ -51,16 +51,24 @@ function setText(e, spec) { return (e.weight != null ? `${fmtW(e.weight)} × ` :
 
 function stepper(k, n, f, v, label) {
   return `<div class="stp"><button type="button" data-act="stp" data-k="${esc(k)}" data-n="${n}" data-f="${f}" data-d="-1" aria-label="Less ${label}">−</button>` +
-    `<label><input class="stpv" inputmode="decimal" data-chg="draft" data-k="${esc(k)}" data-n="${n}" data-f="${f}" value="${v == null ? "" : fmtN(v)}" placeholder="–" aria-label="${label}"><span>${label}</span></label>` +
+    `<label><input class="stpv" inputmode="decimal" data-chg="draft" data-k="${esc(k)}" data-n="${n}" data-f="${f}" value="${v == null ? "" : f === "weight" && v === 0 ? "BW" : fmtN(v)}" placeholder="–" aria-label="${label}"><span>${label}</span></label>` +
     `<button type="button" data-act="stp" data-k="${esc(k)}" data-n="${n}" data-f="${f}" data-d="1" aria-label="More ${label}">+</button></div>`;
 }
 
 function card(a, item, idx) {
   const { spec, targets, block } = itemPlan(a, item);
   const e = ex(spec.exercise), k = itemKey(item);
-  const logged = setsLogged(a, item), total = Math.max(spec.sets, logged.length), bw = spec.load === "bodyweight";
+  const logged = setsLogged(a, item), skipped = setsSkipped(a, item), total = Math.max(spec.sets, ...logged.concat(skipped).map((x) => x.set_number || 0)), bw = spec.load === "bodyweight";
   const last = lastSets(spec.exercise);
   const amrap = spec.reps === "amrap";
+  // A finished lift folds down to one line so the next one is right there. Tap it to open it again.
+  const handled = new Set(logged.concat(skipped).map((x) => x.set_number)), allDone = total > 0 && Array.from({ length: total }, (_, i) => i + 1).every((n) => handled.has(n));
+  const lastDone = logged.find((x) => x.set_number === total), extraDue = !!(spec.intensifier && lastDone && !a.efforts.some((x) => x.parent_id === lastDone.id));
+  const fold = (a.fold ||= {}), folded = allDone && (fold[k] === "shut" || (fold[k] !== "open" && !extraDue));
+  if (folded) {
+    const sum = logged.length ? logged.map((s) => setText(s, spec)).join(" · ") : "Skipped";
+    return `<div class="glass lift folded" id="lift${idx}"><button type="button" class="lifthead foldbtn" data-act="liftFold" data-i="${idx}" aria-expanded="false" aria-label="Open ${esc(spec.name || e.name)}"><span class="tp-tile done">${icon("check", 2.6)}</span><div class="grow"><b>${esc(spec.name || e.name)}</b><span>${esc(sum)}${skipped.length && logged.length ? ` · ${skipped.length} skipped` : ""}</span></div><span class="edchev">${icon("chev")}</span></button></div>`;
+  }
   const rangeTxt = amrap ? `${spec.sets} rounds, as many as you can` : `${spec.sets} × ${spec.reps[0]}–${spec.reps[1]} ${measureWord(spec)}`;
   const tile = spec.role === "finisher" ? icon("flame") : spec.superset ? esc(spec.superset) : String(idx + 1);
   let h = `<div class="glass lift" id="lift${idx}"><div class="lifthead"><span class="tp-tile">${tile}</span><div class="grow"><b>${esc(spec.name || e.name)}</b>` +
@@ -69,6 +77,8 @@ function card(a, item, idx) {
   if (isNoGo(spec.exercise)) h += `<div class="liftnote warn">This lift is on your no-go list. Swap it, or carry on if it feels fine now.</div>`;
   h += `<div class="liftnote">${last.length ? "Last time: " + esc(last.map((s) => setText(s, spec)).join(" · ")) : "First time on this lift. Today sets your starting point."}` +
     (spec.effort?.text ? `<br>${esc(spec.effort.text)}.` : "") + (e.equipment === "dumbbell" && !bw ? `<br>Weight is both dumbbells added together.` : "") + `</div>`;
+  // The last-set technique is shown from the first set, so you know it is coming before you rack the weight.
+  if (spec.intensifier && !(lastDone && !extraDue)) h += `<div class="liftnote hi"><b>Coming on your last set: ${esc(TECH[spec.intensifier.type].name.toLowerCase())}.</b> ${esc(TECH[spec.intensifier.type].how)}</div>`;
   let nextShown = false;
   for (let n = 1; n <= total; n++) {
     const done = logged.find((x) => x.set_number === n);
@@ -79,13 +89,17 @@ function card(a, item, idx) {
       h += `<div class="setrow done"><i>${n}</i><b class="num">${esc(setText(done, spec))}</b>${amrap ? "" : pill(txt, vtone)}<span class="grow"></span>` +
         `<button class="ibtn sm" data-act="unlog" data-id="${done.id}" aria-label="Undo set ${n}">${icon("pencil")}</button></div>` +
         extras.map((x) => `<div class="setrow done extra"><i>+</i><b class="num">${esc(setText(x, spec))}</b>${pill(TECH[spec.intensifier?.type]?.name || "Extra", "plain")}</div>`).join("");
+    } else if (skipped.find((x) => x.set_number === n)) {
+      const sk = skipped.find((x) => x.set_number === n);
+      h += `<div class="setrow done skipped"><i>${n}</i><span class="grow"><b>Skipped</b>${sk.note ? `<span class="small muted"> · ${esc(sk.note)}</span>` : ""}</span><button class="ibtn sm" data-act="unlog" data-id="${sk.id}" aria-label="Undo skip of set ${n}">${icon("pencil")}</button></div>`;
     } else if (!nextShown) {
       nextShown = true;
       const d = draft(a, item, n, targets), t = targets[Math.min(n - 1, targets.length - 1)] || {};
       const lastOne = n === total && spec.intensifier;
       h += `<div class="setrow next"><i>${n}</i><div class="grow">` +
         `<div class="steppers">${bw ? "" : stepper(k, n, "weight", d.weight, unit())}${stepper(k, n, "reps", d.reps, measureWord(spec))}</div>` +
-        (t.move === "backoff" ? `<div class="small muted">Back-off set</div>` : "") + (lastOne ? `<div class="small hi">Last set: ${esc(TECH[spec.intensifier.type].name.toLowerCase())}</div>` : "") +
+        (t.move === "backoff" ? `<div class="small muted">Back-off set</div>` : "") + (lastOne ? `<div class="small hi">Last set. Do not rack it yet: ${esc(TECH[spec.intensifier.type].name.toLowerCase())} comes straight after.</div>` : "") +
+        `<button type="button" class="skipbtn" data-act="skipAsk" data-i="${idx}" data-n="${n}">Skip this set</button>` +
         `</div><button class="tp-btn logbtn" data-act="logSet" data-i="${idx}" data-n="${n}" aria-label="Log set ${n}">${icon("check", 2.6)}</button></div>`;
     } else {
       const t = targets[Math.min(n - 1, targets.length - 1)] || {};
@@ -96,9 +110,9 @@ function card(a, item, idx) {
   const lastSet = logged.find((x) => x.set_number === total);
   if (spec.intensifier && lastSet && !a.efforts.some((x) => x.parent_id === lastSet.id)) {
     const tech = TECH[spec.intensifier.type];
-    h += `<div class="liftnote hi"><b>${esc(tech.name)}.</b> ${esc(tech.how)}<br><button class="tp-btn tp-sm mt" data-act="extraOpen" data-i="${idx}" data-id="${lastSet.id}">Log the extra reps</button></div>`;
+    h += `<div class="liftnote hi"><b>Now the ${esc(tech.name.toLowerCase())}.</b> Stay where you are and keep going, then log what you got.<br><button class="tp-btn tp-sm mt" data-act="extraOpen" data-i="${idx}" data-id="${lastSet.id}">Log the extra reps</button></div>`;
   }
-  h += `<div class="liftfoot"><button class="pillbtn" data-act="why" data-i="${idx}">Why this target?</button><button class="pillbtn" data-act="addSet" data-i="${idx}">+ Set</button>` +
+  h += `<div class="liftfoot">${allDone ? `<button class="pillbtn" data-act="liftFold" data-i="${idx}" data-shut="1">Done, fold it</button>` : `<button class="pillbtn" data-act="why" data-i="${idx}">Why this target?</button>`}<button class="pillbtn" data-act="addSet" data-i="${idx}">+ Set</button>` +
     (item.slot_key ? "" : `<button class="pillbtn" data-act="dropItem" data-i="${idx}">Remove</button>`) + `</div></div>`;
   return h;
 }
@@ -128,26 +142,56 @@ ACT.stp = (d, el) => {
   const step = d.f === "weight" ? loadStep() : spec.measure === "seconds" ? 5 : 1;
   const base = cur[d.f] ?? (d.f === "weight" ? 0 : Array.isArray(spec.reps) ? spec.reps[0] - (+d.d > 0 ? 1 : 0) : 0);
   cur[d.f] = Math.max(0, Math.round((base + step * +d.d) * 100) / 100);
-  el.parentNode.querySelector("input").value = fmtN(cur[d.f]);
+  el.parentNode.querySelector("input").value = d.f === "weight" && cur[d.f] === 0 ? "BW" : fmtN(cur[d.f]);
   save();
 };
+// Hold + or − to keep stepping. A short tap is still one step (the normal click).
+const HOLD = { timer: null, wait: null, ran: false };
+const holdStop = () => { clearTimeout(HOLD.wait); clearInterval(HOLD.timer); HOLD.wait = HOLD.timer = null; };
+document.addEventListener("pointerdown", (e) => {
+  const b = e.target && e.target.closest && e.target.closest('[data-act="stp"]'); if (!b) return;
+  holdStop(); HOLD.ran = false;
+  HOLD.wait = setTimeout(() => { HOLD.ran = true; let n = 0; HOLD.timer = setInterval(() => { if (!document.contains(b)) return holdStop(); ACT.stp(b.dataset, b); if (++n === 12) { clearInterval(HOLD.timer); HOLD.timer = setInterval(() => (document.contains(b) ? ACT.stp(b.dataset, b) : holdStop()), 45); } }, 110); }, 380);
+});
+["pointerup", "pointercancel", "pointerleave", "scroll"].forEach((t) => document.addEventListener(t, holdStop, true));
+// The click that ends a hold must not add one more step. Long-press must not open the copy menu either.
+document.addEventListener("click", (e) => { if (HOLD.ran && e.target.closest && e.target.closest('[data-act="stp"]')) { HOLD.ran = false; e.stopPropagation(); e.preventDefault(); } }, true);
+document.addEventListener("contextmenu", (e) => { if (e.target.closest && e.target.closest(".stp")) e.preventDefault(); });
 CHG.draft = (v, d) => {
   const a = openSession(), item = findItem(a, d.k), { targets } = itemPlan(a, item);
-  const x = parseFloat(v);
+  const x = d.f === "weight" && /^\s*(bw|body)/i.test(v) ? 0 : parseFloat(v);   // typing BW means body weight
   draft(a, item, +d.n, targets)[d.f] = isFinite(x) && x >= 0 ? x : null;
   save();
 };
 ACT.logSet = (d) => {
   const { a, item, spec, targets } = ctx(d), n = +d.n, cur = draft(a, item, n, targets), bw = spec.load === "bodyweight";
   if (cur.reps == null || cur.reps <= 0) return toast(spec.measure === "seconds" ? "Enter how many seconds" : "Enter your reps first");
-  if (!bw && cur.weight == null) return toast("Enter the weight first");
+  if (!bw && cur.weight == null) return toast("Enter the weight first. Tap − for body weight.");
   logSet(a, item, n, bw ? null : cur.weight, cur.reps);
   delete a.draft[itemKey(item)][n];
   render();
   startRest(spec.restS);
 };
 ACT.unlog = (d) => { unlog(openSession(), d.id); render(); };
-ACT.addSet = (d) => { const { item, spec } = ctx(d); item.sets = (item.sets || spec.sets) + 1; save(); render(); };
+ACT.liftFold = (d) => { const a = openSession(), k = itemKey(a.items[+d.i]); (a.fold ||= {})[k] = d.shut ? "shut" : "open"; save(); render(); };
+// Skip a set, or the rest of a lift, and say why. The reason stays with the session.
+const SKIP = { i: 0, n: 1, why: "" }, SKIP_WHY = ["Out of time", "Pain or discomfort", "Too tired", "Equipment busy", "Other"];
+ACT.skipAsk = (d) => {
+  Object.assign(SKIP, { i: +d.i, n: +d.n, why: "" });
+  const { a, item, spec } = ctx(d), left = Math.max(spec.sets, SKIP.n) - SKIP.n + 1;
+  sheet(`Skip set ${SKIP.n}`, `<p class="small muted">${esc(spec.name || ex(spec.exercise).name)}. Skipped sets are kept with the session and never count against you. Your next target is based on the sets you did.</p>
+    <label class="tp-label">Why? (optional)</label>${chips("skipWhy", SKIP_WHY.map((w) => [w, w]), "")}
+    ${field("skipnote", "Note (optional)", "", "e.g. Left shoulder pinched on the way down")}
+    <div class="acts">${left > 1 ? `<button class="tp-btn tp-ghost" data-act="skipDo" data-all="1">Skip the last ${left} sets</button>` : `<button class="tp-btn tp-ghost" data-close>Cancel</button>`}<button class="tp-btn" data-act="skipDo">Skip this set</button></div>`);
+};
+ACT.skipWhy = (d, el) => { SKIP.why = SKIP.why === d.v ? "" : d.v; [].forEach.call(el.parentNode.children, (x) => x.classList.toggle("on", x === el && !!SKIP.why)); };
+ACT.skipDo = (d) => {
+  const a = openSession(), item = a.items[SKIP.i], { spec } = itemPlan(a, item), noteTxt = val("skipnote");
+  const done = new Set(setsLogged(a, item).concat(setsSkipped(a, item)).map((x) => x.set_number)), last = d.all ? Math.max(spec.sets, SKIP.n) : SKIP.n;
+  for (let n = SKIP.n; n <= last; n++) if (!done.has(n)) skipSet(a, item, n, SKIP.why, noteTxt);
+  closeSheet(); render(); toast(d.all && last > SKIP.n ? "Sets skipped" : "Set skipped");
+};
+ACT.addSet = (d) => { const { a, item, spec } = ctx(d); item.sets = (item.sets || spec.sets) + 1; delete (a.fold ||= {})[itemKey(item)]; save(); render(); };
 ACT.dropItem = (d) => { const a = openSession(), item = a.items[+d.i]; a.efforts = a.efforts.filter((e) => !(e.exercise_id === item.exercise_id && !e.slot_key)); a.items.splice(+d.i, 1); save(); render(); };
 
 ACT.extraOpen = (d) => {

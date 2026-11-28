@@ -256,3 +256,13 @@ test("a sample day lands near the target for every diet and phase", () => {
   assert.notDeepEqual(sampleDay({ kcal: 2500, proteinG: 180, phase: "maintain", seed: 0 }, FOODS).items.map((i) => i.name), sampleDay({ kcal: 2500, proteinG: 180, phase: "maintain", seed: 1 }, FOODS).items.map((i) => i.name));
   assert.deepEqual(Object.keys(TIPS).sort(), ["bulk", "cut", "maintain", "recomp"]);
 });
+
+test("body weight: no added load progresses by reps, and says when adding weight is an option", () => {
+  assert.deepEqual(nextTarget({ weight: 0, reps: 12 }, { range: [10, 15], increment: 10 }), { weight: 0, reps: 13, move: "add_rep", flag: null });
+  assert.deepEqual(nextTarget({ weight: 0, reps: 15 }, { range: [10, 15], increment: 10 }), { weight: 0, reps: 16, move: "add_rep", flag: "bodyweight_top" });
+  assert.equal(nextTarget({ weight: 0, reps: 6 }, { range: [10, 15], increment: 10 }).move, "repeat");
+  assert.equal(nextTarget({ weight: 50, reps: 15 }, { range: [10, 15], increment: 10 }).weight, 60);
+  assert.equal(verdict({ weight: 0, reps: 16 }, { weight: 0, reps: 15 }, [10, 15]).code, "beat");
+  assert.equal(verdict({ weight: 0, reps: 15 }, { weight: 0, reps: 15 }, [10, 15]).code, "held");
+  assert.equal(verdict({ weight: 10, reps: 10 }, { weight: 0, reps: 15 }, [10, 15]).code, "beat");
+});

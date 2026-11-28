@@ -99,7 +99,7 @@ ACT.actOpen = (d) => {
   if (a.domain === "strength" || a.domain === "mobility") {
     const by = new Map();
     for (const e of ef) { if (!e.exercise_id) continue; if (!by.has(e.exercise_id)) by.set(e.exercise_id, []); by.get(e.exercise_id).push(e); }
-    body += `<div class="deep mt">` + [...by.entries()].map(([id, es]) => `<div class="kv"><span>${esc(ex(id).name)}</span><b>${esc(es.map((e) => (e.reps != null ? setTxt(e) : `${e.duration_s}s`)).join(" · "))}</b></div>`).join("") + `</div>`;
+    body += `<div class="deep mt">` + [...by.entries()].map(([id, es]) => `<div class="kv"><span>${esc(ex(id).name)}</span><b>${esc(es.map((e) => (e.kind === "skip" ? "skipped" + (e.note ? ` (${e.note})` : "") : e.reps != null ? setTxt(e) : `${e.duration_s}s`)).join(" · "))}</b></div>`).join("") + `</div>`;
   }
   sheet(a.title, body + `<button class="tp-btn tp-ghost tp-block mt" data-act="actEdit" data-id="${a.id}">${icon("pencil")} Edit</button><div class="acts"><button class="tp-btn tp-danger" data-act="actDelete" data-id="${a.id}">Delete</button><button class="tp-btn" data-close>Close</button></div>`);
 };

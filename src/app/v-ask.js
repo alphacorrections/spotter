@@ -31,7 +31,8 @@ function context(question) {
   c.recent = finished("strength").slice(-8).map((a) => {
     const by = new Map();
     for (const e of a.efforts || []) { if (e.kind !== "work" || e.reps == null) continue; const cur = by.get(e.exercise_id); if (!cur || (e.weight || 0) * e.reps > (cur.weight || 0) * cur.reps) by.set(e.exercise_id, e); }
-    return { date: ymd(new Date(a.started_at)), title: a.title, felt: a.checkin?.rating || null, best: [...by].map(([id, e]) => `${ex(id).name}: ${fmtW(e.weight)} x ${e.reps}`) };
+    const skips = (a.efforts || []).filter((e) => e.kind === "skip").map((e) => `${ex(e.exercise_id).name} set ${e.set_number}${e.note ? ": " + e.note : ""}`);
+    return Object.assign({ date: ymd(new Date(a.started_at)), title: a.title, felt: a.checkin?.rating || null, best: [...by].map(([id, e]) => `${ex(id).name}: ${fmtW(e.weight)} x ${e.reps}`) }, skips.length ? { skipped: skips.slice(0, 8) } : {});
   });
   const since = new Date(Date.now() - 14 * 864e5).toISOString(), other = {};
   for (const a of finished()) if (a.domain !== "strength" && a.started_at >= since) other[a.domain] = (other[a.domain] || 0) + 1;

@@ -207,3 +207,16 @@ body:has(.updbar) .tp-wrap{margin-top:66px}
 
 /* Fast taps on a button (the + and - on a weight) must not zoom the page. Pinch to zoom still works. */
 html,body,#app,button,a,label,input,select,textarea,.tp-row,.chip{touch-action:manipulation}
+
+.skipbtn{background:none;border:0;color:var(--tp-ink2);font:500 12.5px var(--tp-font);text-decoration:underline;text-underline-offset:3px;padding:8px 0 0;min-height:32px;cursor:pointer}
+.setrow.skipped b{font-family:var(--tp-font);font-size:14.5px;font-weight:600;color:var(--tp-ink2)}
+
+/* A finished lift, folded to one line */
+.lift.folded{padding:0}
+.foldbtn{width:100%;background:none;border:0;color:inherit;font:inherit;text-align:left;cursor:pointer;padding:12px 14px;margin:0}
+.foldbtn .grow span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
+.foldbtn .grow{min-width:0}
+.tp-tile.done{background:var(--ok-bg,#1f6e46);color:#fff;border:0}
+
+/* Holding + or − steps the number. It must not select text or open the copy menu. */
+.stp,.stp button,.logbtn,.pillbtn,.skipbtn,.foldbtn,.ibtn{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}

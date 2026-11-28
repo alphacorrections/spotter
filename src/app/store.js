@@ -113,7 +113,7 @@ export const unit = () => S.me.units;
 export const loadStep = () => (isKg() ? 2.5 : 5);
 /** Template increments are written in pounds. In kilos, halve them: 5 lb -> 2.5 kg. */
 export const incFor = (inc) => (inc == null ? null : isKg() ? inc / 2 : inc);
-export function fmtW(w) { return w == null ? "BW" : String(Math.round(w * 100) / 100); }
+export function fmtW(w) { return !w ? "BW" : String(Math.round(w * 100) / 100); }   // no added weight reads as body weight
 export function fmtN(n) { return n == null ? "" : String(Math.round(n * 10) / 10); }
 
 // ---------------------------------------------------------------- blocks

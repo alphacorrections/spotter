@@ -62,6 +62,9 @@ export function slotSpec(template, slotKey, week) {
 export function nextTarget(last, { range, increment, overshoot = null }) {
   const [low, high] = range;
   const done = Math.floor(last.reps); // a half rep is not a rep
+  // Body weight (no added load): there is no smaller jump than "some weight", so keep adding reps.
+  // Past the top of the range it flags that adding weight is now an option.
+  if (!last.weight && done >= low) return { weight: 0, reps: done + 1, move: "add_rep", flag: done >= high ? "bodyweight_top" : null };
   if (done >= high) {
     const far = overshoot && done >= high + overshoot.reps_over;
     const steps = far ? overshoot.increments : 1;
