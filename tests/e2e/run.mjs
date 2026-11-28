@@ -145,6 +145,20 @@ try {
   await act(k, "goCoach"); await act(k, "eatOpen");
   await k.locator('#eatphase [data-v="cut"]').click(); await k.fill("#eatm", "2900"); await act(k, "eatSave");
   await see(k, "2300"); await see(k, "205 g");
+  // How to eat it: macros, per-meal numbers, a sample day, and tips for the phase
+  await k.locator("#sheet").waitFor({ state: "detached" }).catch(() => {});
+  await act(k, "goEat"); await see(k, "A day that hits it");
+  const eatTxt = await k.locator("#app").innerText();
+  check(/Carbs/i.test(eatTxt) && /Protein at each meal/i.test(eatTxt) && /Tips for a cut/i.test(eatTxt) && /Protein cheat sheet/i.test(eatTxt), "the eating page shows macros, per-meal numbers, tips for the phase and a cheat sheet");
+  const day1 = await k.locator(".tp-row.static .tp-t b").allInnerTexts();
+  await act(k, "eatDiet", '[data-v="vegan"]');
+  const day2 = (await k.locator("#app").innerText());
+  check(!/chicken|beef|turkey|salmon|shrimp|tuna|yogurt|whey|egg/i.test(day2.split(/A day that hits it/i)[1].split(/Tips for/i)[0]), "choosing vegan gives a day with no meat, dairy or eggs");
+  await act(k, "eatAnother");
+  const day3 = await k.locator(".tp-row.static .tp-t b").allInnerTexts();
+  check(day1.length >= 4 && day3.join() !== day1.join() && (await state(k)).me.settings.eat.diet === "vegan", "show another gives a different day, and the diet choice is remembered");
+  await act(k, "eatDiet", '[data-v="any"]'); await snap(k, "eat", 390);
+  await k.goto(APP + "#coach");
   ok("eating target: 2,900 maintenance on a cut gives 2,300 calories and 205 g protein");
   await snap(k, "coach");
   await act(k, "gloss", '[data-i="0"]'); await see(k, "one more rep"); await tap(k, "#sheet [data-close]");

@@ -231,3 +231,28 @@ test("warm-up and cool-down follow the muscles in the session", () => {
   assert.deepEqual(prepFor([], PREP, "warm").moves, []);
   for (const k of ["warm", "cool"]) for (const a of Object.keys(PREP.areas)) assert.ok(PREP[k][a]?.length, k + " has moves for " + a);
 });
+
+// ---------------------------------------------------------------- how to eat it
+import { macros, perMeal, sampleDay, DIETS, TIPS } from "../../src/engine/eating.mjs";
+const FOODS = load("../../src/data/foods.json");
+test("macros add up to the calorie target and keep fat sensible", () => {
+  for (const [kcal, proteinG, weightLb] of [[2200, 190, 190], [3000, 160, 200], [1600, 150, 150], [2600, 235, 235]]) {
+    const m = macros({ kcal, proteinG, weightLb }), total = m.proteinG * 4 + m.carbsG * 4 + m.fatG * 9;
+    assert.ok(Math.abs(total - kcal) <= 60, `${kcal}: macros give ${total}`);
+    assert.ok(m.fatG >= 30 && m.carbsG >= 0);
+  }
+  const pm = perMeal({ kcal: 2400, proteinG: 190, weightLb: 190, meals: 4 });
+  assert.equal(pm.protein, 50); assert.equal(pm.kcal, 600); assert.deepEqual(pm.aroundTraining, [35, 45]);
+});
+test("a sample day lands near the target for every diet and phase", () => {
+  for (const diet of Object.keys(DIETS)) for (const [phase, kcal, proteinG] of [["cut", 1900, 180], ["maintain", 2500, 150], ["bulk", 3100, 170], ["recomp", 2300, 200], ["cut", 1500, 120]]) for (const meals of [3, 4, 5]) for (const seed of [0, 1, 2]) {
+    const d = sampleDay({ kcal, proteinG, phase, meals, diet, seed }, FOODS), tag = `${diet} ${phase} ${kcal}/${proteinG} ${meals} meals seed ${seed}`;
+    assert.ok(d.items.length >= 3, tag);
+    assert.ok(d.kcal <= kcal + 150, `${tag}: ${d.kcal} calories`);
+    assert.ok(d.protein >= proteinG * (diet === "vegan" ? 0.7 : 0.8), `${tag}: only ${d.protein} g protein`);
+    assert.equal(new Set(d.items.map((i) => i.name)).size, d.items.length, tag + ": a meal twice");
+    const banned = DIETS[diet]; for (const it of d.items) assert.ok(!FOODS.meals.find((f) => f.name === it.name).has.some((t) => banned.includes(t)), `${tag}: ${it.name}`);
+  }
+  assert.notDeepEqual(sampleDay({ kcal: 2500, proteinG: 180, phase: "maintain", seed: 0 }, FOODS).items.map((i) => i.name), sampleDay({ kcal: 2500, proteinG: 180, phase: "maintain", seed: 1 }, FOODS).items.map((i) => i.name));
+  assert.deepEqual(Object.keys(TIPS).sort(), ["bulk", "cut", "maintain", "recomp"]);
+});

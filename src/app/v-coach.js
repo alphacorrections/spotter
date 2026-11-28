@@ -47,7 +47,8 @@ VIEWS.coach = () => {
   if (n) {
     const chk = scaleCheck(n), ph = PHASE[n.phase];
     h += `<div class="glass pad"><div class="tp-stats mb0"><div class="tp-stat"><span>Calories a day</span><b>${n.target_kcal}</b></div><div class="tp-stat"><span>Protein</span><b>${n.protein_g} g</b></div><div class="tp-stat"><span>Phase</span><b>${esc(ph.name)}</b></div></div>
-      <p class="small muted">Protein: ${S.me.settings.protein_g ? "your own number, the same in every phase." : PROTEIN_WHY[n.phase] || ""}</p>
+      <button class="tp-btn tp-block mt" data-act="goEat">How to eat it: meals, a sample day, tips</button>
+      <p class="small muted mt">Protein: ${S.me.settings.protein_g ? "your own number, the same in every phase." : PROTEIN_WHY[n.phase] || ""}</p>
       <p class="small muted mt">${esc(ph.scale)} Maintenance is set at ${n.maintenance_kcal}${n.maintenance_source === "estimated" ? ", an estimate" : ""}. Log your weight a few times a week and the app checks this number after two weeks.</p>
       ${chk && chk.reason ? `<div class="liftnote hi"><b>The ${esc(chk.reason)}.</b> Your weight is moving ${chk.weeklyPct >= 0 ? "+" : ""}${chk.weeklyPct.toFixed(2)} percent a week.<br><button class="tp-btn tp-sm mt" data-act="eatAdjust" data-m="${chk.maintenanceKcal}">Update the target</button></div>` : chk ? `<p class="small okt">On track: ${chk.weeklyPct >= 0 ? "+" : ""}${chk.weeklyPct.toFixed(2)} percent a week.</p>` : ""}</div>`;
   } else {
