@@ -166,7 +166,7 @@ VIEWS.editor = () => {
   if (!b) return backTop("Edit plan", "", "goPlans") + `<div class="glass"><div class="empty">No plan to edit yet.</div></div>`;
   const ph = edPhase(b), phName = b.plan.phases.find((p) => p.key === ph).name;
   let h = backTop("Edit plan", b.title, "goToday", `<button class="tp-btn tp-sm" data-act="goToday">Done</button>`) +
-    note(`Changes are yours alone and apply from your next session. Rep ranges shown are for the current phase: <b>${esc(phName)}</b>.`);
+    note(`Changes are yours alone and apply from your next session. Rep ranges shown are for the current phase: <b>${esc(phName)}</b>. Tap <b>primary</b> or <b>accessory</b> under a lift to switch it.`);
   // Days start folded, except the one that is up next, so the page is a short list you open as needed.
   if (ED.block !== b.id || !ED.open) { ED.block = b.id; const p = pos(b); ED.open = new Set([(!p.done && p.entry.session) || nextSession(b)?.session.key || b.plan.sessions[0].key]); }
   for (const s of b.plan.sessions) {
@@ -176,7 +176,7 @@ VIEWS.editor = () => {
     h += `<div class="edopen"><div class="acts" style="justify-content:flex-end;margin:8px 0"><button class="tp-btn tp-ghost tp-sm" data-act="edAdd" data-s="${s.key}">+ Add a lift</button></div><div class="glass">`;
     s.slots.forEach((sl, i) => {
       const r = sl.reps[ph], sets = sl.sets ?? b.plan.roles?.[sl.role]?.sets ?? 3, ranged = Array.isArray(r);
-      h += `<div class="edrow"><div class="edname"><b>${esc(sl.display_name || ex(sl.exercise).name)}</b><span>${esc(sl.role)}${sl.superset ? " · superset " + sl.superset : ""}${r === "skip" ? " · not in this phase" : ""}</span></div>
+      h += `<div class="edrow"><div class="edname"><b>${esc(sl.display_name || ex(sl.exercise).name)}</b><span>${sl.role === "finisher" ? "finisher" : `<button type="button" class="rolebtn" data-act="edRole" data-k="${sl.key}" aria-label="Change between primary and accessory">${icon("swap")}${esc(sl.role)}</button>`}${sl.superset ? " · superset " + sl.superset : ""}${r === "skip" ? " · not in this phase" : ""}</span></div>
         <div class="edctl"><label><span>Sets</span><input class="tp-input" inputmode="numeric" data-chg="edSets" data-k="${sl.key}" value="${sets}" aria-label="Sets"></label>
         ${ranged ? `<label><span>Reps from</span><input class="tp-input" inputmode="numeric" data-chg="edLow" data-k="${sl.key}" value="${r[0]}" aria-label="Lowest reps"></label><label><span>to</span><input class="tp-input" inputmode="numeric" data-chg="edHigh" data-k="${sl.key}" value="${r[1]}" aria-label="Highest reps"></label>` : `<span class="small muted grow">${r === "amrap" ? "To failure" : ""}</span>`}
         </div><div class="edbtns"><button class="ibtn sm" data-act="edMove" data-k="${sl.key}" data-d="-1" aria-label="Move up"${i ? "" : " disabled"}>${icon("up")}</button><button class="ibtn sm" data-act="edMove" data-k="${sl.key}" data-d="1" aria-label="Move down"${i < s.slots.length - 1 ? "" : " disabled"}>${icon("down")}</button>
@@ -191,6 +191,12 @@ const clampInt = (v, lo, hi, fallback) => { const n = parseInt(v, 10); return is
 CHG.edSets = (v, d, el) => { const b = edBlock(), f = findSlot(b, d.k); f.slot.sets = clampInt(v, 1, 12, 3); el.value = f.slot.sets; touch(b); };
 CHG.edLow = (v, d, el) => { const b = edBlock(), r = findSlot(b, d.k).slot.reps[edPhase(b)]; r[0] = clampInt(v, 1, r[1], r[0]); el.value = r[0]; touch(b); };
 CHG.edHigh = (v, d, el) => { const b = edBlock(), r = findSlot(b, d.k).slot.reps[edPhase(b)]; r[1] = clampInt(v, r[0], 999, r[1]); el.value = r[1]; touch(b); };
+// Primary or accessory. The role sets the default sets, rest and how hard to push, so switching it resets the set count to that role's.
+ACT.edRole = (d) => {
+  const b = edBlock(), f = findSlot(b, d.k), to = f.slot.role === "primary" ? "accessory" : "primary", r = b.plan.roles?.[to] || {};
+  f.slot.role = to; delete f.slot.sets; touch(b); render();
+  toast(`Now ${to === "primary" ? "a primary" : "an accessory"} lift: ${r.sets ?? 3} sets${r.rest_s ? `, ${r.rest_s >= 60 ? Math.round(r.rest_s / 6) / 10 + " min" : r.rest_s + " s"} rest` : ""}${r.effort?.text ? ". " + r.effort.text : ""}`);
+};
 ACT.edMove = (d) => { const b = edBlock(), f = findSlot(b, d.k), j = f.i + +d.d; if (j < 0 || j >= f.s.slots.length) return; f.s.slots.splice(j, 0, f.s.slots.splice(f.i, 1)[0]); touch(b); render(); };
 ACT.edRemove = (d, el) => {
   if (el.dataset.sure !== "1") { el.dataset.sure = "1"; el.classList.add("sure"); return toast("Tap again to remove"); }

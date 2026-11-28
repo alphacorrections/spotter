@@ -178,6 +178,13 @@ try {
   check((await k.locator('[data-act="edFold"]').count()) >= 3 && (await k.locator('input[data-chg="edSets"]').count()) < 12, "the plan editor shows one folded row per day, with only one day open");
   if (!(await k.locator('input[data-chg="edSets"][data-k="legs_a.lunge"]').count())) await act(k, "edFold", '[data-s="legs_a"]');
   await k.locator('input[data-chg="edSets"][data-k="legs_a.lunge"]').waitFor();
+  // Primary or accessory
+  await tap(k, '[data-act="edRole"][data-k="legs_a.crunch"]');
+  let rl = (await state(k)).blocks.find((b) => b.status === "active").plan.sessions[0].slots.find((x) => x.key === "legs_a.crunch");
+  check(rl.role === "primary" && (await k.locator('input[data-chg="edSets"][data-k="legs_a.crunch"]').inputValue()) === "4", "an accessory lift can be made a primary lift, and takes that role's sets");
+  await tap(k, '[data-act="edRole"][data-k="legs_a.crunch"]');
+  rl = (await state(k)).blocks.find((b) => b.status === "active").plan.sessions[0].slots.find((x) => x.key === "legs_a.crunch");
+  check(rl.role === "accessory" && (await k.locator('input[data-chg="edSets"][data-k="legs_a.crunch"]').inputValue()) === "3", "and switched back to accessory");
   const sets = k.locator('input[data-chg="edSets"][data-k="legs_a.lunge"]'); await sets.fill("5"); await sets.blur();
   await act(k, "edAdd", '[data-s="legs_a"]'); await k.fill("#exq", "hack squat"); await act(k, "edAddPick", '[data-id="Hack_Squat"]');
   await snap(k, "editor");

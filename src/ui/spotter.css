@@ -201,3 +201,6 @@ body:has(.updbar) .tp-wrap{margin-top:66px}
 .cropstage img{position:absolute;left:0;top:0;max-width:none;transform-origin:0 0;pointer-events:none;-webkit-user-drag:none}
 .cropring{position:absolute;inset:0;border-radius:50%;box-shadow:0 0 0 999px rgba(0,0,0,.55);border:2px solid rgba(255,255,255,.85);pointer-events:none}
 #cropzoom{width:100%}
+
+.rolebtn{display:inline-flex;align-items:center;gap:5px;background:var(--tp-card2);border:1px solid var(--tp-line);color:var(--tp-ink);border-radius:99px;font:600 12px var(--tp-font);padding:4px 10px;min-height:28px;cursor:pointer;text-transform:capitalize}
+.rolebtn svg{width:12px;height:12px}
