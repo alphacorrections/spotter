@@ -204,3 +204,6 @@ body:has(.updbar) .tp-wrap{margin-top:66px}
 
 .rolebtn{display:inline-flex;align-items:center;gap:5px;background:var(--tp-card2);border:1px solid var(--tp-line);color:var(--tp-ink);border-radius:99px;font:600 12px var(--tp-font);padding:4px 10px;min-height:28px;cursor:pointer;text-transform:capitalize}
 .rolebtn svg{width:12px;height:12px}
+
+/* Fast taps on a button (the + and - on a weight) must not zoom the page. Pinch to zoom still works. */
+html,body,#app,button,a,label,input,select,textarea,.tp-row,.chip{touch-action:manipulation}
