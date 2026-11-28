@@ -73,14 +73,19 @@ const C = { type: "Run", zone: 2 };
 ACT.logCardio = () => {
   C.type = "Run"; C.zone = 2;
   sheet("Log cardio", `<div id="ctype">${chips("cardioType", CARDIO.map((c) => [c, c]), C.type)}</div>
+    <div id="cotherbox" hidden>${field("cother", "What was it?", "", "e.g. Pickleball, jump rope, soccer")}</div>
     <div class="fgrid">${field("cmin", "Minutes", "", "e.g. 30", "text", "decimal")}${field("cdist", `Distance (${isKg() ? "km" : "miles"})`, "", "optional", "text", "decimal")}</div>
     ${field("chr", "Average heart rate", "", "optional, from your watch", "text", "numeric")}
     <label class="tp-label">How hard was it?</label>
     <div class="seg" id="czone">${[1, 2, 3, 4, 5].map((z) => `<button type="button" data-act="cardioZone" data-v="${z}" class="${z === C.zone ? "on" : ""}">${z}</button>`).join("")}</div>
     <p class="small muted mt" id="zcue"><b>Zone ${C.zone}: ${ZONES[C.zone].name}.</b> ${ZONES[C.zone].cue}</p>
+    ${field("cnote", "Note (optional, friends can see it)", "", "e.g. Hills on the back half, felt strong")}
     <div class="acts"><button class="tp-btn tp-ghost" data-close>Cancel</button><button class="tp-btn" data-act="cardioSave">Save</button></div>`);
 };
-ACT.cardioType = (d, el) => { C.type = d.v; [].forEach.call(el.parentNode.children, (x) => x.classList.toggle("on", x === el)); };
+ACT.cardioType = (d, el) => {
+  C.type = d.v; [].forEach.call(el.parentNode.children, (x) => x.classList.toggle("on", x === el));
+  const box = document.getElementById("cotherbox"); box.hidden = d.v !== "Other"; if (d.v === "Other") document.getElementById("cother").focus();
+};
 ACT.cardioZone = (d) => { C.zone = +d.v; document.getElementById("zcue").innerHTML = `<b>Zone ${C.zone}: ${ZONES[C.zone].name}.</b> ${ZONES[C.zone].cue}`; };
 ACT.cardioSave = () => {
   const min = numVal("cmin"), dist = numVal("cdist"), hr = numVal("chr");
@@ -88,9 +93,10 @@ ACT.cardioSave = () => {
   if (hr && (hr < 40 || hr > 230)) return toast("That heart rate looks off");
   let zone = C.zone, fromHr = false;
   if (hr && S.me.birth_year) { zone = hrZone(hr, maxHr(new Date().getFullYear() - S.me.birth_year)); fromHr = true; }
-  addActivity("cardio", C.type, min, [{ kind: "steady", duration_s: Math.round(min * 60), distance_m: dist ? Math.round(dist * (isKg() ? 1000 : 1609.34)) : null, avg_hr: hr || null, hr_zone: zone, extra: { type: C.type } }]);
+  const named = C.type === "Other" ? val("cother").slice(0, 40) : "", title = named || C.type;
+  addActivity("cardio", title, min, [{ kind: "steady", duration_s: Math.round(min * 60), distance_m: dist ? Math.round(dist * (isKg() ? 1000 : 1609.34)) : null, avg_hr: hr || null, hr_zone: zone, extra: { type: C.type } }], { note: val("cnote").slice(0, 500) || null });
   closeSheet(); render();
-  toast(`${C.type} logged · zone ${zone}${fromHr ? " from your heart rate" : ""}`);
+  toast(`${title} logged · zone ${zone}${fromHr ? " from your heart rate" : ""}`);
 };
 /** Minutes of cardio in the last 7 days, easy (zones 1-2) and hard (3-5). */
 export function cardioWeek() {

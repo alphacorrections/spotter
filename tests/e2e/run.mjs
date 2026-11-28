@@ -478,6 +478,12 @@ try {
     await k.goto(APP + "#today"); await see(k, "Easy minutes");
     await act(k, "hybridSetup"); await act(k, "hybridOff");
     check((await k.getByText("Add cardio to this plan").count()) === 1, "hybrid can be turned off again");
+    // Cardio: a named "Other" activity with a note, and basketball as a choice
+    await tap(k, '[data-nav="add"]'); await tap(k, '#sheet [data-act="logCardio"]');
+    check((await k.locator('#sheet [data-act="cardioType"][data-v="Basketball"]').count()) === 1 && !(await k.locator("#cother").isVisible()), "basketball is a cardio choice, and the name box stays hidden until Other is picked");
+    await tap(k, '#sheet [data-act="cardioType"][data-v="Other"]'); await k.fill("#cother", "Pickleball"); await k.fill("#cmin", "40"); await k.fill("#cnote", "Doubles with Jake"); await act(k, "cardioSave");
+    const pb = (await state(k)).activities.filter((x) => x.domain === "cardio").slice(-1)[0];
+    check(pb.title === "Pickleball" && pb.note === "Doubles with Jake" && pb.efforts[0].extra.type === "Other" && pb.duration_s === 2400, "Other takes a name you type, and cardio can carry a note", JSON.stringify([pb.title, pb.note]));
     // ---- Ask Coach. The server function is stood in for here: the test checks what the app does with an answer.
     let asked = null;
     await k.route("**/functions/v1/coach", async (route) => {

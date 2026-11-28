@@ -71,5 +71,5 @@ export const GLOSSARY = [
 ];
 
 export const EQUIPMENT = [["barbell", "Barbell"], ["dumbbell", "Dumbbells"], ["cable", "Cables"], ["machine", "Machines"], ["bench", "Bench"], ["pullup_bar", "Pull-up bar"], ["dip_bars", "Dip bars"], ["kettlebell", "Kettlebell"], ["bands", "Bands"], ["landmine", "Landmine"]];
-export const CARDIO = ["Run", "Bike", "Row", "Swim", "Elliptical", "Stairs", "Hike", "Other"];
+export const CARDIO = ["Run", "Bike", "Row", "Swim", "Elliptical", "Stairs", "Hike", "Basketball", "Other"];
 export const YOGA = ["Vinyasa", "Power", "Yin", "Restorative", "Mobility flow", "Other"];
